@@ -1,0 +1,1410 @@
+/* 
+  plugin_gateway.strings
+  MiHome
+
+  Created by Woody on 15/11/4.
+  Copyright © 2015年 小米移动软件. All rights reserved.
+*/
+
+/**
+ * 定义字符串key时请遵循标准格式：
+ * "页面.类型.名称"
+ */
+"profile.button.login" = "Login";
+"profile.button.logout" = "Logout";
+"profile.button.forget" = "Forget?";
+"profile.button.register" = "Register";
+"profile.textfield.username.placeholder" = "Enter MI account/mobile/mail here";
+"profile.textfield.password.placeholder" = "Enter password here";
+"profile.entry.smartIndex" = "Smart Index";
+"profile.entry.messageCenter" = "Message Center";
+"profile.entry.deviceSharing" = "Device Sharing";
+"profile.entry.triggerAction" = "Automation";
+"profile.entry.mallPersonal" = "Personal Mail";
+"profile.entry.about" = "About";
+"profile.entry.feedback" = "Feedback";
+"profile.entry.faq" = "FAQ";
+"profile.entry.update" = "Update";
+"profile.entry.forum" = "MiHome Forum";
+"profile.status.clickToLogin" = "Click To Login";
+"profile.status.deviceTotal" = "Total %d smart devices";
+"profile.status.deviceCategory" = "Bind:%d Share:%d Other:%d";
+"profile.status.bindedCategory" = "Bound";
+"profile.status.sharedCategory" = "Shared";
+"profile.status.otherCategory" = "Other";
+"profile.title.feedback" = "Feedback";
+"profile.title.contact" = "Contact(Opt)";
+"profile.alert.contactblank" = "No contact";
+"profile.alert.contactbenefit" = "Allow our staff get in touch with you by leaving a contact";
+"profile.alert.leavecontact" = "Leave a contact";
+"profile.alert.sendanyway" = "Send anyway";
+
+"profile.devshare.share" = "Share ";
+"profile.devshare.status.unshare" = "Unshared";
+"profile.devshare.status.shareto" = "Shared with";
+"profile.devshare.management" = "Share control";
+"profile.devshare.add" = "Add share";
+"profile.devshare.add.tips1" = "Share device with your family, enjoy smart life together!";
+"profile.devshare.add.textfield.account.placeholder" = "Email/Mobile/Mi account";
+"profile.devshare.add.sharing" = "Sharing，please wait...";
+"profile.devshare.add.sendrequest" = "Share invitation sent succeed";
+"profile.devshare.add.frequentrequest" = "Invitation is sent, please wait for feedback";
+"profile.devshare.add.invaliduser" = "Can't found this user";
+"profile.devshare.add.emptyinput" = "please enter account";
+"profile.devshare.manager.shareto" = "Share to ";
+"profile.devshare.manager.status.sent" = "Pending";
+"profile.devshare.manager.status.accept" = "Accepted";
+"profile.devshare.manager.status.refuse" = "Refused";
+"profile.devshare.manager.sharetime" = "Shared on yyyy-MM-dd";
+"profile.devshare.manager.deleting" = "Deleting，please wait...";
+"profile.devshare.manager.delete.succeed" = "Delete succeed";
+"profile.devshare.manager.delete.failed" = "Delete failed";
+"profile.devshare.manager.delete.failed.noauth" = "You don't have authority to delete";
+"profile.devshare.manager.delete.confirm" = "Delete %@'s authority?";
+
+// 安全令牌登录页
+"profile.safetoken.title" = "dynamic token";
+"profile.safetoken.tokeninput" = "please enter 6 digit dynamic token";
+"profile.safetoken.alwaystrust" = "no more entering token";
+"profile.safetoken.tokenerror" = "dynamic token error";
+
+/**
+ *  Common
+ */
+"yes" = "Yes";
+"no" = "No";
+"Cancel" = "Cancel";
+"Ok" = "Confirm";
+"help" = "Help";
+"done" = "Done";
+"continue"="Continue";
+"delete" = "Delete";
+"retry" = "Retry";
+"back" = "Back";
+"save" = "Save";
+"error" = "Error";
+"network.unconnect" = "network connection is unavailable";
+"processing" = "processing...";
+"updating" = "updating...";
+"iknow" = "I know";
+"locating" = "Locating...";
+"locate.failed" = "Locate failed";
+"delete.succeed" = "Delete succeed";
+"delete.failed" = "Delete failed";
+"busy" = "Busy,please try again later";
+"loading" = "loading...";
+"loading.failed" = "loading failed...";
+"adding.successed" = "added";
+"adding.failed" = "adding failed";
+"modify.successed" = "modified";
+"modify.failed" = "modify failed";
+"automation.configuring" = "Configuring automation, please wait…";
+"configuration.succeeded" = "Configuration Succeeded";
+"configuration.failed" = "Configuration Failed";
+"configuration.failed.tips" = "1. Connect Gateway with WiFi\n2. Connect your smartphone with WiFi\n3. Make sure WiFi is OK";
+
+
+"plug" = "Mi plug";
+"waterverifer" = "Mi Waterpurifier";
+"handring" = "Mi Band";
+"camera" = "Yi Camera";
+"ir" = "IR remote control";
+"irv2" = "IR remote control v2";
+"ricecooker" = "Rice cooker";
+"airpurifier" = "Mi Airpurifier";
+"curtain" = "Curtain";
+"ble" = "BLE";
+"gateway" = "Smart Home Set";
+"myphone" = "My Mobile";
+"mitv" = "Mi TV";
+"mitvbox" = "Mi Box";
+"mideaircon" = "Midea air condition";
+"others" = "Others";
+"xiaomi_device" = "Mi Device";
+
+"sending" = "sending ...";
+"send.succeed" = "send success";
+"send.failed" = "send failed";
+"getting" = "retrieving...";
+"get.succeed" = "retrieve success";
+"get.failed" = "retrieve failed";
+"request.succeed" = "request success";
+"request.failed" = "request failed，please check network";
+"request.timeout" = "request timeout";
+"setting" = "setting...";
+"setting.failed" = "set failed";
+"searching..." = "searching...";
+"searching successed" = "searching success";
+"searching failed" = "searching failed";
+"operation.failed" = "operation failed，please check network";
+
+"list.blank" = "empty list";
+"timer.blank" = "No Timer";
+"timer.blank.part1" = "No ";
+"timer.blank.part2" = "";
+"timer.button.part1" = "Add";
+"timer.blank.name.clocktimer" = "Clock Timer";
+
+"today" = "Today";
+"yesterday" = "Yesterday";
+"beforeyesterday" = "The day before yesterday";
+
+
+/**
+ * 安全模式Checkpoint
+ */
+"checkpoint.removecoredata" = "Data error detected! Trying to reset database...";
+"checkpoint.purgecrashlog" = "Abnormal App state detected! Resetting to default settings...";
+
+"checkversion.appupdate.appcannotuser" = "App need update";
+"checkversion.appupdate.appcanupdate" = "App need update";
+"checkversion.hardware.cannotuser" = "Gateway firmware need update";
+"checkversion.hardware.hardwarecanupdate" = "Gateway firmware need update";
+"checkversion.goupdate" = "go update";
+
+/**
+ *  我的设备页
+ */
+"mydevice.title" = "Devices";
+"mydevice.alertview.login.title" = "Please login";
+"mydevice.label.localdevicedetail" = "local device no:%ld";
+"mydevice.label.local" = "local device";
+"mydevice.label.offline" = "Offline ";
+"mydevice.label.online" = "Online ";
+"mydevice.label.plug" = "Plug ";
+"mydevice.label.plug.usb" = "USB ";
+"mydevice.label.camera" = "Camera ";
+"mydevice.label.open" = "Open";
+"mydevice.label.close" = "Close";
+"mydevice.label.did" = "Id";
+"mydevice.tips.status.unbind" = "not bind yet";
+"mydevice.tips.sharedfrom" = "from ";
+"mydevice.add.device" = "Add";
+"mydevice.label.statusformat" = "%@%@ device";
+"mydevice.label.statusformat.local" = "local ";
+"mydevice.label.statusformat.remote" = "remote ";
+"mydevice.label.statusformat.binded" = "bound ";
+
+//快连
+"deviceselect.title" = "Choose the device to connect";
+"deviceselect.tips_new" = "Automatic device discovery";
+"deviceselect.tips_normal" = "Connect device manually";
+"devcnnt.welcome.title" = "Search ";
+"devcnnt.welcome.detail" = "Please check if the light is flashing";
+"devcnnt.welcome.detail.apmode" = "Please check if the light is flashing\n(If quick flashing three times，then slow flashing once, plsease click\"YES\")";
+"devcnnt.welcome.detail.yellowlight" = "Please check if yellow light is flashing";
+"devcnnt.welcome.detail.greenlight" = "Please check if green light is flashing";
+"devcnnt.checklight.status.flicker.red" = "Red light is flashing";
+"devcnnt.wificonfirm.title" = "Connect WLAN";
+"devcnnt.wificonfirm.detail" = "5G WLAN and enterprise network are not supported yet, if you are using them, please switch";
+"devcnnt.wificonfirm.placeholder.wifipwd" = "Input password";
+"devcnnt.wificonfirm.wifisetting" = "WLAN setting";
+"devcnnt.wificonfirm.nopassword" = "For security concern, please set password for your WLAN or select a WLAN with password";
+"devcnnt.nowifi.title" = "You have NOT set WLAN";
+"devcnnt.nowifi.detail" = "Please set WLAN at WLAN setting page";
+"devcnnt.changewifi.title" = "Switch WLAN";
+"devcnnt.changewifi.detail" = "5G WLAN is not supported yet, please set WLAN at WLAN setting page";
+"devcnnt.uapwifi.title" = "Connect device WLAN";
+"devcnnt.uapwifi.detail1" = "Current WLAN：%@\nPlease select WLAN with prefix of \"%@\",switch";
+"devcnnt.uapwifi.detail2" = "Current WLAN：%@\nPlease select WLAN with prefix of\"%@\"or\"%@\",switch";
+"devcnnt.uapwifi.mm.detail1" = "Current WLAN：%@\nPlease select WLAN with prefix of \"%@\"(password:%@),switch";
+"devcnnt.uapwifi.mm.detail2" = "Current WLAN：%@\nPlease select WLAN with prefix of\"%@\"or\"%@\"(password:%@),switch";
+"devcnnt.uapwifi.notfound1" = "Can't find WLAN with prefix of\"%@\"?";
+"devcnnt.uapwifi.notfound2" = "Can't find WLAN with prefix of\"%@\"or\"%@\"?";
+"devcnnt.uapwifi.sel.title" = "Wrong WLAN";
+"devcnnt.uapwifi.sel.tips1" = "Please select WLAN with prefix of \"%@\"";
+"devcnnt.uapwifi.sel.tips2" = "Please select WLAN with prefix of\"%@\"or\"%@\"";
+"devcnnt.uapwifi.empty" = "None";
+
+"devcnnt.progress.title" = "Connect ";
+"devcnnt.progress.detail.try" = "Connecting, cancel";
+"devcnnt.progress.detail.tryhard" = "Connecting hard, cancel";
+"devcnnt.progress.detail.trybest" = "Connecting very hard, cancel";
+"devcnnt.progress.detail.killme" = "Connecting as hard as possible, cancel";
+"devcnnt.progress.detail.finish" = "%d devices connected";
+"devcnnt.success.title" = "Connect succeed";
+"devcnnt.success.detail" = "Congratulations, %d devices connected";
+"devcnnt.fail.title" = "Connect failed";
+"devcnnt.fail.detail" = "Click to watch a video tutorial";
+"devcnnt.button.prev" = "Previous";
+"devcnnt.button.next" = "Next";
+
+"devcnnt.bind.title" = "Security check";
+"devcnnt.bind.detail" = "Please click any button on device to complete bind";
+"devcnnt.bind.button" = "Device button";
+"devcnnt.bind.success.detail" = "%d seconds elapsed for current connection";
+
+"devcnnt.qrcode.entry" = "Connect by QR code";
+"devcnnt.qrcode.model.alert.title" = "Only night vision model supported, other model need latest firmware";
+"devcnnt.qrcode.reset.camera" = "Reset Camera";
+"devcnnt.qrcode.reset.intro" = "Reset camera by RESET pin, DON'T release until yellow light begin flashing";
+"devcnnt.qrcode.create.error" = "Failed to create QR code";
+"devcnnt.qrcode.scan" = "Scan QR code";
+"devcnnt.qrcode.no.voice" = "no voice";
+"devcnnt.qrcode.connecting.voice" = "voice confirmed";
+"devcnnt.qrcode.connecting.confirm.intro" = "After 'connecting' voice confirmation, and blue light stop flashing";
+"devcnnt.qrcode.scan.intro" = "Adjust your iPhone's distance from camera, and keep QR code towards camera lens";
+
+"deviceconnect.button.wifisetdone" = "WLAN connected";
+"deviceconnect.button.set" = "Switch";
+"deviceconnect.tips.connectsucceed" = "Congratulations, %d devices connected";
+"deviceconnect.tips.connectfail" = "No device connected";
+
+"uapconnect.msg.configdevice" = "Configuring device";
+"uapconnect.msg.connectingwifi" = "Device is networking";
+"uapconnect.msg.connectedwifi" = "Networking success";
+"deviceconnect.tips.nowifi" = "No WLAN setting";
+"deviceconnect.tips.gotosyswifi" = "Please set WLAN";
+"deviceconnect.tips.switchwifi" = "Switch WLAN";
+"deviceconnect.tips.gotosyswifi" = "Please set WLAN, 5G WLAN not supported now";
+"deviceconnect.tips.5g" = "5G WLAN not supported";
+"deviceconnect.button.wifisetdone" = "WLAN connected";
+
+"deviceconnect.button.set" = "Switch";
+"deviceconnect.tips.connectsucceed" = "Congratulations, %d devices connected";
+"deviceconnect.tips.connectfail" = "No device connected";
+
+"uapconnect.msg.configdevice" = "Configuring device";
+"uapconnect.msg.connectingwifi" = "Device is networking";
+"uapconnect.msg.connectedwifi" = "Networking success";
+
+//离线设备
+"mydevice.offlineview.title" = "device offline";
+"mydevice.offlineview.gateway.title" = "Gateway is offline, check the connection";
+"mydevice.offlineview.tips" = "Check list: 1.power on 2.WLAN connection 3.reset device. After checking, refresh device list.";
+"mydevice.offlineview.button.refresh" = "Refresh";
+"mydevice.offlineview.button.continue" = "Continue";
+"mydevice.offlineview.button.reset" = "Reset instructions";
+"mydevice.offlineview.networkfail.tips" = "send failed, please check network";
+"mydevice.offlineview.just.tips" = "the device is offline";
+
+//设备控制
+"mydevice.actionsheet.setting" = "Setting";
+"mydevice.actionsheet.changename" = "Rename";
+"mydevice.actionsheet.changelogo" = "Choose icon";
+"mydevice.actionsheet.share" = "Share device";
+"mydevice.actionsheet.upgrade" = "Firmware update";
+"mydevice.actionsheet.feedback" = "Feedback";
+"mydevice.actionsheet.more" = "More";
+"mydevice.actionsheet.bind" = "Bind";
+"mydevice.actionsheet.unbind" = "Unbind";
+"mydevice.actionsheet.showtopimage" = "Show snapshot on top";
+"mydevice.actionsheet.hidetopimage" = "Hide snapshot on top";
+"mydevice.actionsheet.unbind.title" = "Confirm unbind device?";
+"mydevice.actionsheet.unbind.needreset.title" = "Reset camera if you want bind again. Confirm unbind device?";
+"mydevice.actionsheet.delete" = "Disconnect";
+"mydevice.actionsheet.tutorial" = "Tutorial";
+"mydevice.actionsheet.coldplay" = "Coldplay";
+"mydevice.actionsheet.dreamPartner" = "Dream Partner";
+"mydevice.actionsheet.humiture.history" = "history";
+
+"mydevice.bind.tips.succeed" = "Connect succeed";
+"mydevice.bind.tips.failed" = "Connect failed";
+"mydevice.bind.tips.press" = "Click power button in %d seconds to complete connection";
+"mydevice.unbind.tips.ongoing" = "Unbinding";
+"mydevice.unbind.tips.succeed" = "Unbind succeed";
+"mydevice.unbind.tips.failed" = "Unbind failed";
+"mydevice.changename.title" = "Modify device name";
+"mydevice.changename.tips.toolong" = "Device name must less than 30 characters";
+"mydevice.changename.tips.invaildsymbol" = "Device name contains invaild symbol /";
+"mydevice.changename.tips.ongoing" = "Device name is being modified";
+"mydevice.changename.tips.succeed" = "Modify device name succeed";
+"mydevice.changename.tips.failed" = "Modify device name failed, please try again";
+"mydevice.delete.succeed" = "Delete device succeed";
+"mydevice.delete.failed" = "Delete device failed";
+//设置定时
+"mydevice.timersetting.title" = "Set timer";
+"mydevice.timersetting.add" = "Add timer";
+"mydevice.timersetting.set" = "Set";
+"mydevice.timersetting.on" = "From";
+"mydevice.timersetting.off" = "To";
+"mydevice.timersetting.empty" = "Empty";
+"mydevice.timersetting.clean" = "Delete";
+"mydevice.timersetting.period" = "Open";
+"mydevice.timersetting.repeat" = "Repeat";
+"mydevice.timersetting.repeat.once" = "Once";
+"mydevice.timersetting.repeat.today" = "Today";
+"mydevice.timersetting.repeat.tomorrow" = "Tomorrow";
+"mydevice.timersetting.repeat.everyday" = "Everyday";
+"mydevice.timersetting.repeat.workday" = "Workday";
+"mydevice.timersetting.repeat.weekend" = "Weekend";
+"mydevice.timersetting.repeat.selfdefine" = "Custom";
+"mydevice.timersetting.repeat.mon" = "Monday";
+"mydevice.timersetting.repeat.tues" = "Tuesday";
+"mydevice.timersetting.repeat.wed" = "Wednesday";
+"mydevice.timersetting.repeat.thur" = "Thursday";
+"mydevice.timersetting.repeat.fri" = "Friday";
+"mydevice.timersetting.repeat.sat" = "Saturday";
+"mydevice.timersetting.repeat.sun" = "Sunday";
+"mydevice.timersetting.hour" = "Hour";
+"mydevice.timersetting.minute" = "Minute";
+"mydevice.timersetting.invalid" = "You set duplicate timers, reset please";
+"mydevice.timersetting.cancel.tips" = "Ignore timer modification?";
+"mydevice.timersetting.del" = "Confirm delete timer?";
+"mydevice.timersetting.adding" = "Adding timer, wait a moment...";
+"mydevice.timersetting.add.succeed" = "Add timer succeed";
+"mydevice.timersetting.add.failed" = "Add timer failed";
+"mydevice.timersetting.modifying" = "Modifying timer, wait a moment...";
+"mydevice.timersetting.modify.succeed" = "Modify timer succeed";
+"mydevice.timersetting.modify.failed" = "Modify timer failed";
+"mydevice.timersetting.deling" = "Deleting timer, wait a moment...";
+"mydevice.timersetting.del.succeed" = "Delete timer succeed";
+"mydevice.timersetting.del.failed" = "Delete timer failed";
+"mydevice.timersetting.del.title" = "All timer have been turned off";
+"mydevice.timersetting.del.message" = "Timer will be deleted";
+"mydevice.timersetting.abort.title" = "You have not set any timer";
+"mydevice.timersetting.abort.message" = "Abort?";
+"mydevice.timersetting.noright" = "Shared device has no right";
+
+//绿米网关
+"mydevice.gateway.defaultname.base" = "Gateway Subdevices";
+"mydevice.gateway.defaultname.gateway" = "Gateway";
+"mydevice.gateway.defaultname.cube" = "Cube Controller";
+"mydevice.gateway.defaultname.curtain" = "Curtain Controller";
+"mydevice.gateway.defaultname.doubleneutral" = "Wall Switch(ZigBee-Two Buttons)";
+"mydevice.gateway.defaultname.doubleswitch" = "Wireless Switch(Two Buttons)";
+"mydevice.gateway.defaultname.humiture" = "Humidity & Temperature Sensor";
+"mydevice.gateway.defaultname.magnet" = "Door/Window Sensor";
+"mydevice.gateway.defaultname.motion" = "Occupancy Sensor";
+"mydevice.gateway.defaultname.plug" = "Smart Plug(ZigBee)";
+"mydevice.gateway.defaultname.singleneutral" = "Wall Switch(ZigBee-One Button)";
+"mydevice.gateway.defaultname.singleswitch" = "Wireless Switch(One Button)";
+"mydevice.gateway.defaultname.switch" = "Wireless Switch";
+"mydevice.gateway.defaultname.acpartner" = "AC Partner";
+"mydevice.gateway.defaultname.smoke" = "Smoke Sensor";
+"mydevice.gateway.defaultname.natgas" = "Gas Sensor";
+
+"mydevice.gateway.mainpage.tab.title1" = "Home";
+"mydevice.gateway.mainpage.tab.title2" = "Auto";
+"mydevice.gateway.mainpage.tab.title3" = "Device";
+"mydevice.gateway.mainpage.tab.title4" = "AC";
+"mydevice.gateway.mainpage.tab.title5" = "Gateway";
+
+"mydevice.gateway.mainpage.panel.control" = "Control Pane";
+"mydevice.gateway.mainpage.panel.info" = "Status";
+"mydevice.gateway.mainpage.panel.info.count" = "";
+
+"mydevice.gateway.title" = "Gateway";
+"mydevice.gateway.power" = "Power";
+"mydevice.gateway.power.off" = "Powered off";
+"mydevice.gateway.arming" = "Arm";
+"mydevice.gateway.arming.status" = "seconds later enter arming mode";
+"mydevice.gateway.light" = "Light";
+"mydevice.gateway.subdevice.status" = "Connected %d devices";
+"mydevice.gateway.motion.peoplepassed" = "Find people";
+"mydevice.gateway.lightcolor" = "Gateway light Color";
+"mydevice.gateway.lightlumin" = "Gateway light brightness";
+"mydevice.gateway.mainpage.lightlumin" = "Brightness";
+"mydevice.gateway.mainpage.lighton" = "Tap to turn on";
+"mydevice.gateway.mainpage.lightoff" = "Tap to turn off";
+"mydevice.gateway.button" = "Gateway Button";
+
+"mydevice.gateway.setting.timer" = "Timer of light";
+"mydevice.gateway.setting.timer.group" = "Auto-alarm period";
+"mydevice.gateway.setting.timer.add" = "Add new timer";
+
+"mydevice.gateway.setting.function.title" = "Function";
+
+"mydevice.gateway.setting.nightlight.tip" = "Automatic gateway light";
+"mydevice.gateway.setting.nightlight" = "Night light setting";
+"mydevice.gateway.setting.nightlight.title" = "Night light";
+"mydevice.gateway.setting.nightlight.settingcell" = "Night light";
+"mydevice.gateway.setting.nightlight.switch" = "Switch setting";
+"mydevice.gateway.setting.nightlight.switch.cap" = "Gateway light turns on in dark";
+"mydevice.gateway.setting.nightlight.switch.comment" = "When the ambient light is dark, the light lights up";
+"mydevice.gateway.setting.nightlight.switch.see" = "Go check now";
+"mydevice.gateway.setting.nightlight.switch.cancle" = "cancle";
+"mydevice.gateway.setting.nightlight.switch.tips" = "This function requires an Occupancy Sensor";
+"mydevice.gateway.setting.nightlight.motion" = "Trigger";
+"mydevice.gateway.setting.nightlight.motion.workTime" = "Effective duration";
+"mydevice.gateway.setting.nightlight.motion.workTime.nextDay" = "Next day";
+"mydevice.gateway.setting.nightlight.motion.people" = "When motion sensored, the light lights up";
+"mydevice.gateway.setting.nightlight.motion.none" = "Trigger";
+"mydevice.gateway.setting.nightlight.holdtime" = "After motion sensored, light up for";
+"mydevice.gateway.setting.nightlight.holdtime.60" = "1 minute";
+"mydevice.gateway.setting.nightlight.holdtime.120" = "2 minutes";
+"mydevice.gateway.setting.nightlight.holdtime.300" = "5 minutes";
+"mydevice.gateway.setting.nightlight.holdtime.600" = "10 minutes";
+"mydevice.gateway.setting.nightlight.readfailed" = "Failed to read color of the night light, please check the network status and re-enter this page";
+"mydevice.gateway.setting.nightlight.timer.tips" = "Gateway light timer setting";
+"mydevice.gateway.setting.nightlight.timer.cap" = "Gateway light timer";
+"mydevice.gateway.setting.nightlight.timer.comment" = "Open night light";
+"mydevice.gateway.setting.nightlight.timer.set" = "Timer setting";
+"mydevice.gateway.setting.nightlight.scenes" = "Night light sences";
+"mydevice.gateway.setting.nightlight.timer.scene" = "Light sences";
+"mydevice.gateway.setting.nightlight.scenes.pink" = "Pink";
+"mydevice.gateway.setting.nightlight.scenes.golden" = "Wheat";
+"mydevice.gateway.setting.nightlight.scenes.white" = "Sky";
+"mydevice.gateway.setting.nightlight.scenes.forest" = "Forest";
+"mydevice.gateway.setting.nightlight.scenes.romantic" = "Romantic";
+"mydevice.gateway.setting.nightlight.scenes.charmblue" = "Tranquil";
+
+"mydevice.gateway.setting.timer.list" = "timer list";
+"mydevice.gateway.setting.timersetting.duration.5min" = "5 minutes";
+"mydevice.gateway.setting.timersetting.duration.10min" = "10 minutes";
+"mydevice.gateway.setting.timersetting.duration.15min" = "15 minutes";
+"mydevice.gateway.setting.timersetting.duration.30min" = "30 minutes";
+"mydevice.gateway.setting.timersetting.duration.forever" = "Forever";
+"mydevice.gateway.setting.timersetting.duration" = "Duration";
+
+"mydevice.gateway.setting.alarm" = "Arm";
+"mydevice.gateway.setting.alarm.settingcell" = "Alarm";
+"mydevice.gateway.setting.alarm.mode" = "Alarm ringtone";
+"mydevice.gateway.setting.alarm.group.devices" = "Alarm trigger";
+"mydevice.gateway.setting.alarm.group" = "Alarm trigger settings";
+"mydevice.gateway.setting.alarm.group.tail" = "Tips:Set this when you need alarm";
+"mydevice.gateway.setting.alarm.nodevice.tips" = "Dear, this function need an Occupancy Sensor, a Wireless Switch or a Door/Window Sensor";
+"mydevice.gateway.mainPage.nodevice.tips" = "No subdevice connected\nGo to Device Page and add a new subdevice";
+"mydevice.gateway.setting.alarm.timer" = "Arm timer";
+"mydevice.gateway.setting.alarm.timerMode" = "Add arm timer";
+"mydevice.gateway.setting.alarm.alarmDelay" = "Alarm duration";
+"mydevice.gateway.setting.alarm.holdtime" = "Arm effective time";
+"mydevice.gateway.setting.alarm.holdtime.0" = "Immediately";
+"mydevice.gateway.setting.alarm.holdtime.5" = "5 seconds";
+"mydevice.gateway.setting.alarm.holdtime.15" = "15 seconds";
+"mydevice.gateway.setting.alarm.holdtime.30" = "30 seconds";
+"mydevice.gateway.setting.alarm.holdtime.60" = "60 seconds";
+"mydevice.gateway.setting.alarm.holdtime.reminder" = "After pressing arm buttion, arm comes into effect in ";
+"mydevice.gateway.setting.alarm.holdtime.reminder.0" = "Click on arm,enter arming mode immediately";
+"mydevice.gateway.setting.alarm.alarming.red" = "Gateway flashes in red when alarming";
+"mydevice.gateway.setting.alarm.alarming.duration" = "Arming duration";
+"mydevice.gateway.setting.alarm.alarming.duration.4000000" = "Keep alarming";
+"mydevice.gateway.setting.alarm.alarming.duration.600" = "10 minutes";
+"mydevice.gateway.setting.alarm.alarming.duration.60" = "1 minutes";
+"mydevice.gateway.setting.alarm.alarming.duration.30" = "30 seconds";
+"mydevice.gateway.setting.alarm.alarming.push" = "Push alarm notification to your phone (required)";
+"mydevice.gateway.setting.alarm.status.on" = "Alarm On";
+"mydevice.gateway.setting.alarm.status.off" = "Alarm Off";
+"mydevice.gateway.setting.alarm.tips.on.tips" = "Tap to close";
+"mydevice.gateway.setting.alarm.status.off.tips" = "Tap to open";
+"mydevice.gateway.setting.alarm.second" = "s";
+"mydevice.gateway.setting.alarm.moresettings" = "More settings";
+"mydevice.gateway.setting.alarm.moresettings.linkalarm" = "Linkage alarm";
+"mydevice.gateway.setting.alarm.moresettings.linkalarm.off" = "Linkage alarm off";
+"mydevice.gateway.setting.alarm.moresettings.linkalarm.comment" = "link other gateways to alert together,Improve security level";
+"mydevice.gateway.setting.alarm.moresettings.linkalarm.tipsone" = "Dear, linking alarm must select at least two gateways~";
+
+"mydevice.gateway.setting.alarm.motion" = "Motion";
+"mydevice.gateway.setting.alarm.motion.detail" = "Motion detected";
+"mydevice.gateway.setting.alarm.magnet" = "Magnet";
+"mydevice.gateway.setting.alarm.magnet.detail" = "Door/Window opened";
+"mydevice.gateway.setting.alarm.switch" = "Switch";
+"mydevice.gateway.setting.alarm.switch.detail" = "Click detected";
+"mydevice.gateway.setting.alarm.cube" = "Cube";
+"mydevice.gateway.setting.alarm.cube.detail" = "Cube moved after being motionless for over 1 minute";
+
+"mydevice.gateway.setting.alarmbell.name" = "Alarm bell";
+"mydevice.gateway.setting.alarmbell.group" = "Alarm bell";
+"mydevice.gateway.setting.alarmbell.tone" = "Choose alarm ringtone";
+"mydevice.gateway.setting.alarmbell.tone.name1" = "Police car 1";
+"mydevice.gateway.setting.alarmbell.tone.name2" = "Police car 2";
+"mydevice.gateway.setting.alarmbell.tone.name3" = "Accident";
+"mydevice.gateway.setting.alarmbell.tone.name4" = "Countdown";
+"mydevice.gateway.setting.alarmbell.tone.name5" = "Ghost";
+"mydevice.gateway.setting.alarmbell.tone.name6" = "Sniper rifle";
+"mydevice.gateway.setting.alarmbell.tone.name7" = "Battle";
+"mydevice.gateway.setting.alarmbell.tone.name8" = "Air raid";
+"mydevice.gateway.setting.alarmbell.tone.name9" = "Bark";
+"mydevice.gateway.setting.alarmbell.volume" = "Alarm volume";
+
+"mydevice.gateway.setting.doorbell" = "Doorbell";
+"mydevice.gateway.setting.doorbell.settingcell" = "Doorbell";
+"mydevice.gateway.setting.doorbell.click" = "Click";
+"mydevice.gateway.setting.doorbell" = "Doorbell";
+"mydevice.gateway.setting.doorbell.condition" = "Doorbell trigger condition";
+"mydevice.gateway.setting.doorbell.condition.devices" = "Doorbell trigger";
+"mydevice.gateway.setting.doorbell.push.title" = "Message alarm";
+"mydevice.gateway.setting.doorbell.push.comment" = "Send phone notificaiton when doorbell rings";
+"mydevice.gateway.setting.doorbell.tone" = "Ringtone settings";
+"mydevice.gateway.setting.doorbell.click.comment" = "Doorbell rang when click detected";
+"mydevice.gateway.setting.doorbell.motion.comment" = "Doorbell rang when motion detected";
+"mydevice.gateway.setting.doorbell.magnetopen.comment" = "Doorbell rang when door/window opened";
+"mydevice.gateway.setting.doorbell.doubleclick" = "Double click";
+"mydevice.gateway.setting.doorbell.choose" = "Doorbell ringtone";
+"mydevice.gateway.setting.doorbell.click.tone1" = "Doorbell";
+"mydevice.gateway.setting.doorbell.click.tone2" = "Knock at a door";
+"mydevice.gateway.setting.doorbell.click.tone3" = "Amuse";
+"mydevice.gateway.setting.doorbell.click.tone4" = "Alarm clock";
+"mydevice.gateway.setting.doorbell.click.tone5" = "doorbell5";
+"mydevice.gateway.setting.doorbell.click.tone6" = "doorbell6";
+"mydevice.gateway.setting.doorbell.click.tone7" = "doorbell7";
+"mydevice.gateway.setting.doorbell.click.tone8" = "doorbell8";
+
+"mydevice.gateway.setting.alarmclock.tone" = "Ringtone";
+"mydevice.gateway.setting.alarmclock.name" = "Alarm clock volume";
+"mydevice.gateway.setting.doorbell.doubleclick.tone1" = "MiMix";
+"mydevice.gateway.setting.doorbell.doubleclick.tone2" = "Enthusuastic";
+"mydevice.gateway.setting.doorbell.doubleclick.tone3" = "GuitarClassic";
+"mydevice.gateway.setting.doorbell.doubleclick.tone4" = "IceWorldPiano";
+"mydevice.gateway.setting.doorbell.doubleclick.tone5" = "LeisureTime";
+"mydevice.gateway.setting.doorbell.doubleclick.tone6" = "Childhood";
+"mydevice.gateway.setting.doorbell.doubleclick.tone7" = "MorningStreamLlet";
+"mydevice.gateway.setting.doorbell.doubleclick.tone8" = "MusicBox";
+"mydevice.gateway.setting.doorbell.doubleclick.tone9" = "Orange";
+"mydevice.gateway.setting.doorbell.doubleclick.tone10" = "Thinker";
+
+"mydevice.gateway.setting.bell" = "Ringtone settings";
+"mydevice.gateway.setting.doorbell.name" = "Door bell tone";
+"mydevice.gateway.setting.welcomebell.name" = "Welcome tone";
+
+"mydevice.gateway.setting.cloudmusic.adder" = "Add Rings";
+"mydevice.gateway.setting.cloudmusic.record" = "Press to record";
+"mydevice.gateway.setting.cloudmusic.recordEnd" = "record finished";
+"mydevice.gateway.setting.cloudmusic.recordCancel" = "cancel record";
+"mydevice.gateway.setting.cloudmusic.recording" = "recording...";
+"mydevice.gateway.setting.cloudmusic.record.timershort" = "too short";
+"mydevice.gateway.setting.cloudmusic.record.timerlong" = "no longer than 30s";
+"mydevice.gateway.setting.cloudmusic.record.again" = "press to record";
+"mydevice.gateway.setting.cloudmusic.record.uploading" = "upload";
+"mydevice.gateway.setting.cloudmusic.record.nopermit" = "App need to use mic。\nSetting/Privce/Mic";
+"mydevice.gateway.setting.cloudmusic.record.files" = "waiting to upload";
+"mydevice.gateway.setting.cloudmusic.record.title" = "creat";
+"mydevice.gateway.setting.cloudmusic.record.setsuccess" = "setting success";
+"mydevice.gateway.setting.cloudmusic.recordCanceled" = "up to cancel";
+"mydevice.gateway.setting.cloudmusic.record.delete" = "delete";
+"mydevice.gateway.setting.cloudmusic.record.deleteconfirm" = "sure to delete？you may need to redo the record";
+"mydevice.gateway.setting.cloudmusic.record.gatewatdelete" = "the gateway firm ring cannot be delete";
+"mydevice.gateway.setting.cloudmusic.record.uploadedfiles" = "your own music";
+"mydevice.gateway.setting.cloudmusic.record.none" = "no music, please upload first";
+"mydevice.gateway.setting.cloudmusic.upload" = "upload record";
+"mydevice.gateway.setting.cloudmusic.upload.save" = "save";
+"mydevice.gateway.setting.cloudmusic.upload.giveup" = "give up";
+"mydevice.gateway.setting.cloudmusic.upload.failed" = "failed, try later";
+"mydevice.gateway.setting.cloudmusic.upload.name" = "save";
+"mydevice.gateway.setting.cloudmusic.upload.button" = "upload";
+"mydevice.gateway.setting.cloudmusic.upload.placeholder" = "input the name";
+"mydevice.gateway.setting.cloudmusic.upload.loadingdata" = "data prepare...";
+"mydevice.gateway.setting.cloudmusic.upload.settingdata" = "gateway prepare...";
+"mydevice.gateway.setting.cloudmusic.uploading" = "uploading...";
+"mydevice.gateway.setting.cloudmusic.uploaded" = "uploaded";
+"mydevice.gateway.setting.cloudmusic.downloading" = "downing...";
+"mydevice.gateway.setting.cloudmusic.download.fail" = "failed downloading";
+"mydevice.gateway.setting.cloudmusic.download.oversize" = "over size, please delete some audio ";
+"mydevice.gateway.setting.cloudmusic.download.ok" = "download finished";
+"mydevice.gateway.setting.cloudmusic.loadfailed" = "load failed";
+"mydevice.gateway.setting.cloudmusic.loadfinished" = "load finished";
+"mydevice.gateway.setting.cloudmusic.play" = "play";
+"mydevice.gateway.setting.cloudmusic.pause" = "pause";
+"mydevice.gateway.setting.cloudmusic.gateway.bells" = "System ringtone";
+"mydevice.gateway.setting.cloudmusic.be.in.gateway" = "exist";
+"mydevice.gateway.setting.cloudmusic.be.in.gateway.nodownload" = "choose effective music";
+
+"mydevice.gateway.setting.volume" = "Volume settings";
+"mydevice.gateway.setting.volume.specialvolume" = "Music volume";
+"mydevice.gateway.setting.volume.settingcell" = "Volume";
+"mydevice.gateway.setting.volume.alarm" = "Alarm volume";
+"mydevice.gateway.setting.volume.doorbell" = "Doorbell volume";
+"mydevice.gateway.setting.volume.system" = "Notification volume";
+"mydevice.gateway.setting.volume.fm" = "Radio volume";
+"mydevice.gateway.setting.volume.alarmclock" = "Alarm clock volume";
+"mydevice.gateway.setting.addsubdevice" = "Add Subdevice";
+"mydevice.gateway.setting.addsubdeviceslist" = "Add Subdevice";
+"mydevice.gateway.setting.addsubdeviceslist.failed" = "Add subdevice failed";
+"mydevice.gateway.setting.addsubdeviceslist.failedguide" = "See guide";
+"mydevice.gateway.setting.addsubdeviceslist.failedretry" = "Retry";
+"mydevice.gateway.setting.addsubdeviceslist.resetdevice" = "Reset Device";
+"mydevice.gateway.setting.addsubdeviceslist.video" = "Click here to see guide video☞";
+
+"mydevice.gateway.alarm.trigger.title" = "Alarm triggered";
+"mydevice.gateway.alarm.trigger.triggered" = "triggered";
+
+"mydevice.gateway.setting.alarmclock" = "Wake & act clock";
+"mydevice.gateway.setting.alarmclock.settingcell" = "Alarm Clock";
+"mydevice.gateway.setting.alarmclock.tone" = "Choose alarm tone";
+"mydevice.gateway.setting.alarmclock.period" = "Alarm duration";
+"mydevice.gateway.setting.alarmclock.am" = "A.M.";
+"mydevice.gateway.setting.alarmclock.pm" = "P.M.";
+"mydevice.gateway.setting.alarmclock.group1title" = "Please pick time";
+"mydevice.gateway.setting.alarmclock.group2title" = "Way to close the clock ring";
+"mydevice.gateway.setting.alarmclock.timerspacephase1" = "%ddays%dhours%dminutes to ring";
+"mydevice.gateway.setting.alarmclock.timerspacephase2" = "%dhours%dminutes to ring";
+"mydevice.gateway.setting.alarmclock.timerspacephase3" = "%dminutes to ring";
+"mydevice.gateway.setting.alarmclock.timerspacephaseOff1" = "%ddays%dhours%dminutes to close";
+"mydevice.gateway.setting.alarmclock.timerspacephaseOff2" = "%dhours%dminutes to close";
+"mydevice.gateway.setting.alarmclock.timerspacephaseOff3" = "%dminutes to close";
+"mydevice.gateway.setting.alarmclock.timerclose" = "Closed";
+"mydevice.gateway.setting.alarmclock.motion.detail" = "Move in front of th motion sensor";
+"mydevice.gateway.setting.alarmclock.magnet.detail" = "Open the door/window";
+"mydevice.gateway.setting.alarmclock.switch.detail" = "Press wireless switch";
+"mydevice.gateway.setting.alarmclock.gatewayclick.once" = "Press gateway button(required)";
+"mydevice.gateway.setting.alarmclock.repeat.workday" = "Weekday";
+
+
+"mydevice.gateway.setting.notdisturb" = "Don't Disturb";
+"mydevice.gateway.setting.notdisturb.disturbtitle" = "Please choose a period of time";
+"mydevice.gateway.setting.notdisturb.disturbtail" = "(Tips:In the time you choose, the bell will not ring)";
+"mydevice.gateway.setting.notdisturb.sixhours" = "6 hours";
+"mydevice.gateway.setting.notdisturb.oneday" = "1 day";
+"mydevice.gateway.setting.notdisturb.twoday" = "2 days";
+"mydevice.gateway.setting.notdisturb.forever" = "Forever";
+
+"mydevice.gateway.bind" = "Bind";
+"mydevice.gateway.my.bind" = "My Automations";
+"mydevice.gateway.suggest.bind" = "Suggest Automations";
+"mydevice.gateway.scene.sys" = "System";
+"mydevice.gateway.scene.sys.detail.alarm" = "Protect your home security";
+"mydevice.gateway.scene.sys.detail.nightlight" = "Turn a light on for you in darkness";
+"mydevice.gateway.scene.sys.detail.timerlight" = "Bring you a colorful life";
+"mydevice.gateway.scene.sys.detail.alarmclock" = "Only actions can stop the clock alarm";
+"mydevice.gateway.scene.sys.detail.doorbell" = "Ring and send phone notification when you have a visitor";
+"mydevice.gateway.scene.custom" = "User define";
+"mydevice.gateway.scene" = "Automation";
+"mydevice.gateway.scene.add" = "Add automations";
+"mydevice.gateway.scene.addNew" = "Add new automation";
+"mydevice.gateway.scene.edit" = "Edit automation";
+"mydevice.gateway.scene.list.none"  = "There arenot any automations";
+"mydevice.gateway.scene.list.share.failadd"  = "Sorry,you cannot add automations for shared devices";
+"mydevice.gateway.scene.list.delete"  = "Delete automation";
+"mydevice.gateway.scene.list.alert.delete"  = "Confirm: Delete this automation?";
+"mydevice.gateway.scene.list.rename"  = "Rename";
+"mydevice.gateway.scene.list.edit"  = "Edit";
+"mydevice.gateway.scene.edit.if"  = "If";
+"mydevice.gateway.scene.edit.if.detaildefault"  = "Set entry point";
+"mydevice.gateway.scene.edit.if.step"  = "Step One：Set entry point";
+"mydevice.gateway.scene.edit.if.step.nonedetail"  = "There are no entry point";
+"mydevice.gateway.scene.edit.then"  = "Then";
+"mydevice.gateway.scene.edit.then.step"  = "Step Two：Add mission";
+"mydevice.gateway.scene.edit.then.step.nonedetail"  = "Cannot add mission now";
+"mydevice.gateway.scene.edit.then.detaildefault"  = "Add mission";
+"mydevice.gateway.scene.edit.condition"  = "Condition";
+"mydevice.gateway.scene.edit.mission"  = "Mission";
+"mydevice.gateway.scene.edit.mission.none"  = "None mission selected";
+"mydevice.gateway.scene.edit.giveup"  = "The change will loose if you go back, make sure?";
+"mydevice.gateway.scene.edit.rename"  = "Rename";
+"mydevice.gateway.scene.edit.save"  = "Save automation";
+"mydevice.gateway.scene.edit.nonemission.tip"  = "Please set the mission first";
+"mydevice.gateway.scene.edit.deviceoffline" = "Device is offline";
+"mydevice.gateway.scene.edit.failedtip.authority" = "No Authority";
+"mydevice.gateway.scene.edit.timer.edit" = "Modify timer";
+"mydevice.gateway.scene.edit.timer.delete" = "Delete timer";
+"mydevice.gateway.scene.edit.buybutton" = "Buy it";
+"mydevice.gateway.scene.edit.music.choosetips" = "please choose music first";
+"mydevice.gateway.scene.edit.music.doorbell.title" = "Choose doorbell";
+"mydevice.gateway.scene.edit.music.title" = "Choose audio";
+"mydevice.gateway.scene.edit.music.fm.title" = "Choose raido";
+"mydevice.gateway.scene.edit.music.fm.choosetips" = "please choose radio first";
+"mydevice.gateway.scene.enable" = "Enable";
+"mydevice.gateway.scene.disable" = "Disable";
+"mydevice.gateway.scene.edit.humtemp.hum" = "choose humidity";
+"mydevice.gateway.scene.edit.humtemp.temp" = "choose temperature";
+
+"mydevice.gateway.scene.sysscene.name.lm_scene_1_1" = "When armed, alarm if motion is detected";
+"mydevice.gateway.scene.sysscene.name.lm_scene_1_2" = "When armed, alarm if window/door is opened";
+"mydevice.gateway.scene.sysscene.name.lm_scene_1_3" = "When armed, alarm if wireless switch is pressed";
+"mydevice.gateway.scene.sysscene.name.lm_scene_1_4" = "When armed, alarm if cube is moved after being static for a while";
+"mydevice.gateway.scene.sysscene.name.lm_scene_2_1" = "Gateway light turns on if motion is detected";
+"mydevice.gateway.scene.sysscene.name.lm_scene_3_1" = "Doorbell rings if wireless switch is pressed";
+"mydevice.gateway.scene.sysscene.name.lm_scene_3_2" = "Doorbell rings if window/door is opened";
+"mydevice.gateway.scene.sysscene.name.lm_scene_3_3" = "Doorbell rings if motion is detected";
+"mydevice.gateway.scene.sysscene.name.lm_scene_4_1" = "Turn off Wake & Act Clock if motion is detected";
+"mydevice.gateway.scene.sysscene.name.lm_scene_4_2" = "Turn off Wake & Act Clock if window/door is opened";
+"mydevice.gateway.scene.sysscene.name.lm_scene_4_3" = "Turn off Wake & Act Clock if wireless switch is pressed";
+
+"mydevice.gateway.log" = "Log";
+"mydevice.gateway.log.clear.alert.title" = "Clear all logs?";
+"mydevice.gateway.log.clear" = "Clear Log";
+"mydevice.gateway.log.allload" = "All loaded";
+"mydevice.gateway.log.none" = "No log";
+"mydevice.gateway.log.opencamera" = "Choose Camera";
+"mydevice.gateway.log.arming" = "Check alarm log >";
+"mydevice.gateway.arming.magnet.open" = " open to arming";
+"mydevice.gateway.arming.motion.motion" = " mention to arming";
+"mydevice.gateway.arming.switch.click" = " click to arming";
+"mydevice.gateway.arming.cube.alert" = "cube move to arming";
+"mydevice.gateway.magnet.open" = "Opened";
+"mydevice.gateway.magnet.close" = "Closed";
+"mydevice.gateway.motion.motion" = "Motion";
+"mydevice.gateway.switch.click.once" = "Click";
+"mydevice.gateway.switch.click.twice" = "Double click";
+"mydevice.gateway.switch.click.long.press" = "Long Press";
+"mydevice.gateway.log.smoke.disalarm" = "Normal operation";
+"mydevice.gateway.log.somke.fire.alarm" = "Alarm";
+"mydevice.gateway.log.smoke.analog.alarm" = "Analog Alarm";
+"mydevice.gateway.log.smoke.lowpower" = "Low power";
+"mydevice.gateway.log.smoke.selfcheak" = "Device Selfcheak";
+"mydevice.gateway.log.smoke.sensitivity" = "warning for sensitivity";
+"mydevice.gateway.log.smoke.IICCommunicationFailure" = "IIC Communication Failure";
+"mydevice.gateway.log.ht.hot" = "hot";
+"mydevice.gateway.log.ht.drycold" = "dry cold";
+"mydevice.gateway.log.ht.humidcold" = "humid cold";
+"mydevice.gateway.log.ht.cold" = "cold";
+"mydevice.gateway.log.ht.dry" = "dry";
+"mydevice.gateway.log.ht.comfortable" = "comfortable";
+"mydevice.gateway.log.ht.humid" = "humid";
+"mydevice.gateway.log.ht.dryhot" = "dry hot";
+"mydevice.gateway.log.ht.humidhot" = "humid hot";
+"mydevice.gateway.log.plug.changed" = "plug changed";
+"mydevice.gateway.log.86switchV1.click" = "Click";
+"mydevice.gateway.log.86switchV1.doubleClick" = "Double click";
+"mydevice.gateway.log.86switchV2.leftClick" = "Left Click";
+"mydevice.gateway.log.86switchV2.leftDoubleClick" = "Left Double Click";
+"mydevice.gateway.log.86switchV2.rightClick" = "Right Click";
+"mydevice.gateway.log.86switchV2.rightdoubleClick" = "Right Double Click";
+"mydevice.gateway.log.86switchV2.leftAndRightClick" = "Left And Right Click";
+"mydevice.gateway.switch.confict.tips" = "Switch cannot be both alarm and doorbell trigger";
+"mydevice.gateway.log.arming.opentips.master" = "Master,";
+"mydevice.gateway.log.arming.opentips.text" = "is still open";
+"mydevice.gateway.log.arming.checkbind.title" = "Before opening, set the trigger device";
+"mydevice.gateway.log.arming.checkbind.set" = "Set";
+"mydevice.gateway.alarm.log" = "Alarm Log";
+
+
+
+"mydevice.gateway.addsub_guide" = "Please reset the device to be connected";
+"mydevice.gateway.addsub_guide_switch" = "Long press the reset button to open more than 3 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_magnet" = "Long press the reset button to open more than 3 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_motion" = "Long press the reset button to open more than 3 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_xbulb" = "Please reset the device to be connected";
+"mydevice.gateway.addsub_guide_plug" = "Please connect the power";
+"mydevice.gateway.addsub_guide_plugreset_tips" = "Long press the power button to open more than 5 seconds until the red light flashes after release";
+"mydevice.gateway.addsub_guide_humiturereset_tips" = "Long press the reset button to open more than 5 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_cube" = "Please throw the cube hard,Wait for the gateway voice prompt";
+"mydevice.gateway.addsub_guide_add_cube2" = "Open the cube back, press the reset button more than three seconds round, until the blue light flashes three times in a row after release";
+"mydevice.gateway.setting.addsubdeviceslist.cube.failedretry" = "Reset";
+"mydevice.gateway.addsub_guide_add_single86swtich" = "Long press the power button to open more than 5 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_add_double86swtich" = "Long press any power button to open more than 5 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_add_singleNeutral" = "Long press the power button to open more than 5 seconds until the blue light flashes three times after release";
+"mydevice.gateway.addsub_guide_add_doubleNeutral" = "Long press any power button to open more than 5 seconds until the blue light flashes three times after release";
+
+"mydevice.gateway.addsub_guide_switch.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_magnet.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_motion.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_humiturereset_tips.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_plugreset_tips.color" = "the red light flashes";
+"mydevice.gateway.addsub_guide_cube.color" = "throw the cube hard";
+"mydevice.gateway.addsub_guide_add_cube2.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_add_single86swtich.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_add_double86swtich.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_add_singleNeutral.color" = "the blue light flashes three times";
+"mydevice.gateway.addsub_guide_add_doubleNeutral.color" = "the blue light flashes three times";
+
+
+"mydevice.gateway.addsub_guide.namingSpeed" = "Rename";
+"mydevice.gateway.addsub_guide.namingSpeed.left" = "Left";
+"mydevice.gateway.addsub_guide.namingSpeed.right" = "Right";
+"mydevice.gateway.addsub_guide.deviceName" = "Device Name";
+"mydevice.gateway.addsub_guide.deviceloction" = "Choose Location";
+"mydevice.gateway.addsub_guide.devicelogo" = "Choose Logo";
+"mydevice.gateway.addsub_guide.nextStep" = "Next Step";
+"mydevice.gateway.addsub_guide.congratulation" = "Congratulations! Device successfully added";
+"mydevice.gateway.addsub_guide.shareTips" = "Share Device";
+"mydevice.gateway.addsub_guide.setup" = "Connection completed";
+"mydevice.gateway.addsub_guide.device.location.livingroom" = "Livingroom";
+"mydevice.gateway.addsub_guide.device.location.masterBedroom" = "Main Bedroom";
+"mydevice.gateway.addsub_guide.device.location.secondBedroom" = "Bedroom";
+"mydevice.gateway.addsub_guide.device.location.study" = "Study";
+"mydevice.gateway.addsub_guide.device.location.smallroom" = "Room";
+"mydevice.gateway.addsub_guide.device.location.balcony" = "Balcony";
+"mydevice.gateway.addsub_guide.device.location.kitchen" = "Kitchen";
+"mydevice.gateway.addsub_guide.device.location.toilets" = "Bathroom";
+"mydevice.gateway.addsub_guide.device.location.other" = "Other";
+
+"mydevice.gateway.addsub_guide.precautions" = "Installation tips:";
+"mydevice.gateway.addsub_guide.precautions.one" = "1.Please poke the reset hole, before installing the device. If the gateway notifies “connected”, the install position is good. Otherwise, please move the device close to the gateway, and poke the reset hole again.";
+"mydevice.gateway.addsub_guide.precautions.two" = "2.As the picture shows";
+"mydevice.gateway.addsub_guide.imagename.one" = "Do not attach the device to metal surface";
+"mydevice.gateway.addsub_guide.imagename.two" = "Alignment mark";
+"mydevice.gateway.addsub_guide.imagename.three" = "Note pitch";
+
+
+"mydevice.gateway.delsub.title" = "Delete subdevice";
+"mydevice.gateway.delsub" = "Delete";
+"mydevice.gateway.delsub.addlist" = "Add to device list";
+"mydevice.gateway.delsub.rmvlist" = "Remove from device list";
+
+"mydevice.gateway.tips.nomotion" = "No motion found";
+"mydevice.gateway.tips.nomagnet" = "No magnet found";
+"mydevice.gateway.tips.noswitch" = "No switcher found";
+
+"mydevice.gateway.sensor.lowbattery" = "Low battery, please change a new one";
+"mydevice.gateway.sensor.battery.info" = "Battery information";
+"mydevice.gateway.sensor.battery.left" = "Left battery：";
+"mydevice.gateway.sensor.battery.kind" = "Category: button cell";
+"mydevice.gateway.sensor.battery.changeguide" = "Change battery guide";
+
+"mydevice.gateway.help.title" = "Introduction";
+"mydevice.gateway.help.setup" = "Installation";
+"mydevice.gateway.help.kit.introduce" = "Introduction for Xiaomi Kit";
+"mydevice.gateway.help.kit.introduce.detail" = "Connection and Use Method";
+"mydevice.gateway.help.maganet.introduce" = "Window/Door Sensor installation";
+"mydevice.gateway.help.maganet.introduce.detail" = "Please line up the mark on the sensor and the magnet, and keep the distance between them less than 22mm";
+"mydevice.gateway.help.switch.introduce" = "Wireless Switch Installation";
+"mydevice.gateway.help.switch.introduce.detail" = "Please don\'t install it on a metal surface";
+"mydevice.gateway.help.motion.introduce" = "Occupancy Sensor Installation";
+"mydevice.gateway.help.motion.introduce.detail" = "Please aim the lens to the area that you want to detect, and 1.2-2.1m is the recommended installation height";
+
+"mydevice.gateway.about.title" = "About - Smart Home Kit";
+"mydevice.gateway.about.titlesettingcell" = "About";
+"mydevice.gateway.about.introducation" = "Manual";
+"mydevice.gateway.about.helpguide" = "User Guidance";
+"mydevice.gateway.about.freFAQ" = "FAQ";
+"mydevice.gateway.about.tutorial" = "Tutorial";
+"mydevice.gateway.about.bbs" = "Smart Home Kit Forum";
+"mydevice.gateway.about.migration" = "Migrate Gateway";
+"mydevice.gateway.about.migration.nosourcedevice" = "no first generation gateway";
+"mydevice.gateway.about.migration.title1" = "waiting to migrate";
+"mydevice.gateway.about.migration.title2" = "subdevices of selected gateway";
+"mydevice.gateway.about.migration.tips" = "migrate will delete the subdevices in your choosed gateway, confirm?";
+"mydevice.gateway.about.migration.versionV2tip" = "current gateway version is too low, please upgate it!";
+"mydevice.gateway.about.migration.versionV3tip" = "Version is too low, please upgate!";
+"mydevice.gateway.about.migration.cancel" = "Cancel";
+"mydevice.gateway.about.migration.retry" = "Retry";
+"mydevice.gateway.about.migration.finish" = "Go back";
+"mydevice.gateway.about.migration.about.title" = "Introduction:";
+"mydevice.gateway.about.migration.about.title.detail" = "    1. A key generation erupted gateway device, move to the second generation of gateways. After migration, the majority of millet smart home device, disconnect from the Internet can be performed even if the automation properly.\n    2. Device linkage execution speed next generation gateways, faster generation of more than 3 times, basically feel the automation delay. \n    3. Two gateways can be implemented together with linkage alarm, increases the security level.";
+"mydevice.gateway.about.migration.about.title.detail.blue1" = "disconnect from the Internet can be performed even if the automation properly";
+"mydevice.gateway.about.migration.about.title.detail.blue2" = "basically feel the automation delay";
+"mydevice.gateway.about.migration.about.title.detail.blue3" = "Two gateways can be implemented together with linkage alarm";
+"mydevice.gateway.about.migration.about.warningtips" = "Note:";
+"mydevice.gateway.about.migration.about.warningtips.detail" = "    After migration, a new generation of gateway devices will be deleted erupted all n, please understand.";
+"mydevice.gateway.about.migration.warningTips" = "Donot do anything else, to avoid unknown errors!";
+"mydevice.gateway.about.migration.successtips" = "Successed!";
+"mydevice.gateway.about.migration.failedtips" = "Failed, please retry";
+"mydevice.gateway.about.migration.waitingtips" = "migrating...";
+
+"push.gateway.alert.title" = "Gateway alarming";
+"push.gateway.alert.alarm.title" = "Gateway alarming tips";
+"push.gateway.alert.doorbell.title" = "Doorbell tips";
+"push.gateway.alert.lowbattery.title" = "Low battery tips";
+"push.gateway.alert.action.title" = "Action push";
+
+"mydevice.gateway.disclaimer.title" = "Instructions";
+"mydevice.gateway.disclaimer.iread" = "I have read";
+"mydevice.gateway.disclaimer.name" = "Instructions of Xiaomi’s Smart Home Set";
+"mydevice.gateway.disclaimer.agreeandgo" = "Agree";
+"mydevice.gateway.disclaimer.item1" = "Before using, please read the product manuals and instructions carefully.";
+"mydevice.gateway.disclaimer.item2" = "This set only applies to promote the entertainment and convenience of household life. It’s not a security product and it doesn’t belong to the category of class 19 security products of 3C Products.";
+"mydevice.gateway.disclaimer.item3" = "This set is only used to remind the device status, and it doesn’t applied as professional security product at home, in building, warehouse or any other business places. If any user who applies this set in field of professional security against the product manuals and instructions, then the manufacturer is not liable for any risk.";
+"mydevice.gateway.sensor.changebattery" = "Change battery";
+"mydevice.gateway.sensor.addSubdeviceagain" = "Add device again";
+"mydevice.gateway.motion.offlineview.tips" = "Tips: 1. Please remove the barriers between the device and gateway.\n2. Please press the reset hole, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the reset hole, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.magnet.offlineview.tips" = "Tips: 1. Please remove the barriers between the device and gateway.\n2. Please press the reset hole, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the reset hole, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.switch.offlineview.tips" = "Tips: 1. Please remove the barriers between the device and gateway.\n2. Please press the reset hole, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the reset hole, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.humiture.offlineview.tips" = " Tips: 1. Please remove the barriers between the device and gateway.\n2. Please press the reset hole, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the reset hole, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.plug.offlineview.tips" = "Tips: 1. Please remove the barriers between the device and gateway.\n2. Please check if the device is powered.\n3. If the two methods above don\'t work, please take the device near to the gateway, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.cube.offlineview.tips" = "ips: 1. Please remove the barriers between the device and gateway.\n2. Please press the reset hole, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the reset hole, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+"mydevice.gateway.86switch.offlineview.tips" = "Tips: 1. please remove the barriers between the device and gateway.\n2. Please press the push button for five times, and refresh the APP device list.\n3. If the two methods above don\'t work, please take the device near to the gateway, press the push button for five times, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.
+";
+"mydevice.gateway.neutral.offlineview.tips" = "Tips: 1. Please remove the barriers between the device and gateway.\n2. Please check if the device is powered.\n3. If the two methods above don\'t work, please take the device near to the gateway, and then refresh the APP device list.\n4. If the three methods above don\'t work, please rebind the device.";
+
+"mydevice.gateway.xbulb.offlineview.tips" = "Please check：1.reset power；2.reset and connect";
+
+//智能插座
+"mydevice.gateway.sensor.plug" = "Plug(ZigBee)";
+"mydevice.gateway.sensor.plug.switcher" = "ON/OFF";
+"mydevice.gateway.sensor.plug.ison" = "On";
+"mydevice.gateway.sensor.plug.isoff" = "Off";
+"mydevice.gateway.sensor.plug.timer" = "Timer";
+"mydevice.gateway.sensor.plug.timer.title" = "Plug timer";
+"mydevice.gateway.sensor.plug.countdown" = "Count down";
+"mydevice.gateway.sensor.plug.countdown.tips" = "%02dminutes lator ";
+"mydevice.gateway.sensor.plug.countdown.tipswithhour" = "%02dhours%02dminutes lator";
+"mydevice.gateway.sensor.plug.countdown.failtip" = "please choose timer first";
+"mydevice.gateway.sensor.plug.countdown.title" = "Count down";
+"mydevice.gateway.sensor.plug.countdown.cntbutton" = "open";
+"mydevice.gateway.sensor.plug.countdown.1min" = "1minute";
+"mydevice.gateway.sensor.plug.countdown.3min" = "3minutes";
+"mydevice.gateway.sensor.plug.countdown.5min" = "5minutes";
+"mydevice.gateway.sensor.plug.countdown.custom" = "custom";
+"mydevice.gateway.sensor.plug.countdown.stoped" = "stop";
+"mydevice.gateway.sensor.plug.countdown.hour" = "hour";
+"mydevice.gateway.sensor.plug.countdown.minute" = "min";
+"mydevice.gateway.sensor.plug.countdown.rear" = "lator";
+"mydevice.gateway.sensor.plug.countdown.on" = "on";
+"mydevice.gateway.sensor.plug.countdown.off" = "off";
+"mydevice.gateway.sensor.plug.countdown.cancel" = "cancel";
+"mydevice.gateway.sensor.plug.countdown.start" = "start";
+"mydevice.gateway.sensor.plug.countdown.recounttips" = "Cancel first";
+"mydevice.gateway.sensor.plug.quant" = "Quant";
+"mydevice.gateway.sensor.plug.quant.today" = "Power today";
+"mydevice.gateway.sensor.plug.quant.month" = "Power month";
+"mydevice.gateway.sensor.plug.quant.wat" = "Current power";
+"mydevice.gateway.sensor.plug.quant.wat.history" = "Power history";
+"mydevice.gateway.sensor.plug.quant.degree" = "kWh";
+"mydevice.gateway.sensor.plug.quant.w" = "W";
+"mydevice.gateway.sensor.plug.quant.title" = "Quant";
+"mydevice.gateway.sensor.plug.quantvc.day" = "Day";
+"mydevice.gateway.sensor.plug.quantvc.week" = "Week";
+"mydevice.gateway.sensor.plug.quantvc.month" = "Month";
+"mydevice.gateway.sensor.plug.quantvc.year" = "Year";
+"mydevice.gateway.sensor.plug.quantvc.degreetitle" = "Degree";
+"mydevice.gateway.sensor.plug.deviceprotect" = "Electrical Protection";
+"mydevice.gateway.sensor.plug.brokenprotect.title" = "Outrage Recovery";
+"mydevice.gateway.sensor.plug.brokenprotect.comment" = "When the power is back after outrage, recover to the previous on/off state";
+"mydevice.gateway.sensor.plug.chargeprotect.title" = "Charge Protection";
+"mydevice.gateway.sensor.plug.chargeprotect.comment" = "Power off automatically after the battery is fully charged";
+"mydevice.gateway.sensor.plug.indicatorlight.title" = "Turn off indicator";
+"mydevice.gateway.sensor.plug.indicatorlight.comment" = "Only enable between 21:00 to 9:00 in the next morning";
+"mydevice.gateway.sensor.plug.logo.other" = "others";
+"mydevice.gateway.sensor.plug.logo.light" = "light";
+"mydevice.gateway.sensor.plug.logo.waterheater" = "heater";
+"mydevice.gateway.sensor.plug.logo.waterdispenser" = "dispenser";
+"mydevice.gateway.sensor.plug.logo.tv" = "tv";
+"mydevice.gateway.sensor.plug.logo.airfan" = "fan";
+"mydevice.gateway.sensor.plug.logo.laptop" = "laptop";
+"mydevice.gateway.sensor.plug.logo.fishtank" = "tank";
+"mydevice.gateway.sensor.plug.logo.humidifier" = "humidifier";
+"mydevice.gateway.sensor.plug.logo.sound" = "sound";
+"mydevice.gateway.sensor.plug.logo.electirccooker" = "electircooker";
+"mydevice.gateway.sensor.plug.logo.router" = "router";
+"mydevice.gateway.sensor.plug.offline.tips" = "plug is offline";
+"mydevice.gateway.sensor.plug.disclaimer" = "《Plug(ZigBee) Use notice》";
+"mydevice.gateway.sensor.plug.disclaimer.item1" = "凡以任何方式在app中使用智能插座均被視爲自願接受本須知。";
+"mydevice.gateway.sensor.plug.disclaimer.item2" = "插座的定時、倒計時、遠程控制、設備聯動等功能無法保證100%正確執行，不建議應用在會造成安全隱患的場景中。";
+"mydevice.gateway.sensor.plug.disclaimer.item3" = "插座的斷電記憶功能開啓後，停電前如果插座處于開啓狀態，來電後仍保持開啓狀態，因此不建議應用在會造成安全隱患的場景中。";
+"mydevice.gateway.sensor.plug.disclaimer.item4" = "在包括但不限于黑客攻擊、網絡中斷、網絡延時、設備離線等原因造成的插座未正確執行的情況下，本公司不承擔任何責任，但將盡力減少因此給用戶造成的損失或影響。";
+"mydevice.gateway.sensor.plug.disclaimer.item5" = "因不當使用本産品而導致的任何損失，本公司亦不承擔任何法律責任。";
+"mydevice.gateway.sensor.plug.pay" = "Pay";
+"mydevice.gateway.sensor.plug.pay.electricityaccountbalance" = "Electricity Account Balance：";
+"mydevice.gateway.sensor.plug.pay.rmb" = "¥";
+
+"mydevice.gateway.sensor.cube" = "Magic Cube";
+"mydevice.gateway.sensor.cube.flip90" = "flip 90 degree";
+"mydevice.gateway.sensor.cube.flip180" = "flip 180 degree";
+"mydevice.gateway.sensor.cube.move" = "move";
+"mydevice.gateway.sensor.cube.tap_twice" = "tap twice";
+"mydevice.gateway.sensor.cube.shake_air" = "shake in air";
+"mydevice.gateway.sensor.cube.rotate" = "rotate";
+"mydevice.gateway.sensor.cube.actionDemo" = "Aciton Demo";
+"mydevice.gateway.sensor.cube.actionLock.title" = "Shake Action Lock/Unlock";
+"mydevice.gateway.sensor.cube.actionLock.tips" = "Lock To Prevent Children Misuse";
+"mydevice.gateway.sensor.cube.acitonFeedback" = "Action Feedback";
+"mydevice.gateway.sensor.cube.actionFeedback.tips" = "After the action (such as a shake) successful, vibration feedback";
+
+//温湿度
+"mydevice.gateway.sensor.humiture" = "Humiture";
+"mydevice.gateway.sensor.humiture.temperature" = "Temperature";
+"mydevice.gateway.sensor.humiture.humidity" = "Humidity";
+"mydevice.gateway.sensor.humiture.Portrait" = "Portrait";
+"mydevice.gateway.sensor.humiture.Horizontal" = "Landscape";
+"mydevice.gateway.sensor.humiture.outdoorLocation" = "Outdoor Location";
+"mydevice.gateway.sensor.humiture.outdoorWeather" = "Outdoor humiture provided by China Tianqi Network";
+"mydevice.gateway.sensor.humiture.IndoorEnvironmentReminder" = "Environment Change Notification";
+"mydevice.gateway.sensor.humiture.Trend" = "Historical Trend";
+"mydevice.gateway.sensor.humiture.SendMessage" = "Send notification when temperature or humidity hit preset limit";
+"mydevice.gateway.sensor.humiture.Indoor.Outdoor" = "Indoor / Outdoor";
+"mydevice.gateway.sensor.humiture.search" = "search";
+"mydevice.gateway.sensor.humiture.quickly.add" = "Quickly Add";
+"mydevice.gateway.sensor.humiture.temp_lower_than_23_and_humidity_lower30" = "Dry and cold";
+"mydevice.gateway.sensor.humiture.temp_lower_than_23_and_humidity_between_30_and_70" = "Cold";
+"mydevice.gateway.sensor.humiture.temp_lower_than_23_and_humidity_than_70" = "Humid and cold";
+"mydevice.gateway.sensor.humiture.temp_between_23_and_27_and_humindity_lower_30" = "Dry";
+"mydevice.gateway.sensor.humiture.temp_between_23_and_27_and_humidity_between_30_and_70" = "Mild";
+"mydevice.gateway.sensor.humiture.temp_between_23_and_27_and_humidity_than_70" = "Humid";
+"mydevice.gateway.sensor.humiture.humidity_temp_than_27_and_humidity_lower_30" = "Dry and hot";
+"mydevice.gateway.sensor.humiture.humidity_temp_than_27_and_humidity_between_30_and_70" = "Hot";
+"mydevice.gateway.sensor.humiture.humidity_temp_than_27_and_humidity_than_70" = "Humid and hot";
+"mydevice.gateway.sensor.humiture.humidity_type_1" = "Keep warm and add water";
+"mydevice.gateway.sensor.humiture.humidity_type_2" = "Keep warm, and dehumidify your room";
+"mydevice.gateway.sensor.humiture.humidity_type_3" = "Pay attention to sunstroke, and add water";
+"mydevice.gateway.sensor.humiture.humidity_type_4" = "Pay attention to sunstroke, and dehumidify your room";
+"mydevice.gateway.sensor.humiture.humidity_type_5" = "Add water";
+"mydevice.gateway.sensor.humiture.humidity_type_6" = "Dehumidify your room";
+"mydevice.gateway.sensor.humiture.humidity_type_7" = "Keep warm";
+"mydevice.gateway.sensor.humiture.humidity_type_8" = "Pay attention to sunstroke";
+"mydevice.gateway.sensor.humiture.unusualtips" = "The battery will soon run out, because it exceeds -20 ~ 60℃ operating range";
+"mydevice.gateway.sensor.humiture.unusualtips.network" = "Network anomalies, press the key to open the device and reload";
+
+
+"mydevice.gateway.sensor.singleNeutral" = "Wall Switch(ZigBee Single)";
+"mydevice.gateway.sensor.singleNeutral.title.left" = "Left Light";
+"mydevice.gateway.sensor.singleNeutral.title.right" = "Right Light";
+"mydevice.gateway.sensor.singleNeutral.timer.title" = "Swith Timer";
+"mydevice.gateway.sensor.doubleNeutral.timer.title" = "Swith Selection";
+"mydevice.gateway.sensor.doubleNeutral.timer.left" = "Left Timer Setting";
+"mydevice.gateway.sensor.doubleNeutral.timer.left.title" = "Left Timer";
+"mydevice.gateway.sensor.doubleNeutral.timer.right" = "Right Timer Setting";
+"mydevice.gateway.sensor.doubleNeutral.timer.right.title" = "Right Timer";
+"mydevice.gateway.sensor.neutral.changeLogo.left.title" = "Left Change Logo";
+"mydevice.gateway.sensor.neutral.changeLogo.right.title" = "Right Change Logo";
+"mydevice.gateway.sensor.doubleNeutral.rename.left" = "Left Rename";
+"mydevice.gateway.sensor.doubleNeutral.rename.right" = "Right Rename";
+"mydevice.gateway.sensor.singleNeutral.isOn" = "On";
+"mydevice.gateway.sensor.singleNeutral.isOff" = "Off";
+"mydevice.gateway.sensor.singleNeutral.logo.light" = "light";
+"mydevice.gateway.sensor.singleNeutral.logo.chandelier_one" = "chandelier";
+"mydevice.gateway.sensor.singleNeutral.logo.chandelier_three" = "chandelier";
+"mydevice.gateway.sensor.singleNeutral.logo.chandelier_two" = "chandelier";
+"mydevice.gateway.sensor.singleNeutral.logo.spotlight" = "spotlight";
+"mydevice.gateway.sensor.singleNeutral.logo.wall_lamp" = "wall lamp";
+"mydevice.gateway.sensor.singleNeutral.logo.daylight_lamp" = "daylight lamp";
+"mydevice.gateway.sensor.singleNeutral.logo.ceiling_lights" = "ceiling lights";
+"mydevice.gateway.sensor.singleNeutral.logo.exhaust_fan" = "exhaust fan";
+
+
+//窗帘
+"mydevice.gateway.sensor.curtain.timer.title" = "Curtain Timer";
+"mydevice.gateway.sensor.curtain.openlevel" = "Open Level";
+"mydevice.gateway.sensor.curtain.action.open" = "Open";
+"mydevice.gateway.sensor.curtain.action.stop" = "Pause";
+"mydevice.gateway.sensor.curtain.action.close" = "Close";
+"mydevice.gateway.sensor.curtain.installationtutorial" = "安裝教程";
+"mydevice.gateway.sensor.curtain.directionchoice" = "方向選擇";
+"mydevice.gateway.sensor.curtain.clearitinerary" = "清除行程(慎點)";
+"mydevice.gateway.sensor.curtain.manualcontrol" = "手動/開關窗簾";
+"mydevice.gateway.sensor.curtain.directionchoice.forward" = "正向";
+"mydevice.gateway.sensor.curtain.directionchoice.reverse" = "反向";
+"mydevice.gateway.sensor.curtain.manualcontrol.comment" = "僅需用手輕拉窗簾,即可自動開/關窗簾";
+"mydevice.gateway.sensor.curtain.installationtutorial.title" = "1、點擊“打開”按鈕，等待幾秒，查看窗簾是否完全打開，而不是關閉或窗簾卡住。\n2、點擊“關閉”按鈕，等待幾秒，查看窗簾是否完全關閉，而不是打開或窗簾卡住。\n3、若上述兩個步驟均正常執行，即說明窗簾初始化成功。如果沒有，則需要進入“更多->設置軌道方向”，選擇另外一個軌道方向，初始化窗簾即完成。若窗簾卡住，請看第4步。\n4、如果窗簾卡住，請檢查軌道是否有障礙物。如果有，取出障礙物后點擊“更多->清除行程”。然後重新執行步驟1、2、3。如果沒有，請聯繫客服。";
+
+
+"mydevice.gateway.sensor.lr.close" = "shut off";
+"mydevice.gateway.sensor.lr.cool" = "Cool";
+"mydevice.gateway.sensor.lr.heat" = "Heat";
+"mydevice.gateway.sensor.lr.timer" = "Timer";
+
+//空调伴侣
+"mydevice.gateway.sensor.acpartner.add" = "Match Air Conditioner";
+"mydevice.gateway.sensor.acpartner.add.seleted" = "Choose Brand";
+"mydevice.gateway.sensor.acpartner.add.commonbrand" = "Common brand";
+"mydevice.gateway.sensor.acpartner.add.allbrand" = "All brand";
+"mydevice.gateway.sensor.acpartner.add.warningtips.detail" = "1. Before adding, make sure the air conditioner connected to the outlet air conditioning companion. \n 2. Add the process, do not use air conditioning remote control, so as not to affect the result of adding.";
+"mydevice.gateway.sensor.acpartner.add.warningtips.green.one" = "air conditioner";
+"mydevice.gateway.sensor.acpartner.add.warningtips.green.two" = "air conditioning companion";
+"mydevice.gateway.sensor.acpartner.add.warningtips.green.three" = "do not use";
+"mydevice.gateway.sensor.acpartner.add.warningtips.green.four" = "remote";
+"mydevice.gateway.sensor.acpartner.add.offline" = "Device offline. Please try again plugged";
+"mydevice.gateway.sensor.acpartner.add.type.auto" = "Matching air conditioning automatically";
+"mydevice.gateway.sensor.acpartner.add.type.manual" = "Match air conditioning manually";
+"mydevice.gateway.sensor.acpartner.add.type.manual.title" = "Click the button below to control air conditioning";
+"mydevice.gateway.sensor.acpartner.add.type.manual.detail" = "Click Match Completed if it effects, otherwise click left and right buttons to change other programs";
+"mydevice.gateway.sensor.acpartner.add.type.manual.detail.green.one" = "Match Completed";
+"mydevice.gateway.sensor.acpartner.add.type.manual.detail.green.two" = "left and right buttons";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.head" = "the";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.tail" = "plan";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.change" = "Replacing program";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.change.failed" = "Replace program failed, please try again";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.back.tips" = "Whether to use the current program?";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.use" = "Use";
+"mydevice.gateway.sensor.acpartner.add.type.manual.plancount.notuse" = "Give Up";
+"mydevice.gateway.sensor.acpartner.add.type.manual.button.on" = "ON";
+"mydevice.gateway.sensor.acpartner.add.type.manual.button.off" = "OFF";
+"mydevice.gateway.sensor.acpartner.add.type.manual.button.tempplus" = "Temp +";
+"mydevice.gateway.sensor.acpartner.add.type.manual.button.templess" = "Temp -";
+"mydevice.gateway.sensor.acpartner.add.type.manual.noplan" = "No matching programs >";
+"mydevice.gateway.sensor.acpartner.add.type.manual.complete" = "Match Completed";
+"mydevice.gateway.sensor.acpartner.add.comfirm.open" = "Is air conditioning on?";
+"mydevice.gateway.sensor.acpartner.add.comfirm.close" = "Is air conditioning off?";
+"mydevice.gateway.sensor.acpartner.add.yes" = "YES";
+"mydevice.gateway.sensor.acpartner.add.no" = "NO";
+"mydevice.gateway.sensor.acpartner.add.power" = "Please wait for power stability";
+"mydevice.gateway.sensor.acpartner.add.wait" = "Connecting air conditioner, please wait";
+"mydevice.gateway.sensor.acpartner.add.succeed" = "Compelete";
+"mydevice.gateway.sensor.acpartner.add.succeed.title" = "Congraduation! Your air conditioner is connected successfully";
+"mydevice.gateway.sensor.acpartner.add.failure" = "Failure";
+"mydevice.gateway.sensor.acpartner.add.failure.title" = "Connection failed No matching air conditioner in the database. Please upload your air conditioner model, and we will update as soon as possible";
+"mydevice.gateway.sensor.acpartner.add.failure.tips" = "Sorry, the type of air conditioning did not match. Please try a different match type";
+"mydevice.gateway.sensor.acpartner.add.succeed.tips" = "If the current control is not good to use, you can re-match air conditioning in More settings ";
+"mydevice.gateway.sensor.acpartner.add.upload" = "Upload";
+"mydevice.gateway.sensor.acpartner.add.upload.brand" = "Brand";
+"mydevice.gateway.sensor.acpartner.add.upload.model" = "Model";
+"mydevice.gateway.sensor.acpartner.add.upload.succeed" = "Upload successfully. We will update your airconditioner model as soon as possible";
+"mydevice.gateway.sensor.acpartner.add.upload.failure" = "Upload failed";
+"mydevice.gateway.sensor.acpartner.add.upload.none" = "Brands and models can not be empty";
+"mydevice.gateway.sensor.acpartner.more" = "More";
+"mydevice.gateway.sensor.acpartner.control" = "Air conditioner Control";
+"mydevice.gateway.sensor.acpartner.control.mode" = "This mode is uncontrollable";
+"mydevice.gateway.sensor.acpartner.control.windpower" = "Under the current model,the wind speed is uncontrollable";
+"mydevice.gateway.sensor.acpartner.detail" = "More>";
+"mydevice.gateway.sensor.acpartner.switch" = "ON/OFF";
+"mydevice.gateway.sensor.acpartner.timer" = "Timer";
+"mydevice.gateway.sensor.acpartner.timer.title" = "Air conditioner Timer";
+"mydevice.gateway.sensor.acpartner.timer.timespan" = "Timespan";
+"mydevice.gateway.sensor.acpartner.timer.temperature" = "Temperature";
+"mydevice.gateway.sensor.acpartner.mode" = "Mode";
+"mydevice.gateway.sensor.acpartner.mode.cool" = "Cool Mode";
+"mydevice.gateway.sensor.acpartner.mode.heat" = "Heat Mode";
+"mydevice.gateway.sensor.acpartner.mode.dry" = "Dry Mode";
+"mydevice.gateway.sensor.acpartner.mode.fan" = "Fan Mode";
+"mydevice.gateway.sensor.acpartner.mode.auto" = "Auto Mode";
+"mydevice.gateway.sensor.acpartner.fanspeed" = "Fan Speed";
+"mydevice.gateway.sensor.acpartner.fanspeed.low" = "Low";
+"mydevice.gateway.sensor.acpartner.fanspeed.medium" = "Medium";
+"mydevice.gateway.sensor.acpartner.fanspeed.high" = "High";
+"mydevice.gateway.sensor.acpartner.fanspeed.auto" = "Auto";
+"mydevice.gateway.sensor.acpartner.airswing" = "Swing";
+"mydevice.gateway.sensor.acpartner.airswing.upanddown" = "Up and Down";
+"mydevice.gateway.sensor.acpartner.airswing.leftandright" = "Left and Right";
+"mydevice.gateway.sensor.acpartner.airswing.auto" = "Auto";
+"mydevice.gateway.sensor.acpartner.settings" = "Air contioner Settings";
+"mydevice.gateway.sensor.acpartner.more.newir" = "Re-match air conditioning";
+"mydevice.gateway.sensor.acpartner.add.first" = "Please add air conditioning first";
+"mydevice.gateway.sensor.acpartner.unavailable" = "This air-conditioned does not support this option";
+"mydevice.gateway.sensor.acpartner.timer.on" = "On";
+"mydevice.gateway.sensor.acpartner.timer.off" = "Off";
+"mydevice.gateway.sensor.acpartner.temperature.increase.outBoundary" = "Dear, the temperature must be higher than 30 degrees~";
+"mydevice.gateway.sensor.acpartner.temperature.decrease.outBoundary" = "Dear，the temperature must be lower than 17 degrees~";
+"mydevice.gateway.sensor.acpartner.scene.opentitle" = "Open Air conditioning and infrared companion adjusted";
+"mydevice.gateway.sensor.acpartner.footer.delayoff" = "Off Delay";
+"mydevice.gateway.sensor.acpartner.footer.coolmode" = "Cool";
+"mydevice.gateway.sensor.acpartner.footer.sleepmode" = "Sleep";
+"mydevice.gateway.sensor.acpartner.footer.addremote" = "Add Button";
+"mydevice.gateway.sensor.acpartner.footer.deleteremote" = "Delete Button";
+"mydevice.gateway.sensor.acpartner.actionsheet.life" = "Life Scene";
+"mydevice.gateway.sensor.acpartner.coolspeed.caption" = "Cold boot speed";
+"mydevice.gateway.sensor.acpartner.footer.led" = "LED";
+"mydevice.gateway.sensor.acpartner.coolspeed.comment.header" = "Power to the maximum wind speed dropped to 20 degrees, ";
+"mydevice.gateway.sensor.acpartner.coolspeed.comment.tail" = "later, Replies Last temperature";
+"mydevice.gateway.sensor.acpartner.coolspeed.time.caption" = "Rapid cooling time";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.caption" = "When the room temperature below 30 degrees, rapid cool will not excute";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.comment" = "Need to associate temperature and humidity";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.start" = "ON";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.none" = "Dear, this function needs to associate temperature and humidity sensors, \ n you can add on the Device page~";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.notconnect" = "Not associated";
+"mydevice.gateway.sensor.acpartner.coolspeed.ht.add" = "Associate temperature and humidity";
+"mydevice.gateway.sensor.acpartner.coolspeed.trend.title" = "Rapid cooling curve";
+"mydevice.gateway.sensor.acpartner.sleepmode.caption" = "Sleep Mode";
+"mydevice.gateway.sensor.acpartner.sleepmode.comment" = "According to sleep curve, the lowest wind speed to adjust the air conditioning temperature";
+"mydevice.gateway.sensor.acpartner.sleepmode.timespan" = "Sleep timespan";
+"mydevice.gateway.sensor.acpartner.sleepmode.timespan.title" = "Sleep time setting";
+"mydevice.gateway.sensor.acpartner.sleepmode.tips" = "Note: air conditioning is only turned on, this function works";
+"mydevice.gateway.sensor.acpartner.addremote.title" = "Add remote control button";
+"mydevice.gateway.sensor.acpartner.remotematch" = "Remote Mactch";
+"mydevice.gateway.sensor.acpartner.remotematch.title" = "Match  air conditioning with the remote control";
+"mydevice.gateway.sensor.acpartner.remotematch.tips" = "Please use the air conditioning remote control, press the switch button in front of air conditioning";
+"mydevice.gateway.sensor.acpartner.remotematch.failure" = "Try other methods";
+"mydevice.gateway.sensor.acpartner.addremote.title" = "Add remote control button";
+"mydevice.gateway.sensor.acpartner.addremote.tips" = "Air-conditioning remote control at the air conditioner, press the button to learn (eg lighting)";
+"mydevice.gateway.sensor.acpartner.addremote.failure" = "Add remote control buttons failed";
+"mydevice.gateway.sensor.acpartner.addremote.rename.title" = "Setup button name";
+"mydevice.gateway.sensor.acpartner.addremote.rename.caption" = "Key operation name";
+"mydevice.gateway.sensor.acpartner.addremote.rename.tips.title" = "Note :";
+"mydevice.gateway.sensor.acpartner.addremote.rename.tips.text" = "Some air-conditioning indicator switch maybe is different infrared codes, you need to add twice.";
+"mydevice.gateway.sensor.acpartner.addremote.succeed.header" = "Add";
+"mydevice.gateway.sensor.acpartner.addremote.succeed.tail" = "Succeed";
+"mydevice.gateway.sensor.acpartner.addremote.rename.nono" = "Key name can not be empty";
+"mydevice.gateway.sensor.acpartner.addremote.rename.caption" = "Key names with the same name has been the key, please re-enter";
+"mydevice.gateway.sensor.acpartner.setting.type" = "Working way";
+"mydevice.gateway.sensor.acpartner.setting.type.temperature" = "Temperature";
+
+
+//收音机
+"mydevice.gateway.setting.xmfm" = "Radio";
+"mydevice.gateway.setting.xmfm.device.limited" = "20 radios at most";
+"mydevice.gateway.setting.xmfm.location.fail" = "no authority";
+"mydevice.gateway.setting.xmfm.volume" = "volume";
+"mydevice.gateway.setting.xmfm.tab.rank" = "Rank";
+"mydevice.gateway.setting.xmfm.tab.local" = "Local channel";
+"mydevice.gateway.setting.xmfm.tab.country" = "National channel";
+"mydevice.gateway.setting.xmfm.tab.network" = "Web channel";
+"mydevice.gateway.setting.xmfm.program" = "schedule";
+"mydevice.gateway.setting.xmfm.program.none" = "none";
+"mydevice.gateway.setting.xmfm.program.count" = "10 thousand";
+"mydevice.gateway.setting.xmfm.collection.none" = "none";
+"mydevice.gateway.setting.xmfm.player.programlist" = "schedule list";
+"mydevice.gateway.setting.xmfm.player.addcollection" = "add";
+"mydevice.gateway.setting.xmfm.player.addcollectionlist" = "Add to favorite";
+"mydevice.gateway.setting.xmfm.player.mycollection" = "My favorite";
+"mydevice.gateway.setting.xmfm.player.collectionlist" = "FM";
+"mydevice.gateway.setting.xmfm.player.rate.low" = "HS";
+"mydevice.gateway.setting.xmfm.player.rate.low.title" = "High speed";
+"mydevice.gateway.setting.xmfm.player.rate.high" = "HQ";
+"mydevice.gateway.setting.xmfm.player.rate.high.title" = "High quality";
+"mydevice.gateway.setting.xmfm.timer.cancel" = "cancel";
+"mydevice.gateway.setting.xmfm.timer.10" = "10 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.20" = "20 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.30" = "30 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.40" = "40 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.50" = "50 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.60" = "60 minutes lator shut down";
+"mydevice.gateway.setting.xmfm.timer.display" = " minutes lator shut down";
+"mydevice.gateway.setting.xmfm.noneradio" = "No play content";
+"mydevice.gateway.setting.xmfm.gettingradio" = "loading...";
+"mydevice.gateway.setting.xmfm.searchtop" = "Top words";
+"mydevice.gateway.setting.xmfm.searchhistory" = "History";
+"mydevice.gateway.setting.xmfm.searchplaceholder" = "input key words";
+"mydevice.gateway.setting.xmfm.volume.hardware" = "FM Volume";
+"mydevice.gateway.setting.xmfm.collection.nonelist" = "No play content,please add to my favorite";
+
+// 设备设置
+"mydevice.setting.datepicker.ok" = "Ok";
+
+// app间跳转
+"interapp.opendevice.account.notsame" = "Login account ISN'T identical, switch to identical account";
+"interapp.opendevice.device.notfound" = "The device was not found, please refresh the list";
+"interapp.opendevice.device.notbind" = "The device is unbind, please click confirm button to bind the device";
+
+/**
+ *  设备商店
+ */
+"shop.title" = "Device Shop";
+
+/**
+ *  个人中心
+ */
+"profile.title" = "Profile";
+
+"profile.button.login" = "Login";
+"profile.button.logout" = "Logout";
+"profile.button.newaccount" = "New Account";
+"profile.button.forget" = "Forget?";
+"profile.button.register" = "Register";
+"profile.alert.login.failed" = "Login Failed";
+"profile.alert.login.passwordinvalid" = "Account or password invalid";
+"profile.alert.login.unknownerror" = "Unknown error";
+"profile.alert.login.cancel" = "Cancel";
+"profile.alert.login.retry" = "Retry";
+"profile.alert.login.invalid" = "Login Expired";
+"profile.alert.login.invalid.description" = "MI passport is expired";
+"profile.alert.login.relogin" = "Relogin";
+"profile.alert.logout.title" = "Logout";
+"profile.alert.logout.msg" = "Are you sure?";
+"profile.alert.logout.cancel" = "cancel";
+"profile.alert.logout.confirm" = "confirm";
+"profile.alert.logout.retry" = "retry";
+"profile.alert.unbind.failed" = "Logout failed!";
+"profile.alert.unbind.msg" = "Logout again?";
+
+/**
+ *  账号
+ */
+"account.force.logout.msg" = "your account is invalid, please re-Login";
+
+//分享消息
+"sharemsg.button.accept" = "Accept";
+"sharemsg.button.decline" = "Decline";
+
+"sharemsg.status.accepted" = "Accepted";
+"sharemsg.status.declined" = "Declined";
+"sharemsg.status.pending" = "Pending";
+"sharemsg.status.cancelled" = "Share invitation has been revoked";
+"sharemsg.status.clear.failed" = "Share messages clear failed";
+"sharemsg:alert.clear.title" = "Clear Share messages";
+"sharemsg:alert.clear.message" = "Whether to clear all share messages？";
+"sharemsg:alert.clear.cancel" = "Cancel";
+"sharemsg:alert.clear.confirm" = "Clear";
+
+//摄像头报警
+"push.camera.alert.title" = "Camera Alert";
+"push.camera.alert.confirm" = "Take a look";
+"push.camera.alert.cancel" = "Cancel";
+
+/**
+ * 关于
+ */
+"about.button.currVersion" = "Version";
+"about.button.tap" = "Terms of Service & Privacy Policy";
+
+//反馈
+"feedback.tips.finish" = "Feedback submitted successfully";
+"feedback.tips.failed" = "Feedback submitted failed! Please submit again";
+
+//登录
+"login.actionsheet.login.title" = "CAN'T use without login, Login now?";
+
+//分享
+"share.wechat.friend" = "To WeChat";
+"share.wechat.moment" = "To Moment";
+"share.michat.broadcast" = "To MiLiao";
+"share.weibo.post" = "分享到微博";
+"share.wechat.uninstall" = "Please install WeChat app first.";
+"share.weibo.uninstall" = "Please install WeiBo app first.";
+"share.michat.uninstall" = "Please install MiLiao app first.";
+
+//自动化
+"ifttt.scene" = "Automation";
+"ifttt.scene.add" = "Add automation";
+"ifttt.scene.rename" = "Rename";
+"ifttt.scene.rename.title" = "Rename automation";
+"ifttt.scene.rename.failed" = "Rename automation failed";
+"ifttt.scene.rename.succeed" = "Rename automation succeed";
+"ifttt.scene.enable" = "Enable";
+"ifttt.scene.execute.notify" = "Notify";
+"ifttt.scene.execute.locate" = "Locate";
+"ifttt.scene.execute.local" = "Local";
+"ifttt.scene.execute.cloud" = "Cloud";
+"ifttt.scene.delete" = "Delete";
+"ifttt.scene.delete.confirm" = "Confirm delete";
+"ifttt.scene.delete.success" = "Automation deleted";
+"ifttt.scene.delete.failed" = "Delete automation failed";
+"ifttt.scene.enable.failed" = "Enable automation failed";
+"ifttt.scene.disable.failed" = "Disable automation failed";
+"ifttt.scene.execute.succeed" = "Automation execute succeed";
+"ifttt.scene.execute.failed" = "Automation execute failed, please retry";
+"ifttt.scene.execute.result.succeed" = "Execute succeed";
+"ifttt.scene.execute.result.failed" = "Execute failed";
+"ifttt.scene.execute.result.offline" = "Device offline";
+"ifttt.scene.execute.result.timeout" = "Timeout";
+"ifttt.scene.execute.result.others" = "Unknown error";
+"ifttt.scene.trigger.click" = "Click to Launch";
+"ifttt.scene.trigger.timer" = "Timer";
+"ifttt.scene.trigger.returnhome" = "Return Home";
+"ifttt.scene.trigger.leavehome" = "Leave Home";
+"ifttt.scene.trigger.timespan" = "Timespan";
+"ifttt.scene.trigger.timespan.edit" = "Edit timespan";
+"ifttt.scene.trigger.timespan.delete" = "Delete timespan";
+"ifttt.scene.trigger.maximum.reached" = "Reached maximum triggers of %ld";
+"ifttt.scene.action.push" = "Push";
+"ifttt.scene.action.push.title" = "Automation Notification";
+"ifttt.scene.action.push.desc" = "Click to Launch";
+"ifttt.scene.action.push.desc.or" = " or ";
+"ifttt.scene.action.push.desc.and" = " and ";
+"ifttt.scene.action.delay" = "Delay";
+"ifttt.scene.create" = "Create automation";
+"ifttt.scene.create.step1" = "Step1：set condition";
+"ifttt.scene.create.step2" = "Step2：Add action";
+"ifttt.scene.create.addaction" = "Add action";
+"ifttt.scene.edit" = "Edit automation";
+"ifttt.scene.edit.exit" = "Exit";
+"ifttt.scene.edit.exit.tips" = "Modification will missing, exit?";
+"ifttt.scene.edit.if"  = "If";
+"ifttt.scene.edit.if.detaildefault"  = "Set a condition";
+"ifttt.scene.edit.then"  = "Then";
+"ifttt.scene.edit.then.detaildefault"  = "Add action";
+"ifttt.scene.edit.mission.none"  = "Action not set";
+"ifttt.scene.edit.risk.warning" = "Warning:";
+"ifttt.scene.edit.risk.intro" = "network problems may cause scene failure, please do not connect any device with potential safety risk";
+"ifttt.scene.save.failed" = "Save automation failed";
+"ifttt.scene.log" = "Automation log";
+"ifttt.scene.log.clear" = "Clear automation log";
+"ifttt.scene.log.clearall" = "Clear all？";
+"ifttt.scene.log.clear.failed" = "Clear log failed";
+"ifttt.scene.error.notowned" = "The device is not owned by you";
+"ifttt.scene.error.emptyname" = "Name must not empty";
+"ifttt.scene.error.notriggers" = "Please add condition first";
+"ifttt.scene.error.noactions" = "Please choose action";
+"ifttt.scene.error.unavailabledevice" = "Device unavailable";
+"ifttt.scene.error.has.recommend.triggers" = "There's recommend trigger";
+"ifttt.scene.error.has.recommend.actions" = "There's recommend action";
+"ifttt.scene.trigger" = "Tigger";
+"ifttt.scene.action" = "Action";
+"ifttt.scene.trigger.relation.and" = "If All triggers met";
+"ifttt.scene.trigger.relation.or" = "If Any trigger met";
+"ifttt.scene.trigger.conflict" = "Triggers conflict with this relation";
+"ifttt.scene.execute.actions" = "Then execute actions";
+"ifttt.scene.no.triggers" = "No triggers";
+"ifttt.scene.no.actions" = "No actions";
+"ifttt.scene.mine" = "Mine";
+"ifttt.scene.mine.title" = "My Automation";
+"ifttt.scene.mine.more" = "More >";
+"ifttt.scene.recom" = "Recommended";
+"ifttt.scene.execute" = "Execute";
+"ifttt.scene.status.opened" = "Opened";
+"ifttt.scene.status.closed" = "Closed";
+"ifttt.scene.name.fake" = "Empty list";
+"ifttt.scene.delete.alert.title" = "Are you sure to delete selected %d automations ?";
+"ifttt.scene.disclaimer" = "《Instructions of automation usage》";
+"ifttt.scene.local.alert.title" = "Synchronize the local automation failed, it is recommended to retry";
+"ifttt.scene.local.delete.alert.title" = "Make sure the gateway is online before deleting ";
+"ifttt.scene.local.delete.alert.offline.title" = "Some scene devices are offline, please go check";
+"ifttt.scene.local.alert.edit.tips" = "Synchronize the local automation failed!";
+"ifttt.scene.local.scene.log.title" = "All Device";
+"ifttt.scene.local.scene.log.title.datepicker" = "Calendar";
+"ifttt.scene.local.scene.log.title.calendar.sun" = "Sun";
+"ifttt.scene.local.scene.log.title.calendar.mon" = "Mon";
+"ifttt.scene.local.scene.log.title.calendar.tue" = "Tue";
+"ifttt.scene.local.scene.log.title.calendar.wed" = "Wed";
+"ifttt.scene.local.scene.log.title.calendar.thu" = "Thu";
+"ifttt.scene.local.scene.log.title.calendar.fri" = "Fri";
+"ifttt.scene.local.scene.log.title.calendar.sat" = "Sat";
+"ifttt.scene.local.scene.log.refresh.stateidle" = "Pull down";
+"ifttt.scene.local.scene.log.refresh.pulling" = "Release";
+"ifttt.scene.local.scene.log.refresh.refreshing" = "Loading";
+"ifttt.scene.local.scene.log.refresh.willrefresh" = "Will Loading";
+"ifttt.scene.local.scene.log.refresh.nomoredaata" = "No More Data";
+"ifttt.scene.local.scene.log.scenedelete" = "Automation has been deleted";
+"ifttt.scene.local.scene.log.scenedelete.confirm" = "I know";
+"ifttt.scene.local.scene.ht.temphigh" = "Temperature above ";
+"ifttt.scene.local.scene.ht.templow" = "Temperature below ";
+"ifttt.scene.local.scene.ht.humihigh" = "Humidity above ";
+"ifttt.scene.local.scene.ht.humilow" = "Humidity below ";
