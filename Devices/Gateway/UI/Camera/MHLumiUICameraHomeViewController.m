@@ -19,10 +19,8 @@
 #import <ffmpegWrapper/MHEAGLView.h>
 #import "MHLumiLocalCachePathHelper.h"
 #import "MHLumiMuxer.h"
-#import "PlayAudio.h"
+#import "MHLumiAudioPlayer.h"
 #import "MHLumiRecorder2.h"
-#import "MHAudioRecorder.h"
-#import "AudioRecorder.h"
 #import "NSDate+lumiDateHelper.h"
 #import <Photos/Photos.h>
 #import "MHLumiNeAACDecoder.h"
@@ -33,10 +31,8 @@
 #import "libavformat/avformat.h"
 #import "libavformat/avio.h"
 #import "MHLumiAACEncoder.h"
-#import "JWAACEncode.h"
 #import "MHLumiLocalCacheManager.h"
 #import "MHLumiUICameraHomeSettingViewController.h"
-#import "MHLumiAACEncoder2.h"
 
 typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
     MHLumiUICameraHomeViewControllerStatusNormal       = 0,
@@ -48,7 +44,7 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
     MHLumiUICameraHomeViewControllerStatusBackward,
 };
 //AudioRecorderDelegate
-@interface MHLumiUICameraHomeViewController()<MHLumiCameraTimeLineViewDelegate,MHLumiTUTKClientDelegate,MHLumiGLKViewControllerDataSource,MHLumiRecorder2Delegate,AudioRecordDelegate,AudioRecorderDelegate,MHLumiUICameraHomeSettingViewControllerDelegate>
+@interface MHLumiUICameraHomeViewController()<MHLumiCameraTimeLineViewDelegate,MHLumiTUTKClientDelegate,MHLumiGLKViewControllerDataSource,MHLumiRecorder2Delegate,MHLumiUICameraHomeSettingViewControllerDelegate>
 /**
  *  图库按钮
  */
@@ -125,11 +121,8 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
 @property (nonatomic, strong) PHAssetCollection *lumiCameraAssetCollection;
 @property (nonatomic, copy) NSString *h264Filename_V;
 @property (nonatomic, strong) NSFileHandle *h264FileHandle;//PlayAudio.h
-@property (nonatomic, strong) PlayAudio *audioPlayer;
+@property (nonatomic, strong) MHLumiAudioPlayer *audioPlayer;
 @property (nonatomic, strong) MHLumiRecorder2 *lumiRecorder;
-@property (nonatomic, strong) MHAudioRecorder *mhRecorder;
-@property (nonatomic, strong) AudioRecorder *audioRecorder;
-@property (nonatomic, strong) JWAACEncode *jwaacEncoder;
 @property (nonatomic, assign) CGSize videoDataSize;
 @property (nonatomic, strong) NSDate *cameraCurrentDate;
 @property (nonatomic, strong) MHLumiGLKViewController *glkViewController;
@@ -142,6 +135,7 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
 @property (nonatomic, assign, getter=isTimeLineDraging) BOOL timeLineDraging;
 //test
 @property (nonatomic, strong) NSFileHandle *aacFileHandle;
+@property (nonatomic, strong) NSFileHandle *pcmFileHandle;
 @property (nonatomic, strong) NSMutableArray <NSData *>*aaaaaada;
 
 //timeLineView指针的更新和可回看区域，timeLineView的总区域的更新
@@ -202,22 +196,37 @@ static CGFloat kControlPanelContanerView = 45;
 
 - (void)dealloc{
     NSLog(@"%@ VC开始析构",self.description);
+//    [_timerForTimeLineView invalidate];
+//    _timerForTimeLineView = nil;
+//    [_recordingTimer invalidate];
+//    _recordingTimer = nil;
+//    [_backwardTimer invalidate];
+//    _backwardTimer = nil;
+//    [_lumiTUTKClient deinitConnection];
+//    [_audioPlayer stopPlay];
+//    [_audioPlayer reset];
+//    avcodec_free_frame(&_todoFrame);
+//    [_aacFileHandle closeFile];
     [_timerForTimeLineView invalidate];
     _timerForTimeLineView = nil;
     [_recordingTimer invalidate];
     _recordingTimer = nil;
-    [_lumiTUTKClient deinitConnection];
+    [_backwardTimer invalidate];
+    _backwardTimer = nil;
+    _shouldUpdate = NO;
+    _lumiTUTKClient.canceled = YES;
     [_audioPlayer stopPlay];
     [_audioPlayer reset];
+    [_lumiTUTKClient deinitConnection];
     avcodec_free_frame(&_todoFrame);
-    [_aacFileHandle closeFile];
-    NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-    path = [path stringByAppendingPathComponent:@"ffffff"];
-    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-    if (self.aaaaaada){
-        [self.aaaaaada writeToFile:path atomically:YES];
-    }
     NSLog(@"%@ VC析构了",self.description);
+}
+
+- (void)onBack{
+    _lumiTUTKClient.canceled = YES;
+    [_audioPlayer stopPlay];
+    [_audioPlayer reset];
+    [_aacFileHandle closeFile];
 }
 
 #pragma mark - view life cycle
@@ -240,6 +249,9 @@ static CGFloat kControlPanelContanerView = 45;
     CGFloat labelY = self.navigationController.navigationBarHidden ? 18 : 64 + 18;
     CGFloat labelY2 = self.navigationController.navigationBarHidden ? 0 : 64;
     self.recordingTimeLabel.frame = CGRectMake(0, labelY, viewWidth, kRecordingTimeLabelHeight);
+    if (self.glkViewController.view.superview){
+        labelY = CGRectGetMinY(self.glkViewController.view.frame);
+    }
     self.backwardTimeLabel.frame = CGRectMake(0, labelY2, viewWidth, kRecordingTimeLabelHeight);
     //针对横屏竖屏处理
     if ([self isLandscapeRight]){
@@ -264,6 +276,10 @@ static CGFloat kControlPanelContanerView = 45;
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
+    [self.glkViewController setCurrentContext];
+    [self setNeedsStatusBarAppearanceUpdate];
+    [self.lumiTUTKClient cleanLocalBuffer];
+    [self.lumiTUTKClient setRequestAudioDataOrNotWithFlag:YES];
 //    [self.videoView enterForeground];
 //    NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
 //    path = [path stringByAppendingPathComponent:@"ffffff"];
@@ -279,10 +295,21 @@ static CGFloat kControlPanelContanerView = 45;
 //    }
 }
 
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [[MHTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationPortrait];
+    [[MHMusicTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationPortrait];
+    [self.lumiTUTKClient setRequestAudioDataOrNotWithFlag:NO];
+    [self.audioPlayer flushAudio];
+}
+
 - (BOOL)shouldAutorotate{
     return NO;
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
+}
 
 #pragma mark - MHLumiCameraTimeLineViewDelegate
 - (void)cameraTimeLineViewEndDragging:(MHLumiCameraTimeLineView *)cameraTimeLineView{
@@ -303,7 +330,6 @@ static CGFloat kControlPanelContanerView = 45;
 }
 
 - (void)realCameraTimeLineViewEndDragging:(MHLumiCameraTimeLineView *)cameraTimeLineView{
-    NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:self.deltaTime_Camera_Sys];
     if ([cameraTimeLineView.currentDate earlierDate:cameraTimeLineView.markDateA] == cameraTimeLineView.currentDate){
         [cameraTimeLineView scrollToDate:self.dateLogForWillDrag andAnimated:YES];
         _timeLineDraging = NO;
@@ -314,11 +340,16 @@ static CGFloat kControlPanelContanerView = 45;
         if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusNormal){
             [cameraTimeLineView scrollToDate:self.dateLogForWillDrag andAnimated:YES];
         }else if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusBackward && _timeLineDraging){
-//            NSLog(@"停止回看，回到实时");
-//            NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlBackwardStopJSonString];
-//            [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:NO completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-//                [cameraTimeLineView scrollToDate:currentCameraDate andAnimated:YES];
-//            }];
+            NSLog(@"停止回看，回到实时");
+            NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlBackwardStopJSonString];
+            [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:NO completedHandler:^(MHLumiTUTKClient *client, int retcode) {
+                NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:weakself.deltaTime_Camera_Sys];
+                NSLog(@"%@",currentCameraDate.description);
+                weakself.dateLogForWillDrag = currentCameraDate;
+                [cameraTimeLineView scrollToDate:currentCameraDate andAnimated:YES];
+                [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.5];
+            }];
+            [self invalidateTimerForBackward];
         }
         _timeLineDraging = NO;
         return;
@@ -338,9 +369,10 @@ static CGFloat kControlPanelContanerView = 45;
             NSLog(@"回看成功");
             weakself.markForTimer = cameraTimeLineView.currentDate.timeIntervalSince1970;
             [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
+            [weakself fireTimerForBackwardWithDate:cameraTimeLineView.currentDate];
         }else{
             if (weakself.navigationController != nil){
-                [[MHTipsView shareInstance] showTipsInfo:@"该时间段不可回看" duration:0.8 modal:NO];
+                [weakself showTipsInfo:@"该时间段不可回看" duration:0.8 modal:NO];
                 [cameraTimeLineView scrollToDate:weakself.dateLogForWillDrag  andAnimated:YES];
             }
             NSLog(@"不可回看区域");
@@ -359,98 +391,52 @@ static CGFloat kControlPanelContanerView = 45;
 
 }
 #pragma mark - MHLumiRecorder2Delegate
-- (void)recorderOutput:(MHLumiRecorder2 *)recorder audioData:(NSData *)data{
-    [self.lumiTUTKClient addAccData:data];
-}
-
-#pragma mark - AudioRecorderDelegate
-- (void)onAudioDataReady:(void *)audioData
-                  length:(unsigned int)length;{
-//    NSLog(@"收到了 length： %d",length);
-//    if (self.aaaaaada == nil){
-//        self.aaaaaada = [NSMutableArray array];
-//    }
-//    
-//    NSData *todoData = [NSData dataWithBytes:audioData length:length];
-//
-//    [self.aaaaaada addObject:todoData];
-//    if (self.aacEncoder == nil){
-//        self.aacEncoder = [[MHLumiAACEncoder alloc] init];
-//        [self.aacEncoder creatEncoderWithAudioStreamBasicDescription:[self pcmAudioFormat]];
-//    }
-//    NSData *todoData = [NSData dataWithBytes:audioData length:length];
-//    __weak typeof(self) weakself = self;
-//    [self.aacEncoder encodeData:todoData callBackQueue:dispatch_get_global_queue(0, 0) completionBlock:^(NSData *encodedData, NSError *error) {
-//        if (!error) {
-//            [weakself.lumiTUTKClient addAccData:encodedData];
-////            [weakself.aaaaaada addObject:encodedData];
-//        }else if(error.code != -1990){
-//            NSLog(@"编码怎么了？error: %@",error);
-//        }
-//    }];
-}
-
-- (void)writeAACData:(NSData *)data{
-    if (!self.aacFileHandle){
-        NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-        path = [path stringByAppendingPathComponent:@"hjhkjkkkl.aac"];
-        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
-        self.aacFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
-    }
-    NSLog(@"写入了");
-    [self.aacFileHandle writeData:data];
-}
-
-- (void)AudioRecorder:(MHAudioRecorder *)audioData didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer{
-//    NSLog(@"收到了 ");
-//    static MHLumiAACEncoder2 *en = nil;
-//    if (en == nil){
-//        en = [[MHLumiAACEncoder2 alloc] init];
-//    }
-//    [en encodeSmapleBuffer:sampleBuffer];
-//    
-    
-    
-//    if (self.aacEncoder == nil){
-//        self.aacEncoder = [[MHLumiAACEncoder alloc] init];
-//    }
-//    
-//    __weak typeof(self) weakself = self;
-//    [self.aacEncoder encodeSampleBuffer:sampleBuffer callBackQueue:dispatch_get_global_queue(0, 0) completionBlock:^(NSData *encodedData, NSError *error) {
-//        if (!error) {
-//            [weakself.lumiTUTKClient addAccData:encodedData];
-//            [weakself writeAACData:encodedData];
-//        }else if(error.code != -1990){
-//            NSLog(@"编码怎么了？error: %@",error);
-//        }
-//    }];
-    
-    if (self.jwaacEncoder == nil){
-        self.jwaacEncoder = [[JWAACEncode alloc] init];
+- (void)lumiRecorder2:(MHLumiRecorder2 *)recorder didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer{
+    static int count = 0;
+    if (self.aacEncoder == nil){
+        self.aacEncoder = [[MHLumiAACEncoder alloc] init];
     }
     __weak typeof(self) weakself = self;
-    [self.jwaacEncoder encodeSampleBuffer:sampleBuffer completianBlock:^(NSData *encodedData, NSError *error) {
+    [self.aacEncoder encodeSampleBuffer:sampleBuffer callBackQueue:dispatch_get_main_queue() completionBlock:^(NSData *encodedData, NSError *error) {
         if (!error) {
+            if (weakself.talkbackButton.selected){
+                if (count >= 13 ){
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        int randomVolume = arc4random_uniform(100);
+                        [[MHMusicTipsView shareInstance] setVolume:randomVolume];
+                    });
+                    count = 0;
+                }else{
+                    count ++ ;
+                }
+            }
             [weakself.lumiTUTKClient addAccData:encodedData];
         }
     }];
 }
 
-- (AudioStreamBasicDescription)pcmAudioFormat{
-    AudioStreamBasicDescription mRecordFormat = {0};
-    mRecordFormat.mFormatID = kAudioFormatLinearPCM;
-    
-    // if we want pcm, default to signed 16-bit little-endian
-    mRecordFormat.mSampleRate = 44100;//SAMPLES_PER_SECOND; // amr 8khz
-    mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-    mRecordFormat.mBitsPerChannel = 16;
-    mRecordFormat.mChannelsPerFrame = 1;
-    mRecordFormat.mFramesPerPacket = 1;
-    
-    mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel/8) * mRecordFormat.mChannelsPerFrame;
-    mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame;
-    return mRecordFormat;
+- (void)writePCMData:(NSData *)data{
+    if (!self.pcmFileHandle){
+        NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+        path = [path stringByAppendingPathComponent:@"pcmdata"];
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+        self.pcmFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+    }
+//    NSLog(@"写入了");
+    [self.pcmFileHandle writeData:data];
+}
+
+- (void)writeAACData:(NSData *)data{
+    if (!self.aacFileHandle){
+        NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+        path = [path stringByAppendingPathComponent:@"backward.aac"];
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+        self.aacFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+    }
+//    NSLog(@"写入了");
+    [self.aacFileHandle writeData:data];
 }
 
 #pragma mark - MHLumiTUTKClientDelegate
@@ -479,6 +465,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
 - (void)client:(MHLumiTUTKClient *)client videoBuffer:(const void *)videoBuffer length:(int)length{
     if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusRecording){
         NSData *data = [NSData dataWithBytes:videoBuffer length:length];
+        NSLog(@"h264FileHandle writeData %d",length);
         [self.h264FileHandle writeData:data];
     }
 }
@@ -494,6 +481,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
     unsigned long dataLength = [self.lumiNeAACDecoder dataLengthWithFormatId];
     if (dataLength > 0){
         NSData *audioData = [[NSData alloc] initWithBytes:audioOutBuffe1r length:dataLength];
+        [self writePCMData:audioData];
         [_audioPlayer addAudioBuffer:audioData];
     }
 }
@@ -511,46 +499,46 @@ avcodecContext:(AVCodecContext*)avcodecContext
     return glkViewData;
 }
 
+- (bool)shouldUpdateBuffer:(MHLumiGLKViewController *)glkViewController{
+    static int count;
+    _shouldUpdate = [self.lumiTUTKClient proactiveFetchVideoDataWithABAVFrame:_todoFrame frameInfo:&_todoFrameInfo gotPicturePtr:&count];
+    int picSize = _todoFrame->height * _todoFrame->width;
+    if (picSize <= 0) {
+        _shouldUpdate = NO;
+        return _shouldUpdate;
+    }
+    CGSize newSize = CGSizeMake(_todoFrame->width, _todoFrame->height);
+    if (!CGSizeEqualToSize(self.videoDataSize, newSize)){
+        self.videoDataSize = newSize;
+        [self updateVideoViewFrame];
+    }
+    if (_isInitCamera){
+        _isInitCamera = NO;
+        NSLog(@"GLK初始化结束");
+        dispatch_group_leave(self.cameraGroup); //初始化GLK
+    }
+    if (_shouldUpdate && !self.timerForTimeLineView) {
+        [self fireTimerForTimeLineView];
+    }
+    return _shouldUpdate;
+//    if (_isInitCamera){
+//        _isInitCamera = NO;
+//        NSLog(@"GLK初始化结束");
+//        dispatch_group_leave(self.cameraGroup); //初始化GLK
+//    }
+//    return NO;
+}
+
+- (void)needUpdateMarkPoint:(MHLumiGLKViewController *)glkViewController{
+    
+}
+
 #pragma mark - MHLumiUICameraHomeSettingViewControllerDelegate
 - (void)cameraHomeSettingViewController:(MHLumiUICameraHomeSettingViewController *)cameraHomeSettingViewController
                      didChangDeviceName:(NSString *)name{
     //有空改为delegate抛出去
     [(MHLuDeviceViewControllerBase *)(self.parentViewController) buildTitle];
     [(MHLuDeviceViewControllerBase *)(self.parentViewController) refreshTitle];
-}
-
-- (bool)shouldUpdateBuffer:(MHLumiGLKViewController *)glkViewController{
-//    static int count;
-//    _shouldUpdate = [self.lumiTUTKClient proactiveFetchVideoDataWithABAVFrame:_todoFrame frameInfo:&_todoFrameInfo gotPicturePtr:&count];
-//    int picSize = _todoFrame->height * _todoFrame->width;
-//    if (picSize <= 0) {
-//        _shouldUpdate = NO;
-//        return _shouldUpdate;
-//    }
-//    CGSize newSize = CGSizeMake(_todoFrame->width, _todoFrame->height);
-//    if (!CGSizeEqualToSize(self.videoDataSize, newSize)){
-//        self.videoDataSize = newSize;
-//        [self updateVideoViewFrame];
-//    }
-//    if (_isInitCamera){
-//        _isInitCamera = NO;
-//        NSLog(@"GLK初始化结束");
-//        dispatch_group_leave(self.cameraGroup); //初始化GLK
-//    }
-//    if (_shouldUpdate && !self.timerForTimeLineView) {
-//        [self fireTimerForTimeLineView];
-//    }
-//    return _shouldUpdate;
-    if (_isInitCamera){
-        _isInitCamera = NO;
-        NSLog(@"GLK初始化结束");
-        dispatch_group_leave(self.cameraGroup); //初始化GLK
-    }
-    return NO;
-}
-
-- (void)needUpdateMarkPoint:(MHLumiGLKViewController *)glkViewController{
-    
 }
 
 #pragma mark - event response
@@ -593,7 +581,25 @@ avcodecContext:(AVCodecContext*)avcodecContext
     if (self.qualityButton.selected){
         [self qualityButtonAction:self.qualityButton];
     }
-    MHLumiCameraPhotosViewController *vc = [[MHLumiCameraPhotosViewController alloc] init];
+    
+    if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized){
+        
+    }else if([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusDenied
+             || [PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusRestricted){
+        NSLog(@"处理拒绝");
+        [self showFailedTips:@"用户没有授权操作相册" duration:1 modal:YES];
+        return;
+    }else if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusNotDetermined){
+        __weak typeof(self) weakself = self;
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakself previewButtonAction:sender];
+            });
+        }];
+        return;
+    }
+    
+    MHLumiCameraPhotosViewController *vc = [[MHLumiCameraPhotosViewController alloc] initWithCameraDevice:self.cameraDevice];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
@@ -636,7 +642,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }else if([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusDenied
              || [PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusRestricted){
         NSLog(@"处理拒绝");
-        [[MHTipsView shareInstance] showFailedTips:@"用户没有授权操作相册" duration:1 modal:YES];
+        [self showFailedTips:@"用户没有授权操作相册" duration:1 modal:YES];
         return;
     }else if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusNotDetermined){
         __weak typeof(self) weakself = self;
@@ -648,26 +654,50 @@ avcodecContext:(AVCodecContext*)avcodecContext
         return;
     }
     
+    NSError *error = nil;
+    [self screenshotGLKViewWithError:&error];
+    if (error != nil){
+         [self showFailedTips:@"保存失败" duration:1 modal:YES];
+    }
+    [self screenshotWhiteAnimationInView:self.glkViewController.view];
+}
+
+- (void)screenshotWhiteAnimationInView:(UIView *)targetView{
+    UIView *whiteView = [[UIView alloc] initWithFrame:targetView.bounds];
+    whiteView.backgroundColor = [UIColor whiteColor];
+    [targetView addSubview:whiteView];
+    whiteView.alpha = 0;
+    [UIView animateWithDuration:0.3 animations:^{
+        whiteView.alpha = 0.6;
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.3 animations:^{
+            whiteView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [whiteView removeFromSuperview];
+        }];
+    }];
+}
+
+- (void)screenshotGLKViewWithError:(NSError **)error{
     UIView *todoView = self.glkViewController.view;
-//    UIView *todoView = self.videoView;
+    //    UIView *todoView = self.videoView;
     CGFloat videoWidth = CGRectGetWidth(todoView.frame);
     CGFloat videoHeight = CGRectGetHeight(todoView.frame);
-    CGFloat iconWidth = sender.imageView.image.size.width;
+    CGFloat iconWidth = self.previewButton.imageView.image.size.width;
     CGFloat ratio = videoWidth/videoHeight;
     CGFloat todoHeight = iconWidth/sqrt((1+pow(ratio, 2)));
     todoHeight = todoHeight - 4;
     CGFloat todoWidth = todoHeight * ratio;
-
+    
     //真正需要保存的图
     UIGraphicsBeginImageContextWithOptions(todoView.bounds.size, NO, [UIScreen mainScreen].scale);
     [todoView drawViewHierarchyInRect:todoView.bounds afterScreenUpdates:YES];
     UIImage *todoImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    NSError *error = nil;
-    [MHLumiCameraMediaDataManager saveImage:todoImage toAssetColletion:self.lumiCameraAssetCollection andError:&error];
-    if (error){
-        [[MHTipsView shareInstance] showFailedTips:@"保存失败" duration:1 modal:YES];
+    [MHLumiCameraMediaDataManager saveImage:todoImage toAssetColletion:self.lumiCameraAssetCollection andError:error];
+    if (*error){
+        return;
     }
     
     //预览图
@@ -684,7 +714,6 @@ avcodecContext:(AVCodecContext*)avcodecContext
     UIImage *preViewPlusImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    //lumi_camera_previewButton_blackBG
     [self.previewButton setImage:[self previewButtonBlackImage] forState:UIControlStateNormal];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:preViewImage];
     [self.previewButton.superview addSubview:imageView];
@@ -698,69 +727,8 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }];
 }
 
-- (void)talkbackButtonTouchUpInside:(UIButton *)sender{
-    NSLog(@"%s",__func__);
-    [[MHMusicTipsView shareInstance] hide];
-//    __weak typeof(self) weakself = self;
-//    if (self.lumiTUTKClient.talkbackServiceStatus == MHLumiTUTKTalkbackStatusConnected){
-//        [self.lumiRecorder close];
-//        [self.lumiTUTKClient stopTalkBackWithJsonString:
-//         [MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:weakself.lumiTUTKClient.talkbackAVChannelId]
-//                                           completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-//                                               [weakself.mhRecorder stopRecording];
-//                                               [weakself.lumiTUTKClient resetAccData];
-//                                               [[MHTipsView shareInstance] showFinishTips:@"关闭成功" duration:1 modal:YES];
-//                                           }];
-//    }
-}
-
-- (void)talkbackButtonTouchDown:(UIButton *)sender{
-    if (self.qualityButton.selected){
-        [self qualityButtonAction:self.qualityButton];
-    }
+- (void)showScreenshotAnimationInButton:(UIButton *)button andImage:(UIImage *)previewImage{
     
-    __weak typeof(self) weakself = self;
-    if ([MHLumiRecorder2 recordPermission] == AVAudioSessionRecordPermissionUndetermined){
-        [MHLumiRecorder2 requestRecordPermission:^(BOOL granted) {
-            [weakself talkbackButtonTouchDown:sender];
-        }];
-        return;
-    }else if ([MHLumiRecorder2 recordPermission] == AVAudioSessionRecordPermissionDenied){
-        [[MHTipsView shareInstance] showFailedTips:@"用户没授权麦克风操作" duration:1 modal:YES];
-        return;
-    }
-    
-    if (weakself.lumiTUTKClient.talkbackServiceStatus == MHLumiTUTKTalkbackStatusDefault){
-//        [[MHMusicTipsView shareInstance] showVolumeViewWithTips:@"按住对讲"];
-        [[MHTipsView shareInstance] showTips:@"开启对讲中" modal:YES];
-//        [weakself.lumiTUTKClient resetAccData];
-        [MHAudioRecorder configureAudioSession];
-        [weakself.mhRecorder startRecording];
-        [weakself.lumiTUTKClient startAndfetchTalkBackServIdWithJsonString:[MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:1]
-                                                          completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-                                                              if (retcode<0){
-                                                                  [[MHTipsView shareInstance] showFinishTips:@"开启失败" duration:1 modal:YES];
-                                                                  [weakself.mhRecorder stopRecording];
-                                                              }else{
-                                                                  [[MHTipsView shareInstance] showFinishTips:@"开启成功" duration:1 modal:YES];
-//                                                                  [mhRecorder startRecordingWithType:1];
-//                                                                  [MHAudioRecorder configureAudioSession];
-//                                                                  [weakself.mhRecorder startRecording];
-//                                                                  [weakself.lumiRecorder open];
-                                                              }
-                                                          }];
-    }else if (weakself.lumiTUTKClient.talkbackServiceStatus == MHLumiTUTKTalkbackStatusConnected){
-        [weakself.lumiRecorder close];
-        [weakself.lumiTUTKClient stopTalkBackWithJsonString:
-         [MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:weakself.lumiTUTKClient.talkbackAVChannelId]
-                                           completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-                                               [weakself.mhRecorder stopRecording];
-                                               [weakself.lumiTUTKClient resetAccData];
-                                               [[MHTipsView shareInstance] showFinishTips:@"关闭成功" duration:1 modal:YES];
-                                           }];
-    }
-    
-    NSLog(@"%s",__func__);
 }
 
 - (void)talkbackButtonTouchUpOutside:(UIButton *)sender{
@@ -768,109 +736,169 @@ avcodecContext:(AVCodecContext*)avcodecContext
     [self talkbackButtonTouchUpInside:sender];
 }
 
+- (void)talkbackButtonTouchUpInside:(UIButton *)sender{
+    NSLog(@"%s",__func__);
+    self.talkbackButton.selected = NO;
+    [self.lumiRecorder stopRecording];
+    [[MHMusicTipsView shareInstance] hide];
+    
+    __weak typeof(self) weakself = self;
+    if (self.lumiTUTKClient.audioStreamStatus == MHLumiTUTKStreamstatusON) {
+        [self enableCameraAudioWithSuccess:nil failure:^(NSError *error) {
+            weakself.muteButton.selected = NO;
+        }];
+    }
+    
+    if (self.lumiTUTKClient.talkbackServiceStatus == MHLumiTUTKTalkbackStatusConnected){
+        NSString *stopTalkbackJson = [MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:self.lumiTUTKClient.talkbackAVChannelId];
+        [self.lumiTUTKClient stopTalkBackWithJsonString:stopTalkbackJson
+                                       completedHandler:^(MHLumiTUTKClient *client, int retcode) {
+                                           if (retcode < 0){
+                                               NSLog(@"手指离开时，关对讲失败");
+                                               [weakself.lumiTUTKClient stopTalkBackWithJsonString:stopTalkbackJson completedHandler:nil];
+                                           }else{
+                                               NSLog(@"手指离开时，关对讲成功");
+                                           }
+                                       }];
+    }
+}
+
+- (void)talkbackButtonTouchDown:(UIButton *)sender{
+    if (self.qualityButton.selected){
+        [self qualityButtonAction:self.qualityButton];
+    }
+    
+    if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusBackward) {
+        [self showTipsInfo:@"回放过程中，无法对讲" duration:1 modal:YES];
+        return;
+    }
+    
+    __weak typeof(self) weakself = self;
+    if ([MHLumiRecorder2 recordPermission] == AVAudioSessionRecordPermissionUndetermined){
+        [MHLumiRecorder2 requestRecordPermission:^(BOOL granted) {
+
+        }];
+        return;
+    }else if ([MHLumiRecorder2 recordPermission] == AVAudioSessionRecordPermissionDenied){
+        [self showFailedTips:@"用户没授权麦克风操作" duration:1 modal:YES];
+        return;
+    }
+    
+    if (self.lumiTUTKClient.talkbackServiceStatus == MHLumiTUTKTalkbackStatusDefault){
+        [self showVolumeViewWithTips:@"按住对讲"];
+        self.talkbackButton.selected = YES;
+        [self.lumiTUTKClient setRequestAudioDataOrNotWithFlag:NO];
+        [self.audioPlayer stopPlay];
+        [MHLumiRecorder2 configureAudioSession];
+        [self.lumiRecorder startRecording];
+        [self.lumiTUTKClient startAndfetchTalkBackServIdWithJsonString:[MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:1]
+                                                          completedHandler:^(MHLumiTUTKClient *client, int retcode) {
+                                                              if (retcode<0){
+                                                                  NSLog(@"开启对讲失败");
+                                                                  [weakself.lumiRecorder stopRecording];
+                                                                  [weakself.lumiTUTKClient resetAccData];
+                                                              }else{
+                                                                  if (!weakself.talkbackButton.selected){
+                                                                      NSLog(@"开启对讲成功，但手指已离开");
+                                                                      NSString *stopTalkbackJson = [MHLumiTUTKClientHelper ioCtrlTalkBackStartJSonStringWithAVChannelId:weakself.lumiTUTKClient.talkbackAVChannelId];
+                                                                      [weakself.lumiTUTKClient stopTalkBackWithJsonString:stopTalkbackJson completedHandler:nil];
+                                                                  }else{
+                                                                      NSLog(@"开启对讲成功");
+                                                                  }
+                                                              }
+                                                          }];
+    }
+    
+    NSLog(@"%s",__func__);
+}
 
 - (void)recordingButtonAction:(UIButton *)sender{
     [_recordingTimer invalidate];
     [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.3];
     [self.h264FileHandle closeFile];
     MHLumiMuxer *muxer = [[MHLumiMuxer alloc] init];
-    NSString *outputFilename = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath andFilename:@"ttt.mp4"];
-    NSError *error = nil;
-    if ([muxer muxWithInputVideoName:self.h264Filename_V inputAudioName:nil andOutputFileName:outputFilename ] >= 0){
-        [[MHTipsView shareInstance] showTips:@"保存中…" modal:YES];
-        [MHLumiCameraMediaDataManager saveVideoWithPath:outputFilename toAssetCollection:self.lumiCameraAssetCollection andError:&error];
-//        __block NSString *createdAssetId = nil;
-//        [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
-//            NSURL *url = [NSURL URLWithString:outputFilename];
-//            createdAssetId = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url].placeholderForCreatedAsset.localIdentifier;
-//        } error:&error];
-//        
-//        // 在保存完毕后取出视频
-//        PHFetchResult<PHAsset *> *createdAssets = [PHAsset fetchAssetsWithLocalIdentifiers:@[createdAssetId] options:nil];
-//        __weak typeof(self) weakself = self;
-//        [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
-//            PHAssetCollectionChangeRequest *request = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:weakself.lumiCameraAssetCollection];
-//            // 自定义相册封面默认保存第一张图,所以使用以下方法把最新保存照片设为封面
-//            [request insertAssets:createdAssets atIndexes:[NSIndexSet indexSetWithIndex:0]];
-//        } error:&error];
-    }
-    
-    NSLog(@"%@",[NSThread currentThread]);
-    if (error){
-        [[MHTipsView shareInstance] showFailedTips:@"保存失败" duration:1 modal:YES];
-    }else{
-        if ([[NSFileManager defaultManager] fileExistsAtPath:outputFilename]){
-            [[NSFileManager defaultManager] removeItemAtPath:outputFilename error:nil];
+    NSString *fileName = [self recordFileNameWithDate:[NSDate date]
+                                           dewrapType:self.glkViewController.dewrapType
+                                            mountType:self.glkViewController.mountType
+                                   centerPointOffsetX:self.glkViewController.centerPointOffsetX
+                                   centerPointOffsetY:self.glkViewController.centerPointOffsetY
+                                   centerPointOffsetR:self.glkViewController.centerPointOffsetR];
+    NSString *outputFilename = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath andFilename:fileName];
+    [self showTips:@"保存中…" modal:YES];
+    __weak typeof(self) weakself = self;
+    [muxer muxWithInputVideoName:self.h264Filename_V inputAudioName:nil andOutputFileName:outputFilename completeHandler:^(int retcode) {
+        NSError *error = nil;
+        if (retcode >= 0){
+            [MHLumiCameraMediaDataManager saveVideoWithPath:outputFilename toAssetCollection:weakself.lumiCameraAssetCollection andError:&error];
         }
-        [[MHTipsView shareInstance] showFinishTips:@"保存成功" duration:1 modal:YES];
-    }
+        if (error || retcode<0){
+            [weakself showFailedTips:@"保存失败" duration:1 modal:YES];
+        }else if(retcode>=0 && error == nil){
+            if ([[NSFileManager defaultManager] fileExistsAtPath:outputFilename]){
+                [[NSFileManager defaultManager] removeItemAtPath:outputFilename error:nil];
+            }
+            [weakself showFinishTips:@"保存成功" duration:1 modal:YES];
+        }
+        
+        if ([weakself.delegate respondsToSelector:@selector(homeViewControllerDidOffRecording:)]){
+            [weakself.delegate homeViewControllerDidOffRecording:weakself];
+        }
+    }];
 
-    if ([self.delegate respondsToSelector:@selector(homeViewControllerDidOffRecording:)]){
-        [self.delegate homeViewControllerDidOffRecording:self];
-    }
 }
 
 - (void)motionButtonAction:(UIButton *)sender{
-    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlVideoModeJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId
-                                                                            andVideoMode:MHLumiTUTKVideoModeORIGIN];
-    if (!self.lumiTUTKClient){
-        [[MHTipsView shareInstance] showFailedTips:@"切换失败" duration:1 modal:YES];
-        return;
-    }
-    [[MHTipsView shareInstance] showTips:@"切换中" modal:YES];
-    [self.lumiTUTKClient setVideoMode:MHLumiTUTKVideoModeORIGIN
-                       WithJsonString:jsonStr
-                     completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-                         if (retcode >= 0){
-                             [[MHTipsView shareInstance] showTipsInfo:@"切换成功" duration:1 modal:YES];
-                         }else{
-                             [[MHTipsView shareInstance] showFailedTips:@"切换失败" duration:1 modal:YES];
-                         }
-                     }];
+//    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlVideoModeJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId
+//                                                                            andVideoMode:MHLumiTUTKVideoModeORIGIN];
+//    if (!self.lumiTUTKClient){
+//        [[MHTipsView shareInstance] showFailedTips:@"切换失败" duration:1 modal:YES];
+//        return;
+//    }
+//    [[MHTipsView shareInstance] showTips:@"切换中" modal:YES];
+//    [self.lumiTUTKClient setVideoMode:MHLumiTUTKVideoModeORIGIN
+//                       WithJsonString:jsonStr
+//                     completedHandler:^(MHLumiTUTKClient *client, int retcode) {
+//                         if (retcode >= 0){
+//                             [[MHTipsView shareInstance] showTipsInfo:@"切换成功" duration:1 modal:YES];
+//                         }else{
+//                             [[MHTipsView shareInstance] showFailedTips:@"切换失败" duration:1 modal:YES];
+//                         }
+//                     }];
 }
 
 - (void)muteButtonAction:(UIButton *)sender{
     __weak typeof(self) weakself = self;
-    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId];
-    if (self.lumiTUTKClient.audioStreamStatus == MHLumiTUTKStreamstatusOFF){
-        [self prepareAudio];
-        [[MHTipsView shareInstance] showTips:@"声音开启中" modal:YES];
-        [self.lumiTUTKClient startAudioStreamWithJsonString:jsonStr startRequestData:YES completedHandler:^(MHLumiTUTKClient *client, int retCode) {
-            if (retCode >= 0){
-                [weakself.audioPlayer startPlay];
-                [[MHTipsView shareInstance] showTipsInfo:@"开启声音成功" duration:1 modal:NO];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    weakself.muteButton.selected = YES;
-                });
-                [weakself.cacheManager setObject:@1 forKey:weakself.kCameraMuteKey];
-            }else{
-                [[MHTipsView shareInstance] showTipsInfo:@"开启声音失败" duration:1 modal:NO];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    weakself.muteButton.selected = NO;
-                });
-                [weakself.audioPlayer stopPlay];
-            }
+    if (self.lumiTUTKClient.audioStreamStatus != MHLumiTUTKStreamstatusONAndRequest){
+        [self showTips:@"声音开启中"modal:YES];
+        [self enableCameraAudioWithSuccess:^{
+            [weakself showTipsInfo:@"开启声音成功" duration:1 modal:NO];
+            weakself.muteButton.selected = YES;
+            [weakself.cacheManager setObject:@1 forKey:weakself.kCameraMuteKey];
+        } failure:^(NSError *error) {
+            [weakself showTipsInfo:@"开启声音失败" duration:1 modal:NO];
+            weakself.muteButton.selected = NO;
         }];
-    }else if (self.lumiTUTKClient.audioStreamStatus == MHLumiTUTKStreamstatusONAndRequest){
-        [[MHTipsView shareInstance] showTips:@"声音关闭中" modal:YES];
-        [self.lumiTUTKClient stopAudioStreamWithJsonString:jsonStr completedHandler:^(MHLumiTUTKClient *client , int retcode) {
-            if (retcode >= 0 || retcode == AV_ER_NOT_INITIALIZED || retcode == kIsNotFetchingVideoData){
-                [[MHTipsView shareInstance] showTipsInfo:@"关闭声音成功" duration:2 modal:NO];
-                weakself.muteButton.selected = NO;
-                [weakself.audioPlayer stopPlay];
-                [weakself.cacheManager setObject:@0 forKey:weakself.kCameraMuteKey];
-            }else{
-                [[MHTipsView shareInstance] showTipsInfo:@"声音关闭失败" duration:2 modal:NO];
-                weakself.muteButton.selected = YES;
-            }
+    }else {
+        [self showTips:@"声音关闭中" modal:YES];
+        [self disableCameraAudioWithSuccess:^{
+            [weakself showTipsInfo:@"关闭声音成功" duration:1.5 modal:NO];
+            weakself.muteButton.selected = NO;
+            [weakself.cacheManager setObject:@0 forKey:weakself.kCameraMuteKey];
+        } failure:^(NSError *error) {
+            [weakself showTipsInfo:@"声音关闭失败" duration:1.5 modal:NO];
+            weakself.muteButton.selected = YES;
         }];
     }
 
 }
 
 - (void)fourRButtonAction:(UIButton *)sender{
-    [self.timeLineView scrollToDate:nil andAnimated:YES];
-//    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlVideoModeJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId
+//    self.markForTimer = self.timeLineView.currentDate.timeIntervalSince1970;
+//    [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
+//    [self fireTimerForBackwardWithDate:self.timeLineView.currentDate];
+        
+    
+    //    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlVideoModeJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId
 //                                                                            andVideoMode:MHLumiTUTKVideoMode4R];
 //    if (!self.lumiTUTKClient){
 //        [[MHTipsView shareInstance] showFailedTips:@"切换失败" duration:1 modal:YES];
@@ -936,24 +964,22 @@ avcodecContext:(AVCodecContext*)avcodecContext
     NSString *json = [MHLumiTUTKClientHelper ioCtrlVideoQualityJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId
                                                                               andQuality:quality];
     if (!self.lumiTUTKClient){
-        [[MHTipsView shareInstance] showTipsInfo:@"切换失败" duration:1 modal:YES];
+        [self showTipsInfo:@"切换失败" duration:1 modal:YES];
         [self qualityButtonAction:self.qualityButton];
         return;
     }
-    [[MHTipsView shareInstance] showTips:@"切换中" modal:YES];
+    [self showTips:@"切换中" modal:YES];
     __weak typeof(self) weakself = self;
     [self.lumiTUTKClient setVideoQuality:quality WithJsonString:json completedHandler:^(MHLumiTUTKClient *client, int retcode) {
         if (retcode >= 0){
-            [[MHTipsView shareInstance] showTipsInfo:@"切换成功" duration:1 modal:YES];
+            [weakself showTipsInfo:@"切换成功" duration:1 modal:YES];
             [weakself qualityButtonAction:weakself.qualityButton];
             [weakself.qualityButton setTitle:weakself.opitionTitles[sender.tag] forState:UIControlStateNormal];
         }else{
-            [[MHTipsView shareInstance] showTipsInfo:@"切换失败" duration:1 modal:YES];
+            [weakself showTipsInfo:@"切换失败" duration:1 modal:YES];
             [weakself qualityButtonAction:weakself.qualityButton];
         }
     }];
-    
-
 }
 
 - (void)videoViewTapAction:(UITapGestureRecognizer *)sender{
@@ -1004,6 +1030,137 @@ avcodecContext:(AVCodecContext*)avcodecContext
 }
 
 #pragma mark private function
+
+- (void)enableCameraAudioWithSuccess:(void(^)())successHandler failure:(void(^)(NSError *))failureHandler{
+    void(^localSuccessHandler)() = ^{
+        if (successHandler) {
+            successHandler();
+        }
+    };
+    [self prepareAudio];
+    [self.audioPlayer startPlay];
+    switch (self.lumiTUTKClient.audioStreamStatus) {
+        case MHLumiTUTKStreamstatusON:
+            [self.lumiTUTKClient setRequestAudioDataOrNotWithFlag:YES];
+            localSuccessHandler();
+            break;
+        case MHLumiTUTKStreamstatusOFF:{
+            __weak typeof(self) weakself = self;
+            NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId];
+            [self.lumiTUTKClient cleanAudioBuffer];
+            [self.lumiTUTKClient startAudioStreamWithJsonString:jsonStr startRequestData:YES completedHandler:^(MHLumiTUTKClient *client, int retCode) {
+                if (retCode >= 0){
+                    localSuccessHandler();
+                }else{
+                    if (failureHandler) {
+                        [weakself.audioPlayer stopPlay];
+                        NSError *error = [NSError errorWithDomain:@"com.lumiunited" code:retCode userInfo:nil];
+                        failureHandler(error);
+                    }
+                }
+            }];
+        }
+            break;
+        default:
+            localSuccessHandler();
+            break;
+    }
+}
+
+- (void)disableCameraAudioWithSuccess:(void(^)())successHandler failure:(void(^)(NSError *))failureHandler{
+    void(^localSuccessHandler)() = ^{
+        [self.audioPlayer flushAudio];
+        [self.audioPlayer stopPlay];
+        if (successHandler) {
+            successHandler();
+        }
+    };
+    switch (self.lumiTUTKClient.audioStreamStatus) {
+        case MHLumiTUTKStreamstatusOFF:
+            localSuccessHandler();
+            break;
+        case MHLumiTUTKStreamstatusON:
+        case MHLumiTUTKStreamstatusONAndRequest:{
+            NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlJSonStringWithAVChannelId:self.lumiTUTKClient.avChannelId];
+            __weak typeof(self) weakself = self;
+            [self.lumiTUTKClient stopAudioStreamWithJsonString:jsonStr completedHandler:^(MHLumiTUTKClient *client , int retcode) {
+                if (retcode >= 0 || retcode == AV_ER_NOT_INITIALIZED || retcode == kIsNotFetchingVideoData){
+                    [weakself.lumiTUTKClient cleanAudioBuffer];
+                     localSuccessHandler();
+                }else{
+                    if (failureHandler) {
+                        NSError *error = [NSError errorWithDomain:@"com.lumiunited" code:retcode userInfo:nil];
+                        failureHandler(error);
+                    }
+                }
+            }];
+        }
+        default:
+            localSuccessHandler();
+            break;
+    }
+}
+
+- (void)adjustTipsOrientation{
+    if ([self isLandscapeRight]){
+        [[MHTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationLandscapeRight];
+    }else{
+        [[MHTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationPortrait];
+    }
+}
+
+- (void)showTipsInfo:(NSString *)info duration:(NSTimeInterval)duration modal:(BOOL)isModal{
+    [self adjustTipsOrientation];
+    [[MHTipsView shareInstance] showTipsInfo:info duration:duration modal:isModal];
+}
+- (void)showTips:(NSString *)info modal:(BOOL)isModal{
+    [self adjustTipsOrientation];
+    [[MHTipsView shareInstance] showTips:info modal:isModal];
+}
+
+- (void)showFailedTips:(NSString *)info duration:(NSTimeInterval)duration modal:(BOOL)isModal{
+    [self adjustTipsOrientation];
+    [[MHTipsView shareInstance] showFailedTips:info duration:duration modal:isModal];
+}
+
+- (void)showFinishTips:(NSString *)info duration:(NSTimeInterval)duration modal:(BOOL)isModal{
+    [self adjustTipsOrientation];
+    [[MHTipsView shareInstance] showFinishTips:info duration:duration modal:isModal];
+}
+
+- (void)showVolumeViewWithTips:(NSString *)tips{
+    if ([self isLandscapeRight]){
+        [[MHMusicTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationLandscapeRight];
+    }else{
+        [[MHMusicTipsView shareInstance] setTipsOrientation:UIInterfaceOrientationPortrait];
+    }
+    
+    [[MHMusicTipsView shareInstance] showVolumeViewWithTips:tips];
+}
+
+
+- (NSString *)recordFileNameWithDate:(NSDate *)date
+                          dewrapType:(FEDEWARPTYPE)dewrapType
+                           mountType:(FEMOUNTTYPE)mountType
+                  centerPointOffsetX:(CGFloat)centerPointOffsetX
+                  centerPointOffsetY:(CGFloat)centerPointOffsetY
+                  centerPointOffsetR:(CGFloat)centerPointOffsetR{
+    NSDateFormatter *dateFormatter = [NSDateFormatter TUTKDateFormatter];
+    NSString *timerStr = [dateFormatter stringFromDate:date];
+    NSString *dewrapTypeName = [MHLumiFisheyeHelper nameFromDewrapType:dewrapType];
+    NSString *mountTypeName = [MHLumiFisheyeHelper nameFromMountType:mountType];
+    NSString *cameraDid = self.cameraDevice.did;
+    NSString *fileName = [NSString stringWithFormat:@"%@_%@_%@_%@_%.0f_%.0f_%.0f.mp4",
+                          timerStr,
+                          cameraDid,
+                          dewrapTypeName,
+                          mountTypeName,
+                          centerPointOffsetX,
+                          centerPointOffsetY,
+                          centerPointOffsetR];
+    return fileName;
+}
+
 /**
  *  初始化TUTK连接和获取摄像头属性值
  *            |摄像头时间  |
@@ -1025,7 +1182,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
     
     __block BOOL flagForGLK = NO;
     __block BOOL flagForTimeLine = NO;
-    dispatch_group_async(self.cameraGroup, dispatch_get_global_queue(0, 0), ^{
+    dispatch_group_async(self.cameraGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_group_enter(weakself.cameraGroup);        //开始GLK初始化 :cameraGroup
         dispatch_group_enter(weakself.cameraGroup);        //开始TimeLineView初始化 :cameraGroup
         
@@ -1051,10 +1208,11 @@ avcodecContext:(AVCodecContext*)avcodecContext
     __block BOOL flagForCameraTime = NO;
     __block BOOL flagForRecordTime = NO;
     
-    dispatch_group_async(glkInitGroup, dispatch_get_global_queue(0, 0), ^{
+    dispatch_group_async(glkInitGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_group_enter(glkInitGroup);            //开始TUTK连接 :glkInitGroup
         dispatch_group_enter(glkInitGroup);            //开始获取中心点校正值 :glkInitGroup
         //开始TUTK连接
+        __strong typeof(weakself) strongself = weakself;
         [weakself initTUTKClientWithCompleteHandler:^(NSString *aTip, NSInteger retcode) {
             tip = aTip;
             flagForTUTK = retcode >= 0;
@@ -1062,13 +1220,12 @@ avcodecContext:(AVCodecContext*)avcodecContext
                 flagForTUTK = YES;
                 //TUTK连接成功后:
                 /* +++++开始获取摄像头时间和可回看时间区域++++*/
-                dispatch_group_async(timeLineInitGroup, dispatch_get_global_queue(0, 0), ^{
+                dispatch_group_async(timeLineInitGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     dispatch_group_enter(timeLineInitGroup);            //开始获取摄像头时间 :timeLineInitGroup
                     dispatch_group_enter(timeLineInitGroup);            //开始获取可回看时间区域 :timeLineInitGroup
                     NSDateFormatter *dateFormatter = [NSDateFormatter TUTKDateFormatter];
-                    [dateFormatter dateFromString:@""];
-                    weakself.cameraCurrentDate =  [dateFormatter dateFromString:@"20161108172721"];
-                    weakself.deltaTime_Camera_Sys = 0;
+                    weakself.cameraCurrentDate =  [dateFormatter dateFromString:@"20161114100000"];
+                    weakself.deltaTime_Camera_Sys = weakself.cameraCurrentDate.timeIntervalSince1970 - [NSDate date].timeIntervalSince1970;
                     flagForCameraTime = YES;
                     dispatch_group_leave(timeLineInitGroup);        //摄像头时间获取成功
                     
@@ -1077,7 +1234,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
                         if (retcode >= 0){
                             flagForRecordTime = YES;
                         }
-                        dispatch_group_leave(timeLineInitGroup);        //获取可回看时间区域
+                        dispatch_group_leave(timeLineInitGroup);        //获取可回看时间区域成功
                     }];
                 });
                 
@@ -1089,12 +1246,12 @@ avcodecContext:(AVCodecContext*)avcodecContext
                     [weakself addTimeLineViewLayoutWithOrientation:UIInterfaceOrientationPortrait];
                     flagForTimeLine = YES;
                     NSLog(@"TimeLine初始化结束");
-                    dispatch_group_leave(weakself.cameraGroup); //TimeLine初始化结束
+                    dispatch_group_leave(strongself.cameraGroup); //TimeLine初始化结束
                 });
                 /* +++++++++++++++++++++++++++++++++++++ */
                 
             }else{
-                dispatch_group_leave(weakself.cameraGroup); //TimeLine初始化结束
+                dispatch_group_leave(strongself.cameraGroup); //TimeLine初始化结束
             }
             dispatch_group_leave(glkInitGroup);//TUTK连接结束 :glkInitGroup
         }];
@@ -1108,7 +1265,6 @@ avcodecContext:(AVCodecContext*)avcodecContext
             dispatch_group_leave(glkInitGroup);//获取中心点校正值结束 :glkInitGroup
         }];
         
-        
         //GLK初始化
         dispatch_group_notify(glkInitGroup, dispatch_get_main_queue(), ^{
             NSLog(@"GLK初始化,结果flagForTUTK=%d,flagForCenterPointOffset=%d",flagForTUTK,flagForCenterPointOffset);
@@ -1116,11 +1272,11 @@ avcodecContext:(AVCodecContext*)avcodecContext
                 //中心点没取到也初始化
                 dispatch_async(dispatch_get_main_queue(), ^{
                     weakself.isInitCamera = YES;
-                    [weakself initGLKViewController];
+                    [weakself initGLKViewControllerWithWithmountType:FE_MOUNT_FLOOR dewrapType:FE_DEWARP_AERIALVIEW viewType:MHLumiFisheyeViewTypeA];
                 });
                 flagForGLK = YES;
             }else{
-                dispatch_group_leave(weakself.cameraGroup); //GLK初始化结束
+                dispatch_group_leave(strongself.cameraGroup); //GLK初始化结束
             }
         });
     });
@@ -1155,13 +1311,10 @@ avcodecContext:(AVCodecContext*)avcodecContext
                         return;
                     }
                     if (weakself.logForMute){
-                        [weakself prepareAudio];
-                        [client startAudioStreamWithJsonString:jsonStr startRequestData:weakself.logForMute completedHandler:^(MHLumiTUTKClient *client, int retCode1) {
-                            if (retCode1 >= 0){
-                                [weakself.audioPlayer startPlay];
-                            }else{
-                                weakself.muteButton.selected = NO;
-                            }
+                        [weakself enableCameraAudioWithSuccess:^{
+                            completeHandler(@"startVideoStream",retCode);
+                        } failure:^(NSError *error) {
+                            weakself.muteButton.selected = NO;
                             completeHandler(@"startVideoStream",retCode);
                         }];
                     }else{
@@ -1179,15 +1332,18 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }];
 }
 
-- (void)initGLKViewController{
+- (void)initGLKViewControllerWithWithmountType:(FEMOUNTTYPE)mountType
+                                    dewrapType:(FEDEWARPTYPE)dewrapType
+                                      viewType:(MHLumiFisheyeViewType)viewType{
     _videoDataSize = CGSizeMake(1536, 1536);//1536 * (1536 + 16)
-    self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:FE_DEWARP_AERIALVIEW
-                                                                       mountType:FE_MOUNT_FLOOR
-                                                                        viewType:MHLumiFisheyeViewTypeA];
+    self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:dewrapType
+                                                                       mountType:mountType
+                                                                    viewType:viewType];
     self.glkViewController.dataSource = self;
     self.glkViewController.centerPointOffsetX = self.cameraDevice.centerPointOffsetX;
     self.glkViewController.centerPointOffsetY = self.cameraDevice.centerPointOffsetY;
     self.glkViewController.centerPointOffsetR = self.cameraDevice.centerPointOffsetR;
+    [self.glkViewController setCurrentContext];
     CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
     CGFloat h = w/_videoDataSize.width*_videoDataSize.height;
     [self addChildViewController:self.glkViewController];
@@ -1321,7 +1477,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
             }else{
                 [self.backButton removeFromSuperview];
             }
-            self.backwardTimeLabel.hidden = NO;
+            self.backwardTimeLabel.hidden = YES;
             [self.navigationController setNavigationBarHidden:[self isLandscapeRight] animated:YES];
             break;
         case MHLumiUICameraHomeViewControllerStatusRecording:
@@ -1331,7 +1487,6 @@ avcodecContext:(AVCodecContext*)avcodecContext
             [self.view addSubview:self.recordingButton];
             [self.noNetView removeFromSuperview];
             [self.backButton removeFromSuperview];
-            self.backwardTimeLabel.hidden = YES;
             [self.navigationController setNavigationBarHidden:YES animated:YES];
             break;
         case MHLumiUICameraHomeViewControllerStatusNoNet:
@@ -1381,8 +1536,14 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }];
 }
 
+- (void)invalidateTimerForBackward{
+    if (self.backwardTimer){
+        [self.backwardTimer invalidate];
+    }
+}
+
 - (void)updateBackwardLabelWithDate:(NSDate *)date{
-    NSDateFormatter *timeLineFormatter = [NSDateFormatter timeLineDateFormatter];
+    NSDateFormatter *timeLineFormatter = [NSDateFormatter cameraBackwardDateFormatter];
     NSString *timerStr = [timeLineFormatter stringFromDate:date];
     NSString *preText = @"回看 | ";
     self.backwardTimeLabel.text = [NSString stringWithFormat:@"%@%@",preText,timerStr];
@@ -1891,22 +2052,6 @@ avcodecContext:(AVCodecContext*)avcodecContext
     return _lumiRecorder;
 }
 
-- (AudioRecorder *)audioRecorder{
-    if (!_audioRecorder) {
-        _audioRecorder = [[AudioRecorder alloc] init];
-        _audioRecorder.delegate = self;
-    }
-    return _audioRecorder;
-}
-
-- (MHAudioRecorder *)mhRecorder{
-    if (!_mhRecorder) {
-        _mhRecorder = [[MHAudioRecorder alloc] init];
-        _mhRecorder.delegate = self;
-    }
-    return _mhRecorder;
-}
-
 - (UILabel *)backwardTimeLabel{
     if (!_backwardTimeLabel) {
         UILabel *label = [[UILabel alloc] init];
@@ -1963,9 +2108,9 @@ avcodecContext:(AVCodecContext*)avcodecContext
     return _lumiCameraAssetCollection;
 }
 
-- (PlayAudio *)audioPlayer{
+- (MHLumiAudioPlayer *)audioPlayer{
     if (!_audioPlayer) {
-        _audioPlayer = [PlayAudio shareInstance];
+        _audioPlayer = [MHLumiAudioPlayer shareInstance];
         [_audioPlayer reset];
     }
     return _audioPlayer;

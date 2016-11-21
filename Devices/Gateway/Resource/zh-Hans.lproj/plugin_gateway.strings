@@ -73,6 +73,8 @@
  */
 "yes" = "是";
 "no" = "否";
+"has" = "有";
+"hasnt" = "没有";
 "Cancel" = "取消";
 "Ok" = "确定";
 "help" = "帮助";
@@ -624,6 +626,31 @@
 "mydevice.gateway.setting.notdisturb.twoday" = "2天";
 "mydevice.gateway.setting.notdisturb.forever" = "永久";
 
+"mydevice.gateway.setting.natgas.sensitive" = "报警灵敏度";
+"mydevice.gateway.setting.natgas.selftest" = "设备自检";
+"mydevice.gateway.setting.natgas.selftestnotify" = "设备自检提醒(每月)";
+"mydevice.gateway.setting.natgas.selftestnotify.comment" = "开启后每月的第一天提醒一次";
+"mydevice.gateway.setting.natgas.sensitive.high" = "高";
+"mydevice.gateway.setting.smoke.sensitive.highcomment" = "适合无烟尘区(如办公室、仓库)";
+"mydevice.gateway.setting.natgas.sensitive.highcomment" = "极少气体即可报警";
+"mydevice.gateway.setting.natgas.sensitive.medium" = "中(推荐)";
+"mydevice.gateway.setting.smoke.sensitive.medium" = "中";
+"mydevice.gateway.setting.natgas.sensitive.mediumcomment" = "少许气体即可报警";
+"mydevice.gateway.setting.smoke.sensitive.mediumcomment" = "适合无烟尘区(如有人吸烟的客厅)";
+"mydevice.gateway.setting.natgas.sensitive.low" = "低";
+"mydevice.gateway.setting.natgas.sensitive.lowcomment" = "一些气体即可报警";
+"mydevice.gateway.setting.smoke.sensitive.lowcomment" = "适合中量烟尘区(如厨房)";
+"mydevice.gateway.setting.natgas.selftest.tips" = "有蜂鸣声吗？";
+"mydevice.gateway.setting.natgas.selftesting" = "设备自检中, 请稍等";
+"mydevice.gateway.setting.natgas.selftest.success" = "恭喜你, 设备工作正常!";
+"mydevice.gateway.setting.natgas.selftest.fail" = "自检失败，设备可能存在异常，请按以下内容排查问题";
+"mydevice.gateway.setting.natgas.selftest.fail1" = "1、可能设备与网关距离较远，请将二者靠近后重试。";
+"mydevice.gateway.setting.natgas.selftest.fail2" = "2、可能设备与网关间有遮挡，请移除后重试。";
+"mydevice.gateway.setting.natgas.selftest.fail3" = "3、可能设备电量低，请更换电池后重试。";
+"mydevice.gateway.setting.natgas.selftest.fail4" = "3、可能设备在预热中，请在预热结束后重试。";
+
+
+
 "mydevice.gateway.bind" = "联动";
 "mydevice.gateway.my.bind" = "我的自动化";
 "mydevice.gateway.suggest.bind" = "推荐";
@@ -790,13 +817,6 @@
 "mydevice.gateway.addsub_guide.imagename.one" = "不要粘在金属上";
 "mydevice.gateway.addsub_guide.imagename.two" = "对齐标记";
 "mydevice.gateway.addsub_guide.imagename.three" = "注意间距";
-
-
-
-
-
-
-
 
 "mydevice.gateway.delsub.title" = "设置子设备";
 "mydevice.gateway.delsub" = "删除设备";

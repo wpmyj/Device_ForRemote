@@ -14,9 +14,6 @@
 #import "MHGatewayAddSubDeviceListController.h"
 #import "MHGatewayWebViewController.h"
 #import "MHLuDeviceViewControllerBase.h"
-#import "MHDeviceAcpartner.h"
-#import "MHGatewaySettingViewController.h"
-#import "MHDeviceCamera.h"
 
 #define AVTag_Offline       13001
 #define WALLTAG_Offline     220
@@ -24,7 +21,7 @@
 
 @interface MHACPartnerDeviceListViewController ()<MHTableViewControllerInternalDelegateV2>
 
-@property (nonatomic, strong) MHDeviceGateway *gateway;
+@property (nonatomic, strong) MHDeviceAcpartner *acpartner;
 @property (nonatomic,strong) UIView  *footerView;
 @property (nonatomic,strong) MHTableViewControllerInternalV2* tvcInternal;
 @property (nonatomic,strong) NSMutableArray *dataSource;
@@ -41,9 +38,9 @@
     NSMutableArray *                        _newAddDevices;
 }
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway {
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner *)acpartner{
     if (self = [super init]) {
-        self.gateway = gateway;
+        self.acpartner = acpartner;
         self.view.frame = frame;
         self.isTabBarHidden = YES;
         self.view.backgroundColor = [UIColor colorWithRed:239.f/255.f green:239.f/255.f blue:244.f/255.f alpha:1.f];
@@ -60,8 +57,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self dataSourceRebuild];
-    [self.gateway getCanAddSubDevice];
-    [self.gateway getPublicCanAddSubDevice];
+    [self.acpartner getCanAddSubDevice];
+    [self.acpartner getPublicCanAddSubDevice];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -75,7 +72,7 @@
     //Footer view
     _footerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.view.bounds) - 65, CGRectGetWidth(self.view.bounds), 65)];
     _footerView.backgroundColor = [UIColor whiteColor];
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (self.acpartner.shareFlag == MHDeviceShared) {
         _footerView.hidden = YES;
     }
     [self.view addSubview:_footerView];
@@ -83,7 +80,7 @@
     _btnAddDevice = [[UIButton alloc] initWithFrame:CGRectMake((CGRectGetWidth(_footerView.frame) - 28) / 2.f, 5, 28, 28)];
     [_btnAddDevice setBackgroundImage:[UIImage imageNamed:@"device_addtimer"] forState:UIControlStateNormal];
     [_btnAddDevice addTarget:self action:@selector(onAddDevice:) forControlEvents:UIControlEventTouchUpInside];
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (self.acpartner.shareFlag == MHDeviceShared) {
         _btnAddDevice.hidden = YES;
     }
     
@@ -104,7 +101,7 @@
         _dataSource = [NSMutableArray new];
     }
     self.tvcInternal.dataSource = @[_dataSource];
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (self.acpartner.shareFlag == MHDeviceShared) {
         CGRect tableRect = CGRectMake(0, 64, CGRectGetWidth(self.view.frame),
                                       _footerView.frame.origin.y);
         [self.tvcInternal.view setFrame:tableRect];
@@ -130,9 +127,9 @@
     
 
 
-    self.dataSource = [NSMutableArray arrayWithObject:self.gateway];
+    self.dataSource = [NSMutableArray arrayWithObject:self.acpartner];
     
-    NSMutableArray *tmpSubDevices = [NSMutableArray arrayWithArray:self.gateway.subDevices];
+    NSMutableArray *tmpSubDevices = [NSMutableArray arrayWithArray:self.acpartner.subDevices];
     
     NSSortDescriptor *sort1 = [NSSortDescriptor sortDescriptorWithKey:@"isOnline" ascending:NO];
     NSArray *tmp = [tmpSubDevices sortedArrayUsingDescriptors:@[sort1]];
@@ -152,7 +149,7 @@
 #pragma mark - MHTableViewControllerInternalDelegateV2
 - (void)startRefresh {
     XM_WS(weakself);
-    [self.gateway getSubDeviceListWithSuccess:^(id obj) {
+    [_acpartner getSubDeviceListWithSuccess:^(id obj) {
         if([obj isKindOfClass:[NSArray class]]){
             [weakself deviceMap:[obj mutableCopy]];
         }
@@ -189,26 +186,11 @@
     MHDeviceGatewayBase *device = _dataSource[indexPath.row];
     device.isNewAdded = NO;
     if(device.isOnline){
-        //空调设置
-        if([NSStringFromClass([device class]) isEqualToString:@"MHDeviceAcpartner"]){
-            MHACPartnerSettingViewController* settingVC = [[MHACPartnerSettingViewController alloc] initWithAcpartner:(MHDeviceAcpartner *)self.gateway];
+        if([device isKindOfClass:[MHDeviceAcpartner class]]){
+            MHACPartnerSettingViewController* settingVC = [[MHACPartnerSettingViewController alloc] initWithAcpartner:self.acpartner];
             [self.navigationController pushViewController:settingVC animated:YES];
             [self gw_clickMethodCountWithStatType:@"openACpartnerSettingPage"];
 
-        }
-        //摄像头设置
-       else if([NSStringFromClass([device class]) isEqualToString:@"MHDeviceCamera"]){
-            MHGatewaySettingViewController* settingVC = [[MHGatewaySettingViewController alloc] initWithDevice:self.gateway];
-            [self.navigationController pushViewController:settingVC animated:YES];
-            [self gw_clickMethodCountWithStatType:@"openCameraSettingPage"];
-            
-        }
-        //网关设置
-       else if([NSStringFromClass([device class]) isEqualToString:@"MHDeviceGateway"]){
-            MHGatewaySettingViewController* settingVC = [[MHGatewaySettingViewController alloc] initWithDevice:self.gateway];
-            [self.navigationController pushViewController:settingVC animated:YES];
-            [self gw_clickMethodCountWithStatType:@"openGatewaySettingPage"];
-            
         }
         else{
             Class deviceClassName = NSClassFromString([[device class] getViewControllerClassName]);
@@ -225,7 +207,7 @@
 }
 
 - (UITableViewCellEditingStyle)editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.gateway.shareFlag == MHDeviceUnShared) {
+    if (self.acpartner.shareFlag == MHDeviceUnShared) {
         if(indexPath.row == 0) return UITableViewCellEditingStyleNone;
         else return UITableViewCellEditingStyleDelete;
     }
@@ -288,11 +270,11 @@
     [newSubDevices enumerateObjectsUsingBlock:^(MHDevice *newDevice, NSUInteger idx, BOOL * _Nonnull stop) {
         //        NSLog(@"子设备的did <<<%@>>>, 模型<<%@>>", newDevice.did, newDevice.model);
         MHDeviceGatewayBase *sensor = (MHDeviceGatewayBase *)[MHDevFactory deviceFromModelId:newDevice.model dataDevice:newDevice];
-        sensor.parent = weakself.gateway;
+        sensor.parent = weakself.acpartner;
         [newDeviceArray addObject:sensor];
     }];
 //    if (_acpartner.subDevices.count != newSubDevices.count) {
-    self.gateway.subDevices = newDeviceArray;
+        _acpartner.subDevices = newDeviceArray;
 //    }
     
     [self dataSourceRebuild];
@@ -387,7 +369,7 @@
 - (void)deleteConfirm:(MHDeviceGatewayBase *)device {
     XM_WS(weakself);
     [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"processing",@"plugin_gateway","正在处理中...") modal:NO];
-    [self.gateway removeSubDevice:device.did success:^(id v) {
+    [self.acpartner removeSubDevice:device.did success:^(id v) {
         [[MHTipsView shareInstance] hide];
         [weakself startRefresh];
     } failure:^(NSError *v) {
@@ -398,12 +380,12 @@
 
 #pragma mark -重新添加子设备
 - (void)addSubdeviceAgain {
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (_acpartner.shareFlag == MHDeviceShared) {
         [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"mydevice.timersetting.noright", @"plugin_gateway", "被分享设备无此权限") duration:1.0 modal:NO];
         return;
     }
     MHGatewayAddSubDeviceListController *addlist = [[MHGatewayAddSubDeviceListController alloc] init];
-    addlist.device = self.gateway;
+    addlist.device = self.acpartner;
     MHLuDeviceSettingGroup* group1 = [[MHLuDeviceSettingGroup alloc] init];
     group1.title = NSLocalizedStringFromTable(@"deviceselect.title",@"plugin_gateway", "选择要连接的设备");
     MHLuDeviceSettingGroup* group2 = [[MHLuDeviceSettingGroup alloc] init];

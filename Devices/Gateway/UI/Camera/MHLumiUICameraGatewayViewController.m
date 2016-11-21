@@ -36,7 +36,7 @@
 
 @property (nonatomic ,strong) UIView *whiteView;
 @property (nonatomic ,strong) UILabel *tipsText;
-
+@property (nonatomic, strong) NSMutableArray <id<NSObject>> *observers;
 @end
 
 @implementation MHLumiUICameraGatewayViewController
@@ -50,6 +50,7 @@
 - (id)initWithSensor:(MHDeviceGateway* )gateway {
     if (self = [super initWithDevice:gateway]) {
         _gateway = gateway;
+        _observers = [NSMutableArray array];
         self.isNavBarTranslucent = YES;
         self.isTabBarHidden = YES;
     }
@@ -58,16 +59,11 @@
 
 
 - (void)dealloc {
+    for (id<NSObject> todoObj in _observers) {
+        [[NSNotificationCenter defaultCenter] removeObserver:todoObj];
+    }
+    [_observers removeAllObjects];
     [_controlPanel stopWatchingDeviceStatus];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"NightTouchesBegan" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"NightTouchesEnded" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"NightTouchesCancelled" object:nil];
-    //
-    
-    //    [[NSNotificationCenter defaultCenter] removeObserver:self.headerView name:@"NightTouchesBegan" object:nil];
-    //    [[NSNotificationCenter defaultCenter] removeObserver:self.headerView name:@"NightTouchesEnded" object:nil];
-    //    [[NSNotificationCenter defaultCenter] removeObserver:self.headerView name:@"NightTouchesCancelled" object:nil];
 }
 
 - (void)viewDidLoad {
@@ -76,49 +72,49 @@
     NSString *key = [NSString stringWithFormat:@"%@%@",HeaderViewLastIndexKey,self.gateway.did];
     _headerViewLastIndex = [[[NSUserDefaults standardUserDefaults] valueForKey:key] integerValue];
     XM_WS(weakself);
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesBegan" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    [_observers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesBegan" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         weakself.verticalCanvas.scrollEnabled = NO;
         weakself.view.userInteractionEnabled = NO;
         weakself.headerView.mainPageScrollView.scrollEnabled = NO;
         weakself.headerView.userInteractionEnabled = NO;
-    }];
+    }]];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesEnded" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    [_observers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesEnded" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         weakself.verticalCanvas.scrollEnabled = YES;
         weakself.view.userInteractionEnabled = YES;
         weakself.headerView.mainPageScrollView.scrollEnabled = YES;
         weakself.headerView.userInteractionEnabled = YES;
         
-    }];
+    }]];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesCancelled" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    [_observers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:@"NightTouchesCancelled" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         weakself.verticalCanvas.scrollEnabled = YES;
         weakself.view.userInteractionEnabled = YES;
         weakself.headerView.mainPageScrollView.scrollEnabled = YES;
         weakself.headerView.userInteractionEnabled = YES;
         
-    }];
+    }]];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:AFNetworkingReachabilityDidChangeNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *note) {
+    [_observers addObject:[[NSNotificationCenter defaultCenter] addObserverForName:AFNetworkingReachabilityDidChangeNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *note) {
         if ([MHReachability sharedManager].networkReachabilityStatus <= 0) {
             //网络不通，显示
-            weakself.verticalCanvas.frame = CGRectMake(0, 104, WIN_WIDTH, self.view.bounds.size.height - 104);
+            weakself.verticalCanvas.frame = CGRectMake(0, 104, WIN_WIDTH, weakself.view.bounds.size.height - 104);
             [weakself networkStatus:YES];
         } else {
             //网络通畅，隐藏
-            weakself.verticalCanvas.frame = CGRectMake(0, 64, WIN_WIDTH, self.view.bounds.size.height - 64);
+            weakself.verticalCanvas.frame = CGRectMake(0, 64, WIN_WIDTH, weakself.view.bounds.size.height - 64);
             [weakself networkStatus:NO];
         }
-    }];
+    }]];
     
     if ([MHReachability sharedManager].networkReachabilityStatus <= 0) {
         //网络不通，显示
-        weakself.verticalCanvas.frame = CGRectMake(0, 104, WIN_WIDTH, self.view.bounds.size.height - 104);
-        [weakself networkStatus:YES];
+        self.verticalCanvas.frame = CGRectMake(0, 104, WIN_WIDTH, self.view.bounds.size.height - 104);
+        [self networkStatus:YES];
     } else {
         //网络通畅，隐藏
-        weakself.verticalCanvas.frame = CGRectMake(0, 64, WIN_WIDTH, self.view.bounds.size.height - 64);
-        [weakself networkStatus:NO];
+        self.verticalCanvas.frame = CGRectMake(0, 64, WIN_WIDTH, self.view.bounds.size.height - 64);
+        [self networkStatus:NO];
     }
 }
 
@@ -152,6 +148,10 @@
     [_infoView.tableView reloadData];
     //刷新控件状态
     [_headerView updateMainPageStatus];
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
 }
 
 - (void)setCanvasHeight:(CGFloat)canvasHeight {

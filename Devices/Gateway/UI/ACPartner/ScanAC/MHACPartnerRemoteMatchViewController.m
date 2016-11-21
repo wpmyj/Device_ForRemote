@@ -302,13 +302,30 @@ typedef enum : NSUInteger {
     
     self.resultView.image = [UIImage imageNamed:@"gateway_addsub_failed"];
     
-
+//    [[NSUserDefaults standardUserDefaults] setObject:@(0) forKey:[NSString stringWithFormat:@"isfirst%@%@", self.acpartner.ACRemoteId,[MHPassportManager sharedSingleton].currentAccount.userId]];
+//    [[NSUserDefaults standardUserDefaults] setObject:@(0) forKey:kHASSCANED];
+//    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+//    [self.acpartner setACByModel:kNONACMODEL success:^(id obj) {
+//        
+//        
+//    } failure:^(NSError *v) {
+//        
+//    }];
+    
+    
+//    self.acpartner.ACType = 0;
+//    self.acpartner.ACRemoteId = nil;
+//    self.acpartner.brand_id = 0;
+//    [self.acpartner saveACStatus];
     [[MHTipsView shareInstance] hide];
     MHACPartnerAddSucceedViewController *succeedVC = [[MHACPartnerAddSucceedViewController alloc] initWithAcpartner:self.acpartner successType:ADD_OTHER_FAILURE_INDEX];
     [self.navigationController pushViewController:succeedVC animated:YES];
 
     
-
+    //    [[MHTipsView shareInstance] showTipsInfo:@"匹配失败" duration:2.5f modal:NO];
+//    MHACPartnerAddSucceedViewController *succeedVC = [[MHACPartnerAddSucceedViewController alloc] initWithAcpartner:self.acpartner successType:ADD_OTHER_FAILURE_INDEX];
+//    [self.navigationController pushViewController:succeedVC animated:YES];
 }
 
 - (void)matchSucceed {

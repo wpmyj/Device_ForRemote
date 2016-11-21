@@ -562,8 +562,13 @@ static NSArray *noStatusCmdArray;
     
     self.temperature = [self.kkAcManager getTemperature];
     self.windPower = [self.kkAcManager getWindPower];
+    if (self.windPower == -1) {
+        self.windPower = 0;
+    }
     self.windState = [self.kkAcManager getWindState];
-    
+    if (self.windState == -1) {
+        self.windPower = 0;
+    }
     NSLog(@"改变模式后的风速%d", [self.kkAcManager getWindPower]);
     NSLog(@"改变模式后的扫风%d", [self.kkAcManager getWindState]);
     NSLog(@"改变模式后的温度%d", [self.kkAcManager getTemperature]);
@@ -1879,7 +1884,9 @@ static NSArray *noStatusCmdArray;
 
         self.temperature = [self.kkAcManager getTemperature];
         self.windPower = [self.kkAcManager getWindPower];
+        if (self.windPower == -1) self.windPower = 0;
         self.windState = [self.kkAcManager getWindState];
+        if (self.windState == -1) self.windState = 0;
 //        NSLog(@"当前风向%d", [self.kkAcManager getWindState]);
         self.windDirection = 0;
 //        NSLog(@"该模式所有的风向%@", [self.kkAcManager getAllWindState]);
@@ -1950,7 +1957,9 @@ static NSArray *noStatusCmdArray;
         //        self.windPower = AC_WIND_SPEED_HIGH;
         self.temperature = [self.kkAcManager getTemperature];
         self.windPower = [self.kkAcManager getWindPower];
+        if (self.windPower == -1) self.windPower = 0;
         self.windState = [self.kkAcManager getWindState];
+        if (self.windState == -1) self.windState = 0;
 //        NSLog(@"当前风向%d", [self.kkAcManager getWindState]);
         self.windDirection = 0;
 //        NSLog(@"该模式所有的风向%@", [self.kkAcManager getAllWindState]);

@@ -17,7 +17,7 @@
 
 @interface MHACPartnerSceneListViewController ()<MHTableViewControllerInternalDelegateV2>
 
-@property (nonatomic, strong) MHDeviceGateway *gateway;
+@property (nonatomic, strong) MHDeviceAcpartner *acpartner;
 @property (nonatomic, strong) UIView *footerView;
 @property (nonatomic, strong) UIButton *btnSetting;
 @property (nonatomic, strong) UIButton *btnAddDevice;
@@ -39,9 +39,9 @@
     NSInteger                           _selectedRecordIndex;
 }
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway {
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner *)acpartner {
     if (self = [super init]) {
-        self.gateway = gateway;
+        self.acpartner = acpartner;
         self.view.frame = frame;
         self.isTabBarHidden = YES;
         self.view.backgroundColor = [UIColor whiteColor];
@@ -230,7 +230,7 @@
 #pragma mark - button
 - (void)onAddDevice:(id)sender {
     XM_WS(weakself);
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (self.acpartner.shareFlag == MHDeviceShared) {
         [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"mydevice.timersetting.noright", @"plugin_gateway", "被分享设备无此权限") duration:1.0 modal:NO];
         return;
     }
@@ -258,7 +258,7 @@
     //        return;
     //    }
     
-    MHGatewaySceneLogViewController* logVC = [[MHGatewaySceneLogViewController alloc] initWithGateway:self.gateway];
+    MHGatewaySceneLogViewController* logVC = [[MHGatewaySceneLogViewController alloc] initWithGateway:self.acpartner];
     [self.navigationController pushViewController:logVC animated:YES];
 //    if(self.sceneLogClicked) {
 //        self.sceneLogClicked();
@@ -272,12 +272,12 @@
     
 //    
     __block NSMutableArray *dids = [NSMutableArray new];
-    [dids addObject:self.gateway.did];
+    [dids addObject:_acpartner.did];
 //    for (MHDeviceGatewayBase *sensor in _gateway.subDevices){
 //        if(sensor.isOnline) [dids addObject:sensor.did];
 //    }
     
-    [self.gateway.subDevices enumerateObjectsUsingBlock:^(MHDeviceGatewayBase *sensor, NSUInteger idx, BOOL * _Nonnull stop) {
+    [self.acpartner.subDevices enumerateObjectsUsingBlock:^(MHDeviceGatewayBase *sensor, NSUInteger idx, BOOL * _Nonnull stop) {
         if(sensor.isOnline) [dids addObject:sensor.did];
     }];
     
@@ -289,7 +289,7 @@
     }];
 
     
-    [[MHIFTTTManager sharedInstance] getRecomRecordOfDevice:self.gateway.did completion:^(NSArray *array) {
+    [[MHIFTTTManager sharedInstance] getRecomRecordOfDevice:self.acpartner.did completion:^(NSArray *array) {
         weakself.recomIFTGroup = [array mutableCopy];
         [weakself reloadTableView];
     }];
@@ -434,7 +434,7 @@
 }
 
 - (void)commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.gateway.shareFlag == MHDeviceShared) {
+    if (self.acpartner.shareFlag == MHDeviceShared) {
         [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"mydevice.timersetting.noright", @"plugin_gateway", "被分享设备无此权限") duration:1.0 modal:NO];
         return;
     }
@@ -599,7 +599,7 @@
 
 
 - (void)openAlarmSettingPage {
-    MHGatewayAlarmSettingViewController* alarmSettingVC = [[MHGatewayAlarmSettingViewController alloc] initWithGateway:self.gateway];
+    MHGatewayAlarmSettingViewController* alarmSettingVC = [[MHGatewayAlarmSettingViewController alloc] initWithGateway:self.acpartner];
     alarmSettingVC.title = NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm", @"plugin_gateway","警戒模式");
     alarmSettingVC.isTabBarHidden = YES;
     [self.navigationController pushViewController:alarmSettingVC animated:YES];
@@ -607,7 +607,7 @@
 }
 
 - (void)openDoorBell {
-    MHGatewayDoorBellSettingViewController* doorBellSettingVC = [[MHGatewayDoorBellSettingViewController alloc] initWithGateway:self.gateway];
+    MHGatewayDoorBellSettingViewController* doorBellSettingVC = [[MHGatewayDoorBellSettingViewController alloc] initWithGateway:self.acpartner];
     doorBellSettingVC.title = NSLocalizedStringFromTable(@"mydevice.gateway.setting.doorbell.settingcell", @"plugin_gateway","门铃设置");
     doorBellSettingVC.isTabBarHidden = YES;
     [self.navigationController pushViewController:doorBellSettingVC animated:YES];

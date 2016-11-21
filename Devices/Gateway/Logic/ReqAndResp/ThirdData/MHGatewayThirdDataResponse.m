@@ -23,7 +23,7 @@
     if ([result isKindOfClass:[NSDictionary class]])
     {
         NSString *codeString = [result valueForKey:@"value"];
-        NSLog(@"压缩的字符串%@", codeString);
+//        NSLog(@"压缩的字符串%@", codeString);
         NSData *codeData = [codeString dataUsingEncoding:NSUTF8StringEncoding];
         NSData *decodeData = [Base64 decodeData:codeData];
         NSData *upZipData = [GatewayZipTools uncompressZippedData:decodeData];
@@ -31,7 +31,7 @@
         response.valueList = [NSJSONSerialization JSONObjectWithData:upZipData
                                                              options:NSUTF8StringEncoding
                                                                error:nil];
-        NSLog(@"%@",response.valueList);
+//        NSLog(@"%@",response.valueList);
     }
     return response;
 

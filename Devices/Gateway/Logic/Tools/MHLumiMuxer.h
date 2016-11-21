@@ -8,6 +8,17 @@
 #import <Foundation/Foundation.h>
 
 @interface MHLumiMuxer : NSObject
+- (void)muxWithInputVideoName:(NSString *)inputVideoName
+               inputAudioName:(NSString *)inputAudioName
+            andOutputFileName:(NSString *)outputFileName
+                        queue:(dispatch_queue_t)queue
+              completeHandler:(void(^)(int))completeHandler;
+
+- (void)muxWithInputVideoName:(NSString *)inputVideoName
+               inputAudioName:(NSString *)inputAudioName
+            andOutputFileName:(NSString *)outputFileName
+              completeHandler:(void(^)(int))completeHandler;
+
 - (int)muxWithInputVideoName:(NSString *)inputVideoName
               inputAudioName:(NSString *)inputAudioName
            andOutputFileName:(NSString *)outputFileName;

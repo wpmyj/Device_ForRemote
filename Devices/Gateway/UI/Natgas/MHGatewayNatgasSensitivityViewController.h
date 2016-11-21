@@ -12,4 +12,5 @@
 @interface MHGatewayNatgasSensitivityViewController : MHGatewayBaseSettingViewController
 
 - (id)initWithDeviceNatgas:(MHDeviceGatewaySensorNatgas *)deviceNatgas;
+
 @end

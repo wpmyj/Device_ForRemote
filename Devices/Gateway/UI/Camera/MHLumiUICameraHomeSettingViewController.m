@@ -30,7 +30,7 @@
 
 - (void)settingDatasource{
     __weak typeof(self) weakself = self;
-    NSString* sizeOfView = @"画面尺寸";//NSLocalizedStringFromTable(@"mydevice.actionsheet.changename",@"plugin_gateway","修改设备名称");
+    NSString* sizeOfView = @"画面模式";//NSLocalizedStringFromTable(@"mydevice.actionsheet.changename",@"plugin_gateway","修改设备名称");
     NSString* overturn = @"图像翻转";
     NSString* overturnComment = @"摄像机倒转时，开启此项";
     NSString* common = @"通用设置";

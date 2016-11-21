@@ -19,4 +19,12 @@
                                    trigerId:(NSString *)trigerId
                                  customName:(NSString *)customName
                           completionHandler:(void(^)(bool flag))completionHandler;
+
++ (void)addCustomIFTTTAtDouble11WithGateway:(MHDeviceGatewayBase *)gateway
+                                   actionId:(NSString *)actionId
+                          actionDeviceClass:(Class) actionDeviceClass
+                                   trigerId:(NSString *)trigerId
+                          trigerDeviceClass:(Class) trigerDeviceClass
+                                 customName:(NSString *)customName
+                          completionHandler:(void (^)(bool flag))completionHandler;
 @end

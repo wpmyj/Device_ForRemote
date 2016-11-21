@@ -3,12 +3,11 @@
 //  SFFmpegIOSDecoder
 //
 //  Created by LM21Mac002 on 16/10/4.
-//  Copyright © 2016年 Lei Xiaohua. All rights reserved.
+//  Copyright © 2016年 小米移动软件. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "MHLumiFisheyeHeader.h"
-#import "fisheye.h"
 
 @interface MHLumiFisheyeViewTypeData : NSObject
 @property (nonatomic, assign, readonly) NSInteger maxTilt;

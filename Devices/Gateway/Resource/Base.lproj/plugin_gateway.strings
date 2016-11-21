@@ -73,6 +73,8 @@
  */
 "yes" = "Yes";
 "no" = "No";
+"has" = "has";
+"hasnt" = "hasn't";
 "Cancel" = "Cancel";
 "Ok" = "Confirm";
 "help" = "Help";
@@ -637,6 +639,29 @@
 "mydevice.gateway.setting.notdisturb.oneday" = "1 day";
 "mydevice.gateway.setting.notdisturb.twoday" = "2 days";
 "mydevice.gateway.setting.notdisturb.forever" = "Forever";
+
+"mydevice.gateway.setting.natgas.sensitive" = "Alarming Sensitivity";
+"mydevice.gateway.setting.natgas.selftest" = "self-checking";
+"mydevice.gateway.setting.natgas.selftestnotify" = "remind me 'self-checking'(per month)";
+"mydevice.gateway.setting.natgas.selftestnotify.comment" = "push notification one time a month in the first day";
+"mydevice.gateway.setting.natgas.sensitive.high" = "High";
+"mydevice.gateway.setting.smoke.sensitive.highcomment" = "For clean place(such as office, clean warehouse)";
+"mydevice.gateway.setting.natgas.sensitive.highcomment" = "Very little gas can alarm";
+"mydevice.gateway.setting.natgas.sensitive.medium" = "Medium(Recommend)";
+"mydevice.gateway.setting.smoke.sensitive.medium" = "Medium";
+"mydevice.gateway.setting.natgas.sensitive.mediumcomment" = "A little gas can alarm";
+"mydevice.gateway.setting.smoke.sensitive.mediumcomment" = "For no smoke place(such as living room)";
+"mydevice.gateway.setting.natgas.sensitive.low" = "Low";
+"mydevice.gateway.setting.natgas.sensitive.lowcomment" = "Some gas can alarm";
+"mydevice.gateway.setting.smoke.sensitive.lowcomment" = "For place with some smoke(such as kitchen)";
+"mydevice.gateway.setting.natgas.selftest.tips" = "Is there a beep?";
+"mydevice.gateway.setting.natgas.selftesting" = "checking...";
+"mydevice.gateway.setting.natgas.selftest.success" = "Congratulations, device works fine!";
+"mydevice.gateway.setting.natgas.selftest.fail" = "check failed please check";
+"mydevice.gateway.setting.natgas.selftest.fail1" = "1,maybe device is too far from gateway";
+"mydevice.gateway.setting.natgas.selftest.fail2" = "2,maybe device shelter from gateway";
+"mydevice.gateway.setting.natgas.selftest.fail3" = "3,maybe the power is low, change battery and retry";
+"mydevice.gateway.setting.natgas.selftest.fail4" = "3,maybe the device is preparing, try later";
 
 "mydevice.gateway.bind" = "Bind";
 "mydevice.gateway.my.bind" = "My Automations";

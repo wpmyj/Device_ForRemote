@@ -18,6 +18,10 @@
 #import "MHGatewaySceneRecomRequest.h"
 #import "MHGatewaySceneRecomResponse.h"
 
+#import "MHIFTTTGetRecordListRequest.h"
+#import "MHIFTTTGetRecordListResponse.h"
+#import "MHIFTTTManager.h"
+
 @implementation MHGatewaySceneManager
 
 + (id)sharedInstance {
@@ -27,6 +31,51 @@
         obj = [[MHGatewaySceneManager alloc] init];
     });
     return obj;
+}
+
+NSComparator comparatorForRecord = ^NSComparisonResult(id obj1, id obj2) {
+    MHDataIFTTTRecord *dev1 = obj1;
+    MHDataIFTTTRecord *dev2 = obj2;
+    if (dev1.enabled && !dev2.enabled) {
+        return NSOrderedAscending;
+    }
+    if (dev2.enabled && !dev1.enabled) {
+        return NSOrderedDescending;
+    }
+    
+    BOOL isHasClickToLaunchTrigger1 = [dev1 isHasTriggerOfType:MHIFTTTTriggerClickToLaunch];
+    BOOL isHasClickToLaunchTrigger2 = [dev2 isHasTriggerOfType:MHIFTTTTriggerClickToLaunch];
+    
+    if (isHasClickToLaunchTrigger1 && !isHasClickToLaunchTrigger2) {
+        return NSOrderedAscending;
+    }
+    if (!isHasClickToLaunchTrigger1 && isHasClickToLaunchTrigger2) {
+        return NSOrderedDescending;
+    }
+    
+    return NSOrderedSame;
+};
+
+- (void)getRecordsListSuccess:(SucceedBlock)success failure:(FailedBlock)failure {
+    MHIFTTTGetRecordListRequest* request = [MHIFTTTGetRecordListRequest new];
+    request.st_id = @"22";
+    [[MHNetworkEngine sharedInstance] sendRequest:request success:^(id json) {
+        MHIFTTTGetRecordListResponse* response = [MHIFTTTGetRecordListResponse responseWithJSONObject:json];
+        if (response.code == MHNetworkErrorOk) {
+            NSMutableArray* records;
+            if ([response.recordList count]) {
+                records = [response.recordList mutableCopy];
+            }
+            
+            [records sortUsingComparator:comparatorForRecord];
+            
+            if (success) success(records);
+
+        }
+    } failure:^(NSError *v) {
+        if (failure) failure(v);
+
+    }];
 }
 
 - (void)fetchSceneListWithDevice:(MHDeviceGatewayBase *)device

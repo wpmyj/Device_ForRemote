@@ -10,13 +10,16 @@
 #import "MHLumiCameraMediaDataManager.h"
 #import "MHLumiPhotoGridViewController.h"
 #import "MHLumiCameraPhotosNavHeaderView.h"
+#import "MHLumiAssetPreviewViewController.h"
+#import "MHLumiAlarmVideoGridViewController.h"
 
-
-@interface MHLumiCameraPhotosViewController()<PHPhotoLibraryChangeObserver>
+@interface MHLumiCameraPhotosViewController()<PHPhotoLibraryChangeObserver,MHLumiPhotoGridViewControllerDelegate,MHLumiAlarmVideoDataSourceDelegate>
 @property (nonatomic, strong) NSArray<UIButton *> *navButtons;
 @property (nonatomic, strong) NSArray<NSString *> *navButtontitles;
 @property (nonatomic, strong) UIView *navTitleView;
 @property (nonatomic, strong) MHLumiPhotoGridViewController *photoGridViewController;
+@property (nonatomic, strong) MHLumiAlarmVideoGridViewController *alarmVideoGridViewController;
+@property (nonatomic, strong) MHLumiAlarmVideoDataSource *alarmVideoDataSource;
 @property (nonatomic, strong) MHLumiCameraMediaDataManager *cameraMediaDataManager;
 @end
 
@@ -24,8 +27,17 @@
 @implementation MHLumiCameraPhotosViewController
 
 - (void)dealloc{
-    
+    NSLog(@"%@ VC析构了",self.description);
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
+}
+
+- (instancetype)initWithCameraDevice:(MHDeviceCamera *)device{
+    self = [super initWithDevice:device];
+    if (self){
+        _cameraDevice = (MHDeviceCamera*)device;
+        self.isHasMore = NO;
+    }
+    return self;
 }
 #pragma mark - view life cycle
 - (void)viewDidLoad{
@@ -37,8 +49,15 @@
     _currentIndex = 0;
 }
 
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
+- (void)viewWillLayoutSubviews{
+    [super viewWillLayoutSubviews];
+    if (self.photoGridViewController.view.superview == self.view){
+        self.photoGridViewController.view.frame = self.view.frame;
+    }
+    
+    if (self.alarmVideoGridViewController.view.superview == self.view){
+        self.alarmVideoGridViewController.view.frame = self.view.frame;
+    }
 }
 
 - (void)onBack{
@@ -59,7 +78,6 @@
                                                                 target:self action:@selector(onBack:)];
     self.navigationItem.leftBarButtonItem = leftItem;
     MHLumiCameraPhotosNavHeaderView *titleBGView = [[MHLumiCameraPhotosNavHeaderView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
-//    titleBGView.backgroundColor = [UIColor greenColor];
     self.navigationItem.titleView = titleBGView;
     CGFloat navTitleViewWidth = 0;
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
@@ -71,20 +89,37 @@
         navTitleViewWidth += buttonWidth;
     }
     self.navTitleView.frame = CGRectMake((screenWidth - navTitleViewWidth)/2, 0, navTitleViewWidth, 44);
-//    self.navTitleView.backgroundColor = [UIColor redColor];
     [titleBGView setCenterView:self.navTitleView];
     
-    self.photoGridViewController.dateSource = [self.cameraMediaDataManager fetchDataWithType:[self currentType]];
-    [self addChildViewController:self.photoGridViewController];
-    [self.photoGridViewController didMoveToParentViewController:self];
-    [self.view addSubview:self.photoGridViewController.view];
+    [self didSelectNavButtonAtIndex:_currentIndex];
 }
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance{
+    __weak typeof(self) weakself = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.photoGridViewController.dateSource = [self.cameraMediaDataManager fetchDataWithType:[self currentType]];
-        [self.photoGridViewController reloadData];
+        if ([weakself currentType] == MHLumiCameraMediaDataTypeAlarm){
+            return ;
+        }
+        weakself.photoGridViewController.dataSource = [weakself.cameraMediaDataManager fetchDataWithType:[weakself currentType]];
+        [weakself.photoGridViewController reloadData];
     });
+}
+
++ (PHAuthorizationStatus)authorizationStatus{
+    return [PHPhotoLibrary authorizationStatus];
+}
+
++ (void)requestAuthorization:(void (^)(PHAuthorizationStatus))handler{
+    [PHPhotoLibrary requestAuthorization:handler];
+}
+
+#pragma mark - MHLumiAlarmVideoDataSourceDelegate
+- (void)alarmVideoDataSourceDidUpdate:(MHLumiAlarmVideoDataSource *)AlarmVideoDataSource withError:(NSError *)error{
+    if (error){
+        
+    }else{
+        [self.alarmVideoGridViewController reloadData];
+    }
 }
 
 #pragma mark - private function
@@ -128,9 +163,41 @@
             button.selected = NO;
         }
     }
-    _currentIndex = todoIndex;
-    self.photoGridViewController.dateSource = [self.cameraMediaDataManager fetchDataWithType:[self currentType]];
-    [self.photoGridViewController reloadData];
+    [self didSelectNavButtonAtIndex:todoIndex];
+}
+
+- (void)didSelectNavButtonAtIndex:(NSInteger)index{
+    _currentIndex = index;
+    UIViewController *toRemoveVC = nil;
+    UIViewController *toAddVC = nil;
+    
+    if ([self currentType] == MHLumiCameraMediaDataTypeAlarm){
+        toRemoveVC = self.photoGridViewController;
+        toAddVC = self.alarmVideoGridViewController;
+        if (self.alarmVideoDataSource == nil){
+            MHLumiAlarmVideoRequest *request = [[MHLumiAlarmVideoRequest alloc] init];
+            self.alarmVideoDataSource = [[MHLumiAlarmVideoDataSource alloc] initWithReques:request];
+            self.alarmVideoDataSource.delegate = self;
+        }
+        self.alarmVideoGridViewController.dataSource = self.alarmVideoDataSource;
+    }else{
+        toRemoveVC = self.alarmVideoGridViewController;
+        toAddVC = self.photoGridViewController;
+        self.photoGridViewController.dataSource = [self.cameraMediaDataManager fetchDataWithType:[self currentType]];
+        [self.photoGridViewController reloadData];
+    }
+    
+    if (toAddVC.parentViewController != self){
+        [self addChildViewController:toAddVC];
+        [toAddVC didMoveToParentViewController:self];
+        [self.view addSubview:toAddVC.view];
+    }
+    
+    if (toRemoveVC.parentViewController != nil){
+        [toRemoveVC removeFromParentViewController];
+        [toRemoveVC.view removeFromSuperview];
+    }
+    
 }
 
 #pragma mark - getter and setter
@@ -169,21 +236,21 @@
 - (MHLumiPhotoGridViewController *)photoGridViewController{
     if (!_photoGridViewController) {
         _photoGridViewController = [[MHLumiPhotoGridViewController alloc] init];
+        _photoGridViewController.delegate = self;
     }
     return _photoGridViewController;
 }
 
+- (MHLumiAlarmVideoGridViewController *)alarmVideoGridViewController{
+    if (!_alarmVideoGridViewController) {
+        _alarmVideoGridViewController = [[MHLumiAlarmVideoGridViewController alloc] initWithCameraDevice:self.cameraDevice];
+    }
+    return _alarmVideoGridViewController;
+}
+
 - (MHLumiCameraMediaDataManager *)cameraMediaDataManager{
     if (!_cameraMediaDataManager) {
-//        PHFetchResult *topLevelUserCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
         PHAssetCollection *assetCollection = [MHLumiCameraMediaDataManager lumiCameraAssetCollection];
-//        [topLevelUserCollections enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//            PHAssetCollection * todoAssetCollection = (PHAssetCollection *)obj;
-//            if ([todoAssetCollection.localizedTitle isEqualToString:@"绿米摄像头"]){
-//                assetCollection = todoAssetCollection;
-//                *stop = YES;
-//            }
-//        }];
         _cameraMediaDataManager = [[MHLumiCameraMediaDataManager alloc] initWithAssetCollection:assetCollection];
     }
     return _cameraMediaDataManager;

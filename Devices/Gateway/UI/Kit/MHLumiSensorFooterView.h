@@ -33,14 +33,7 @@ typedef void (^MHLumiSensorFooterHanlder)(NSInteger buttonIndex, NSInteger btnTa
 @property (nonatomic, copy) void(^foldCallback)(void);
 @property (nonatomic, copy) void(^panFoldCallback)(UIPanGestureRecognizerDirection);
 @property (nonatomic, copy) void(^deleteCallback)(NSString *name);
-/**
- *  按钮+文字(插座,单火,空调等底部的控制部分)
- *
- *  @param source imageName(array),  titleName(array), 初始化使用 kIMAGENAMEKEY,kTEXTKEY 作为key
- *  @param handle 按钮回调事件
- *
- *  @return return value description
- */
+
 - (id)initWithSource:(NSDictionary *)source handle:(MHLumiSensorFooterHanlder)handle;
 
 - (id)initWithFixedSource:(NSDictionary *)fixed customSource:(NSDictionary *)custom handle:(MHLumiSensorFooterHanlder)handle;

@@ -3,13 +3,10 @@
 //  SFFmpegIOSDecoder
 //
 //  Created by LM21Mac002 on 16/9/27.
-//  Copyright © 2016年 Lei Xiaohua. All rights reserved.
+//  Copyright © 2016年 小米移动软件. All rights reserved.
 //
 
 #import <GLKit/GLKit.h>
-#include "fisheye.h"
-#include "fisheye_opengl.h"
-#include "fisheye_errordef.h"
 #import "MHLumiFisheyeHeader.h"
 
 typedef struct MHLumiGLKViewData
@@ -50,4 +47,6 @@ typedef struct MHLumiGLKViewData
 - (void)setPanTiltZoomWithRoll:(CGFloat)roll pitch:(CGFloat)pitch;
 - (void)updateDataMarkPointWithPan:(CGFloat) pan tilt:(CGFloat) tilt;
 - (void)changeViewType:(MHLumiFisheyeViewType)type;
+- (void)setCurrentContext;
+- (void)setupFisheyeLibraryWithDewrapType:(FEDEWARPTYPE)dewrapType mountType:(FEMOUNTTYPE)mountType;
 @end

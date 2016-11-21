@@ -7,7 +7,7 @@
 //
 
 #import "MHLuViewController.h"
-#import "MHDeviceGateway.h"
+#import "MHDeviceAcpartner.h"
 
 @interface MHACPartnerDeviceListViewController : MHLuViewController
 
@@ -17,6 +17,6 @@
 @property (nonatomic, copy) void (^deviceCountChange)();
 
 - (void)startRefresh ;
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway* )gateway;
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner* )acpartner;
 
 @end

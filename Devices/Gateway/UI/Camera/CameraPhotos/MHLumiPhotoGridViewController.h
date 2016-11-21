@@ -9,9 +9,17 @@
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
 #import "MHViewController.h"
+#import "MHLumiAlarmVideoDataSource.h"
+@class MHLumiPhotoGridViewController;
+@protocol MHLumiPhotoGridViewControllerDelegate <NSObject>
+@optional
+- (void)photoGridViewController:(MHLumiPhotoGridViewController *)photoGridViewController didSelectItemAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
 
 @interface MHLumiPhotoGridViewController : MHViewController
-@property (strong, nonatomic)PHFetchResult *fetchResult;
-@property (strong, nonatomic)NSMutableArray<NSMutableArray<PHAsset *> *> *dateSource;
+@property (nonatomic, strong)PHFetchResult *fetchResult;
+@property (nonatomic, strong)NSMutableArray<NSMutableArray<PHAsset *> *> *dataSource;
 - (void)reloadData;
+@property (nonatomic, weak) id<MHLumiPhotoGridViewControllerDelegate> delegate;
 @end

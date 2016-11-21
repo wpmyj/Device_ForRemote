@@ -21,7 +21,7 @@ typedef enum : NSInteger{
 @property (nonatomic,copy) void (^sceneLogClicked)(void);
 @property (nonatomic,copy) void (^offlineRecord)(MHDataIFTTTRecord *record);
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway;
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner* )acpartner;
 - (void)loadIFTTTRecords;
 
 @end

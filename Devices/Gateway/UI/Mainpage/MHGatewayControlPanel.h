@@ -11,7 +11,6 @@
 #import "MHDeviceGatewayBaseService.h"
 
 @interface MHGatewayControlPanel : UIView
-@property (nonatomic,assign) BOOL shouldKeepRunning;
 
 @property (nonatomic,copy) void (^chooseServiceIcon)(MHDeviceGatewayBaseService *service);
 @property (nonatomic,copy) void (^openDevicePageCallback)(MHDeviceGatewayBaseService *service);

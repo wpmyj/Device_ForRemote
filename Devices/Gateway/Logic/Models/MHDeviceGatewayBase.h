@@ -43,7 +43,7 @@
 #define DeviceModelgateWaySensorDlockV1         @"lumi.sensor_dlock.v1"
 #define DeviceModelgateWaySensorCtrlLn1V1       @"lumi.ctrl_ln1.v1"
 #define DeviceModelgateWaySensorCtrlLn2V1       @"lumi.ctrl_ln2.v1"
-
+#define DeviceModelgateWaySensorDoorLock        @"lumi.sensor_dlock.v1"
 
 #define SID_Gateway @"lumi.0"
 

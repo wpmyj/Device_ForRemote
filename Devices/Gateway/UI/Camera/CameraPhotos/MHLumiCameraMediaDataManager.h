@@ -20,13 +20,24 @@ typedef NS_ENUM(NSInteger, MHLumiCameraMediaDataType){
 @property (nonatomic, strong, readonly) PHAssetCollection *assetCollection;
 
 - (NSMutableArray<NSMutableArray<PHAsset *> *> *)fetchDataWithType:(MHLumiCameraMediaDataType)type;
+
 - (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection;
+
 - (void)saveImage:(UIImage *)image andError:(NSError **)error;
+
 + (PHAssetCollection *)lumiCameraAssetCollection;
+
 + (void)saveImage:(UIImage *)image
  toAssetColletion:(PHAssetCollection *)assetColletion
          andError:(NSError **)error;
+
 + (void)saveVideoWithPath:(NSString *)path
         toAssetCollection:(PHAssetCollection *)assetCollection
                  andError:(NSError **)error;
+
+- (UIImage *)lastCreationImageWithSize:(CGSize)size;
+
+- (UIImage *)lastCreationVideoThumbnailWithSize:(CGSize)size;
+
+- (UIImage *)lastCreationImageOrVideoThumbnailWithSize:(CGSize)size;
 @end

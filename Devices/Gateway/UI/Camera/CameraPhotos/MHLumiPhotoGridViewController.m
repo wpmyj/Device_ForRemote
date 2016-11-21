@@ -23,6 +23,7 @@
 
 @implementation MHLumiPhotoGridViewController
 - (void)dealloc{
+    [self resetCache];
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
@@ -47,22 +48,22 @@
 
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
-    if (self.dateSource){
-        return self.dateSource.count;
+    if (self.dataSource){
+        return self.dataSource.count;
     }
     return 0;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
-    if (self.dateSource){
-        return self.dateSource[section].count;
+    if (self.dataSource){
+        return self.dataSource[section].count;
     }
     return 0;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     MHLumiPhotoGridCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[MHLumiPhotoGridCollectionViewCell reuseIdentifier] forIndexPath:indexPath];
-    PHAsset *asset = self.dateSource[indexPath.section][indexPath.item];
+    PHAsset *asset = self.dataSource[indexPath.section][indexPath.item];
     if (asset){
         cell.identifierForAsset = asset.localIdentifier;
         [self.imageManager requestImageForAsset:asset targetSize:[self thumbnailSize]  contentMode:PHImageContentModeAspectFit options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
@@ -81,32 +82,21 @@
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
     NSLog(@"kind = %@",kind);
     MHLumiPhotoGridViewHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:[MHLumiPhotoGridViewHeaderView reuseIdentifier] forIndexPath:indexPath];
-//    NSDate *date = self.dateSource[indexPath.section][0].creationDate;
+//    NSDate *date = self.dataSource[indexPath.section][0].creationDate;
     headerView.titleLabel.text = self.headerTitles[indexPath.section];
     return headerView;
 }
 
 #pragma mark - UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-//    PHAsset *todoAsset = self.dateSource[indexPath.section][indexPath.item];
-//    UIViewController *vc = nil;
-//    if (todoAsset.mediaType == PHAssetMediaTypeImage){
-//        PhotoDetailViewController *vcImage = [[PhotoDetailViewController alloc] init];
-//        vcImage.asset = todoAsset;
-//        vcImage.dataSource = self;
-//        vc = vcImage;
-//    }else if (todoAsset.mediaType == PHAssetMediaTypeVideo){
-//        PhotoDetailViewController2 *vcVideo = [[PhotoDetailViewController2 alloc] init];
-//        vcVideo.asset = todoAsset;
-//        vc = vcVideo;
-//    }
-//    if (vc){
-//        [self.navigationController pushViewController:vc animated:YES];
-//    }
-    MHLumiAssetPreviewViewController *vc = [[MHLumiAssetPreviewViewController alloc] init];
-    vc.dateSource = self.dateSource;
-    vc.defaultIndexPath = indexPath;
-    [self.navigationController pushViewController:vc animated:YES];
+    if ([self.delegate respondsToSelector:@selector(photoGridViewController:didSelectItemAtIndexPath:)]){
+        [self.delegate photoGridViewController:self didSelectItemAtIndexPath:indexPath];
+    }else{
+        MHLumiAssetPreviewViewController *vc = [[MHLumiAssetPreviewViewController alloc] init];
+        vc.dateSource = self.dataSource;
+        vc.defaultIndexPath = indexPath;
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -202,10 +192,10 @@
 }
 
 - (NSArray<PHAsset *> *)fetchAssetsFormIndexPaths:(NSArray<NSIndexPath *> *)indexPaths{
-    if (self.dateSource && self.dateSource.count > 0){
+    if (self.dataSource && self.dataSource.count > 0){
         NSMutableArray *array = [NSMutableArray arrayWithCapacity:indexPaths.count];
         for (NSIndexPath *indexPath in indexPaths) {
-            PHAsset *asset = self.dateSource[indexPath.section][indexPath.item];
+            PHAsset *asset = self.dataSource[indexPath.section][indexPath.item];
             [array addObject:asset];
         }
         return array;
@@ -291,7 +281,7 @@
     if (!_headerTitles) {
         NSMutableArray<NSString *> * titles = [NSMutableArray array];
         NSDateFormatter *dateFormatter = [NSDateFormatter timeLineDateFormatter];
-        for (NSMutableArray<PHAsset *> *array in self.dateSource) {
+        for (NSMutableArray<PHAsset *> *array in self.dataSource) {
             NSString *str = [dateFormatter stringFromDate:array[0].creationDate];
             [titles addObject:[str substringToIndex:10]];
         }

@@ -7,8 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MHViewController.h"
+#import <Photos/PHPhotoLibrary.h>
+#import "MHLuDeviceViewControllerBase.h"
+#import "MHDeviceCamera.h"
 
-@interface MHLumiCameraPhotosViewController : MHViewController
+
+@interface MHLumiCameraPhotosViewController : MHLuDeviceViewControllerBase
 @property (nonatomic, assign) NSInteger currentIndex;
+@property (readonly ,strong, nonatomic) MHDeviceCamera *cameraDevice;
+- (instancetype)initWithCameraDevice:(MHDeviceCamera *)device;
++ (PHAuthorizationStatus)authorizationStatus;
++ (void)requestAuthorization:(void(^)(PHAuthorizationStatus status))handler;
 @end

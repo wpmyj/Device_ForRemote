@@ -15,11 +15,11 @@
 @property (nonatomic,strong) NSString *uid; //user id
 @property (nonatomic,strong) NSString *usId; //scene id
 @property (nonatomic,strong) NSString *std_id;//8,15,22已知三种
-@property (nonatomic,strong) NSString *identify;//区分自动化
+@property (nonatomic,strong) NSString *identify;//还不知道什么卵用的，先留着吧(后面原路回，不然不传)
 @property (nonatomic,strong) NSString *name; //scene name
 @property (nonatomic,strong) NSMutableArray *actionList; //执行任务列表
 @property (nonatomic,strong) NSMutableArray *launchList; //启动条件列表
-@property (nonatomic,strong) NSNumber *express; //1表示或关系(帮主那边新的场景可能会有新形式)
+@property (nonatomic,strong) NSNumber *express; //大师说联动报警要加这个表示或
 
 @property (nonatomic,assign) BOOL enable;
 

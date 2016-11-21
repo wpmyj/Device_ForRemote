@@ -17,5 +17,4 @@
 
 - (id)initWithGateway:(MHDeviceGateway *)gateway;
 
-
 @end

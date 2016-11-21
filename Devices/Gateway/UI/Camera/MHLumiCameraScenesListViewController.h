@@ -23,6 +23,8 @@ typedef enum : NSInteger{
 @property (nonatomic, copy) void (^customIftCellClicked)(MHDataIFTTTRecord *record);
 @property (nonatomic, copy) void (^offlineRecord)(MHDataIFTTTRecord *record);
 @property (nonatomic, copy) void (^sceneLogClicked)(void);
+@property (nonatomic, strong, readonly) UIButton *btnSetting;
+@property (nonatomic, strong, readonly) UIButton *btnAddDevice;
 
 - (id)initWithDevice:(MHDeviceGateway* )device ;
 - (void)loadIFTTTRecords;

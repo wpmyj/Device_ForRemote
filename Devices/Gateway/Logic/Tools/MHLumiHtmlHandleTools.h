@@ -17,7 +17,6 @@
 - (UIViewController *)currentViewController;
 //当前语言环境
 - (NSString *)currentLanguage;
-//当前语言是否为中文
 - (BOOL)currentLanguageIsChinese;
 
 

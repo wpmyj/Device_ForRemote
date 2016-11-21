@@ -3,7 +3,7 @@
 //  SFFmpegIOSDecoder
 //
 //  Created by LM21Mac002 on 16/10/4.
-//  Copyright © 2016年 Lei Xiaohua. All rights reserved.
+//  Copyright © 2016年 小米移动软件. All rights reserved.
 //
 
 #import "MHLumiFisheyeViewTypeData.h"
@@ -200,11 +200,11 @@
         case MHLumiFisheyeViewTypeA:
             switch (_mountType) {
                 case FE_MOUNT_FLOOR:{
-                    _defaultTilt = -90/zoom;
+                    _defaultTilt = -(90.0-90.0/zoom);
                 }
                     break;
                 case FE_MOUNT_CEILING:{
-                    _defaultTilt = 90/zoom;
+                    _defaultTilt = (90.0-90.0/zoom);
                 }
                     break;
                 default:

@@ -24,7 +24,7 @@
 
 @interface MHACPartnerControlHeaderView ()<UIScrollViewDelegate, UIGestureRecognizerDelegate>
 
-@property (nonatomic, strong) MHDeviceGateway *gateway;
+@property (nonatomic, strong) MHDeviceAcpartner *acpartner;
 @property (nonatomic, strong) MHACPartnerAddControlView *acAddView;
 
 @property (nonatomic, strong) MHGatewayMainpageAnimation *changeColorAnimation;
@@ -44,9 +44,9 @@
     MHGatewayAlarmControlView*              _alarmView;
 }
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway {
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner *)acpartner {
     if (self = [super initWithFrame:frame]) {
-        self.gateway = gateway;
+        self.acpartner = acpartner;
         [self buildSubViews];
 //        [self buildConstraints];
     }
@@ -167,7 +167,7 @@
     float alarmRadius = 188 * ScaleHeight;
     CGFloat topSpacing = 5 * ScaleHeight;
     CGRect alarmViewRect = CGRectMake((WIN_WIDTH - alarmRadius) / 2, topSpacing, alarmRadius, alarmRadius);
-    MHGatewayAlarmControlView *alarmView = [[MHGatewayAlarmControlView alloc] initWithFrame:alarmViewRect sensor:self.gateway];
+    MHGatewayAlarmControlView *alarmView = [[MHGatewayAlarmControlView alloc] initWithFrame:alarmViewRect sensor:_acpartner];
     alarmView.padding = 6 * ScaleWidth;
     _alarmView = alarmView;
     return alarmView;
@@ -180,7 +180,7 @@
         return _fmView;
     }
     CGRect fmViewRect = CGRectMake(0, 0, WIN_WIDTH, kHeight);
-    MHGatewayFMControlView *fmBgView = [[MHGatewayFMControlView alloc] initWithFrame:fmViewRect sensor:self.gateway];
+    MHGatewayFMControlView *fmBgView = [[MHGatewayFMControlView alloc] initWithFrame:fmViewRect sensor:_acpartner];
     fmBgView.backgroundColor = [UIColor clearColor];
     [fmBgView addTarget:self action:@selector(goToFmPlayer:) forControlEvents:UIControlEventTouchUpInside];
     _fmView = fmBgView;
@@ -190,7 +190,7 @@
 //添加空调
 - (MHACPartnerAddControlView *)buildAcAddView {
     CGRect acAddViewViewRect = CGRectMake(0, 0, WIN_WIDTH, WIN_HEIGHT * 0.4);
-    MHACPartnerAddControlView *acAddView = [[MHACPartnerAddControlView alloc] initWithFrame:acAddViewViewRect sensor:nil];
+    MHACPartnerAddControlView *acAddView = [[MHACPartnerAddControlView alloc] initWithFrame:acAddViewViewRect sensor:_acpartner];
     XM_WS(weakself);
     [acAddView setAddACClicked:^{
         if (weakself.clickCallBack) {
@@ -238,7 +238,7 @@
 
 - (void)goToACDetail:(UIControl *)sender {
     
-    BOOL hasScan = [[[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@%@", self.gateway.did, kHASSCANED]] boolValue];
+    BOOL hasScan = [[[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@%@", self.acpartner.did, kHASSCANED]] boolValue];
     if (hasScan) {
         if (self.clickCallBack) {
             self.clickCallBack(Acpartner_MainPage_ACDetail);

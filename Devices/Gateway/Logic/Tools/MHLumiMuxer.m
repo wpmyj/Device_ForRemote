@@ -16,6 +16,7 @@
 
 @interface MHLumiMuxer()
 @property (nonatomic, copy) NSString *theVideoPath;
+@property (nonatomic, strong) dispatch_queue_t lumiMuxerQueue;
 @end
 
 
@@ -27,6 +28,35 @@
     AVFormatContext             *ofmt_ctx;
     AVPacket                    pkt;
 }
+
+- (instancetype)init{
+    self = [super init];
+    if (self) {
+        _lumiMuxerQueue = dispatch_queue_create("queue.MHLumiMuxer", DISPATCH_QUEUE_CONCURRENT);
+    }
+    return self;
+}
+
+- (void)muxWithInputVideoName:(NSString *)inputVideoName
+               inputAudioName:(NSString *)inputAudioName
+            andOutputFileName:(NSString *)outputFileName
+                        queue:(dispatch_queue_t)queue
+              completeHandler:(void(^)(int))completeHandler{
+    dispatch_async(queue, ^{
+        int retcode = [self muxWithInputVideoName:inputVideoName inputAudioName:inputAudioName andOutputFileName:outputFileName];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completeHandler(retcode);
+        });
+    });
+}
+
+- (void)muxWithInputVideoName:(NSString *)inputVideoName
+               inputAudioName:(NSString *)inputAudioName
+            andOutputFileName:(NSString *)outputFileName
+              completeHandler:(void(^)(int))completeHandler{
+    [self muxWithInputVideoName:inputVideoName inputAudioName:inputAudioName andOutputFileName:outputFileName queue:_lumiMuxerQueue completeHandler:completeHandler];
+}
+
 - (int)muxWithInputVideoName:(NSString *)inputVideoName
               inputAudioName:(NSString *)inputAudioName
            andOutputFileName:(NSString *)outputFileName{

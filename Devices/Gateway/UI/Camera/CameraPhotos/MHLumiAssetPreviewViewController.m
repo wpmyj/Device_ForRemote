@@ -11,8 +11,10 @@
 #import "UIMHLumiAssetImagePreviewCollectionViewCell.h"
 #import "UIMHLumiAssetVideoPreviewCollectionViewCell.h"
 #import "NSDateFormatter+lumiDateFormatterHelper.h"
+#import "MHLumiGLKViewController.h"
+#import "MHLumiCameraVideoShareView.h"
 
-@interface MHLumiAssetPreviewViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UIMHLumiAssetVideoPreviewCollectionViewCellDelegate,UIMHLumiAssetImagePreviewCollectionViewCellDelegate>
+@interface MHLumiAssetPreviewViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UIMHLumiAssetVideoPreviewCollectionViewCellDelegate,UIMHLumiAssetImagePreviewCollectionViewCellDelegate,MHLumiGLKViewControllerDataSource>
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, assign) BOOL hasSetDefaultIndexPath;
 @property (nonatomic, strong) UIView *buttonsContanerView;
@@ -28,6 +30,8 @@
 @property (nonatomic, strong) UIButton *camerDeleteButton;
 @property (nonatomic, strong) MASConstraint *buttonsContanerViewBottomConstraint;
 @property (nonatomic, strong) NSIndexPath *selectedIndexPath;
+@property (nonatomic, strong) MHLumiGLKViewController *glkViewController;
+@property (nonatomic, strong) MHLumiCameraVideoShareView *shareView;
 @end
 
 @implementation MHLumiAssetPreviewViewController
@@ -40,7 +44,6 @@ static CGFloat kButtonsContanerViewHeight = 80;
     self.isNavBarTranslucent = NO;
     _hasSetDefaultIndexPath = false;
     self.automaticallyAdjustsScrollViewInsets = NO;
-
 }
 
 - (void)viewWillLayoutSubviews{
@@ -69,6 +72,26 @@ static CGFloat kButtonsContanerViewHeight = 80;
     [self.buttonArray addObject:self.cameraShareButton];
     [self configureLayoutWithOrientation:UIInterfaceOrientationPortrait];
 }
+
+- (void)initGLKViewControllerWithWithmountType:(FEMOUNTTYPE)mountType
+                                    dewrapType:(FEDEWARPTYPE)dewrapType{
+    self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:dewrapType
+                                                                       mountType:mountType
+                                                                        viewType:MHLumiFisheyeViewTypeDefault];
+    self.glkViewController.dataSource = self;
+//    self.glkViewController.centerPointOffsetX = self.cameraDevice.centerPointOffsetX;
+//    self.glkViewController.centerPointOffsetY = self.cameraDevice.centerPointOffsetY;
+//    self.glkViewController.centerPointOffsetR = self.cameraDevice.centerPointOffsetR;
+//    [self.glkViewController setCurrentContext];
+//    CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
+//    CGFloat h = w/_videoDataSize.width*_videoDataSize.height;
+//    [self addChildViewController:self.glkViewController];
+//    self.glkViewController.view.frame = CGRectMake(0, 64, w ,h);
+//    [self.view insertSubview:self.glkViewController.view atIndex:0];
+//    [self.glkViewController didMoveToParentViewController:self];
+//    [self.glkViewController.view addGestureRecognizer:self.doubleTapOnGLK];
+//    self.glkViewController.view.userInteractionEnabled = YES;
+}
 #pragma mark - configureLayout
 - (void)configureLayoutWithOrientation:(UIInterfaceOrientation)orientation{
     [self.buttonsContanerView mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -94,7 +117,7 @@ static CGFloat kButtonsContanerViewHeight = 80;
 
 #pragma mark - event response
 - (void)cameraShareButtonAction:(UIButton *)sender{
-    
+    [self.shareView showInDuration:0.2];
 }
 
 - (void)cameraDeleteButtonAction:(UIButton *)sender{
@@ -102,10 +125,22 @@ static CGFloat kButtonsContanerViewHeight = 80;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
         [PHAssetChangeRequest deleteAssets:@[todoAsset]];
     } completionHandler:^(BOOL success, NSError * _Nullable error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.navigationController popViewControllerAnimated:YES];
-        });
+        if (success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.navigationController popViewControllerAnimated:YES];
+            });
+        }
     }];
+}
+
+#pragma mark - MHLumiGLKViewControllerDataSource
+- (MHLumiGLKViewData)fetchBufferData:(MHLumiGLKViewController *)glkViewController{
+    MHLumiGLKViewData data;
+    return data;
+}
+
+- (bool)shouldUpdateBuffer:(MHLumiGLKViewController *)glkViewController{
+    return NO;
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -185,11 +220,26 @@ static CGFloat kButtonsContanerViewHeight = 80;
 #pragma mark - UIMHLumiAssetVideoPreviewCollectionViewCellDelegate
 - (void)videoPreviewCollectionViewCell:(UIMHLumiAssetVideoPreviewCollectionViewCell *)cell
                       didTapPlayButton:(UIButton *)button{
+    
     if (cell.isPlaying){
         [cell playerViewPause];
     }else{
         [cell playerViewPlay];
         [self setHidesControlView:YES];
+        
+//        PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
+//        options.version = PHVideoRequestOptionsVersionOriginal;
+//        __weak typeof(self) weakself = self;
+//        [[PHImageManager defaultManager] requestAVAssetForVideo:cell.asset options:options
+//                                                  resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+//                                                      AVURLAsset *urlAsset = (AVURLAsset *)asset;
+//                                                      if (urlAsset){
+//                                                          NSURL *localVideoUrl = urlAsset.URL;
+//                                                          [weakself showGLKViewControllerWithPath:localVideoUrl.absoluteString
+//                                                                                    videoSize:cell.playerView.frame.size];
+//                                                      }
+//        }];
+  
     }
     __weak typeof(self) weakself = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -219,6 +269,48 @@ static CGFloat kButtonsContanerViewHeight = 80;
 }
 
 #pragma mark - private function
+
+//NSString *fileName = [NSString stringWithFormat:@"%@_%@_%@_%@_%f_%f_%f.mp4",
+//                      timerStr,
+//                      cameraDid,
+//                      dewrapTypeName,
+//                      mountTypeName,
+//                      centerPointOffsetX,
+//                      centerPointOffsetY,
+//                      centerPointOffsetR];
+
+- (void)showGLKViewControllerWithPath:(NSString *)path videoSize:(CGSize)videoSize{
+    NSArray <NSString *> *parts = [path.stringByDeletingPathExtension.lastPathComponent componentsSeparatedByString:@"_"];
+    FEDEWARPTYPE dewrapType = [MHLumiFisheyeHelper dewrapTypeFromString:parts[2]];
+    FEMOUNTTYPE mountType = [MHLumiFisheyeHelper mountTypeFromString:parts[3]];
+    if (self.glkViewController == nil){
+        self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:dewrapType
+                                                                           mountType:mountType
+                                                                            viewType:MHLumiFisheyeViewTypeDefault];
+        self.glkViewController.dataSource = self;
+    }else{
+        [self.glkViewController setupFisheyeLibraryWithDewrapType:dewrapType mountType:mountType];
+        [self.glkViewController changeViewType:MHLumiFisheyeViewTypeDefault];
+    }
+    
+    [self.glkViewController setCurrentContext];
+    CGFloat centerPointOffsetX = [parts[4] integerValue];
+    CGFloat centerPointOffsetY = [parts[5] integerValue];
+    CGFloat centerPointOffsetR = [parts[6] integerValue];
+    self.glkViewController.centerPointOffsetX = centerPointOffsetX;
+    self.glkViewController.centerPointOffsetY = centerPointOffsetY;
+    self.glkViewController.centerPointOffsetR = centerPointOffsetR;
+    CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
+    CGFloat h = w/videoSize.width*videoSize.height;
+    [self addChildViewController:self.glkViewController];
+    self.glkViewController.view.frame = CGRectMake(0, 64, w ,h);
+    self.glkViewController.view.center = CGPointMake(w/2, CGRectGetHeight([[UIScreen mainScreen] bounds])/2);
+    [self.glkViewController didMoveToParentViewController:self];
+    [self.view.window addSubview:self.glkViewController.view];
+//    [self.glkViewController.view addGestureRecognizer:self.doubleTapOnGLK];
+//    self.glkViewController.view.userInteractionEnabled = YES;
+}
+
 - (void)setHidesControlView:(BOOL)hidesControlView{
     if (hidesControlView){
         [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -257,6 +349,9 @@ static CGFloat kButtonsContanerViewHeight = 80;
         cv.pagingEnabled = YES;
         cv.delegate = self;
         cv.dataSource = self;
+        cv.showsVerticalScrollIndicator = NO;
+        cv.showsHorizontalScrollIndicator = NO;
+        cv.backgroundColor = [UIColor whiteColor];
         _collectionView = cv;
     }
     return _collectionView;
@@ -265,7 +360,7 @@ static CGFloat kButtonsContanerViewHeight = 80;
 - (UIView *)buttonsContanerView{
     if (!_buttonsContanerView){
         UIView *aView = [[UIView alloc] init];
-        aView.backgroundColor = [MHColorUtils colorWithRGB:0x141212 alpha:0.6];
+//        aView.backgroundColor = [MHColorUtils colorWithRGB:0x141212 alpha:0.6];
         _buttonsContanerView = aView;
     }
     return _buttonsContanerView;
@@ -285,7 +380,7 @@ static CGFloat kButtonsContanerViewHeight = 80;
     if (!_camerDeleteButton) {
         UIButton *button = [[UIButton alloc] init];
         [button addTarget:self action:@selector(cameraDeleteButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-        [button setImage:[UIImage imageNamed:@"lumi_camera_preview_delete"] forState:UIControlStateNormal];
+        [button setImage:[UIImage imageNamed:@"lumi_camera_video_delete"] forState:UIControlStateNormal];
         _camerDeleteButton = button;
     }
     return _camerDeleteButton;
@@ -296,5 +391,12 @@ static CGFloat kButtonsContanerViewHeight = 80;
         _buttonArray = [NSMutableArray array];
     }
     return _buttonArray;
+}
+
+- (MHLumiCameraVideoShareView *)shareView{
+    if (!_shareView) {
+        _shareView = [[MHLumiCameraVideoShareView alloc] init];
+    }
+    return _shareView;
 }
 @end

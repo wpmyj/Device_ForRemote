@@ -28,6 +28,7 @@
 @property (nonatomic, copy) void (^clickDeviceCell)(MHDeviceGatewayBase *device);
 @property (nonatomic, copy) void (^clickChangeBattery)(MHDeviceGatewayBase *device);
 @property (nonatomic, copy) void (^deviceCountChange)();
+@property (nonatomic, strong, readonly) UIButton *btnAddDevice;
 @property (nonatomic, weak) id<MHLumiCameraDeviceListViewControllerDelegate> delegate;
 - (void)startRefresh;
 - (id)initWithDevice:(MHDeviceGateway* )device;

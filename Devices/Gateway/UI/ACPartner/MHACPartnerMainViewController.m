@@ -220,7 +220,7 @@
     //    XM_WS(weakself);
     if (!_controlView) {
         //控制
-        _controlView = [[MHACPartnerControlViewController alloc] initWithFrame:CGRectMake(0, 0, WIN_WIDTH, WIN_HEIGHT) sensor:self.acPartner];
+        _controlView = [[MHACPartnerControlViewController alloc] initWithFrame:CGRectMake(0, 0, WIN_WIDTH, WIN_HEIGHT) acpartner:self.acPartner];
     }
     return _controlView;
 }

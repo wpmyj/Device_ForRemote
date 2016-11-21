@@ -105,12 +105,12 @@
     self.deleteBtns = [NSMutableArray new];
     self.showDelete = NO;
     //灯光键一会有一会没的
-//    if ([self.imageNames[7] isEqualToString:@"acpartner_device_led"]) {
-//        self.customBegin = 8;
-//    }
-//    else {
-//        self.customBegin = 7;
-//    }
+    if ([self.imageNames[7] isEqualToString:@"acpartner_device_led"]) {
+        self.customBegin = 8;
+    }
+    else {
+        self.customBegin = 7;
+    }
 
 }
 

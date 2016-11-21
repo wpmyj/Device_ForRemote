@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MHLumiAVPlayerView.h"
 
 @class UIMHLumiAssetVideoPreviewCollectionViewCell;
 @protocol UIMHLumiAssetVideoPreviewCollectionViewCellDelegate <NSObject>
@@ -17,11 +18,11 @@
 @end
 
 @class PHAsset;
-@class MHLumiAVPlayerView;
 @interface UIMHLumiAssetVideoPreviewCollectionViewCell : UICollectionViewCell
 @property (nonatomic, strong, readonly) MHLumiAVPlayerView *playerView;
 @property (nonatomic, weak) id<UIMHLumiAssetVideoPreviewCollectionViewCellDelegate> delegate;
 @property (nonatomic, strong, readonly) UIButton *playButton;
+@property (nonatomic, strong, readonly) PHAsset *asset;
 @property (nonatomic, assign) BOOL isPlaying;
 + (NSString *)videoCellReuseIdentifier;
 - (void)configureCellWithAsset:(PHAsset *)asset;

@@ -40,7 +40,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //请求新的数据
-    self.title = @"更多";
+    self.title = NSLocalizedStringFromTable(@"mydevice.actionsheet.more",@"plugin_gateway","更多");
     
 //    XM_WS(weakself);
 //    [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"getting",@"plugin_gateway","获取中，请稍候...") modal:YES];
@@ -58,7 +58,7 @@
 
 - (void)getNewDeviceData {
     
-    [[MHTipsView shareInstance] showTips:@"读取配置中..." modal:YES];
+    [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"loading",@"plugin_gateway","loading..") modal:YES];
     XM_WS(weakself);
     [self.deviceNatgas getPrivateProperty:HIGH_INDEX success:^(id obj) {
         if (!([[obj[@"result"] firstObject] isKindOfClass:[NSString class]] && [[obj[@"result"] firstObject] isEqualToString:@"waiting"])) {
@@ -112,28 +112,14 @@
 - (void)buildTableView {
     XM_WS(weakself);
     
-    
-//    NSString* strIfttt = NSLocalizedStringFromTable(@"profile.entry.triggerAction",@"plugin_gateway","自动化");
-//    NSString* strInstallation = NSLocalizedStringFromTable(@"mydevice.gateway.sensor.curtain.installationtutorial",@"plugin_gateway","安装教程");
-        NSString* strSensitivity = @"报警灵敏度";
-
-//    NSString* strSelfTest = NSLocalizedStringFromTable(@"mydevice.gateway.sensor.curtain.directionchoice",@"plugin_gateway","方向选择");
-
-        NSString* strSelfTest = @"设备自检";
-
-//    NSString* strSelfTestCaption = NSLocalizedStringFromTable(@"mydevice.gateway.sensor.curtain.clearitinerary",@"plugin_gateway","清楚行程(慎点)");
-//    NSString* strSelfTestComment = NSLocalizedStringFromTable(@"mydevice.gateway.sensor.curtain.manualcontrol",@"plugin_gateway","手动开/关窗帘");
-    NSString* strSelfTestCaption = @"设备自检提醒(每月)";
-    NSString* strSelfTestComment = @"开启后每月的第一天提醒一次";
-    
-//    NSString* strTrend = @"历史曲线";
-
+    NSString* strSensitivity = NSLocalizedStringFromTable(@"mydevice.gateway.setting.natgas.sensitive", @"plugin_gateway", @"报警灵敏度");
+    NSString* strSelfTest = NSLocalizedStringFromTable(@"mydevice.gateway.setting.natgas.selftest", @"plugin_gateway", @"设备自检");
+    NSString* strSelfTestCaption = NSLocalizedStringFromTable(@"mydevice.gateway.setting.natgas.selftestnotify", @"plugin_gateway", @"设备自检提醒(每月)");
+    NSString* strSelfTestComment = NSLocalizedStringFromTable(@"mydevice.gateway.setting.natgas.selftestnotify.comment", @"plugin_gateway", @"开启后每月的第一天提醒一次");
     
     NSString* strChangeTitle = [NSString stringWithFormat:@"%@", NSLocalizedStringFromTable(@"mydevice.actionsheet.changename",@"plugin_gateway","修改设备名称")];
     NSString* strShowMode = _deviceNatgas.showMode ? NSLocalizedStringFromTable(@"mydevice.gateway.delsub.rmvlist",@"plugin_gateway","撤销显示") : NSLocalizedStringFromTable(@"mydevice.gateway.delsub.addlist",@"plugin_gateway","添加显示");
-//    NSString *strFAQ = NSLocalizedStringFromTable(@"mydevice.gateway.about.freFAQ",@"plugin_gateway","常见问题");
     NSString* strFeedback = NSLocalizedStringFromTable(@"mydevice.actionsheet.feedback",@"plugin_gateway","反馈");
-    
     
     MHLuDeviceSettingGroup* group1 = [[MHLuDeviceSettingGroup alloc] init];
     NSMutableArray *curtainSettings = [NSMutableArray new];
@@ -149,7 +135,6 @@
     itemSensitivity.lumiCallbackBlock = ^(MHLumiSettingCell *cell) {
         MHGatewayNatgasSensitivityViewController *sensitivityVC = [[MHGatewayNatgasSensitivityViewController alloc] initWithDeviceNatgas:weakself.deviceNatgas];
         [weakself.navigationController pushViewController:sensitivityVC animated:YES];
-
     };
     [curtainSettings addObject:itemSensitivity];
     
@@ -183,8 +168,6 @@
     };
     [curtainSettings addObject:itemSelfTest];
     
- 
-    
     //手动开关
     //    MHLumiSettingCellItem *itemManual = [[MHLumiSettingCellItem alloc] init];
     //    itemManual.identifier = @"mydevice.gateway.sensor.curtain.manualcontrol";
@@ -198,6 +181,7 @@
     //        [weakself onManualControl];
     //    };
     //    [curtainSettings addObject:itemManual];
+    
     //设备自检提醒
     MHDeviceSettingItem *itemManual = [[MHDeviceSettingItem alloc] init];
     itemManual.identifier = @"mydevice.gateway.sensor.curtain.manualcontrol";
@@ -210,7 +194,7 @@
     itemManual.customUI = YES;
     itemManual.accessories = [[MHStrongBox alloc] initWithDictionary:@{SettingAccessoryKey_CellHeight : @(56), SettingAccessoryKey_CaptionFontSize : @(15), SettingAccessoryKey_CaptionFontColor : [MHColorUtils colorWithRGB:0x333333], SettingAccessoryKey_CommentFontSize : @(13)}];
     itemManual.callbackBlock = ^(MHDeviceSettingCell *cell) {
-        [[MHTipsView shareInstance] showTips:@"设置中" modal:YES];
+        [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"setting", @"plugin_gateway", @"设置中，请稍候...") modal:YES];
         bool flag = cell.item.isOn;
         [weakself.deviceNatgas setPrivateProperty:SELFTEST_ENABLE_INDEX value:[NSNumber numberWithBool:flag] success:^(id obj) {
             [[MHTipsView shareInstance] hide];
@@ -218,7 +202,7 @@
             [cell fillWithItem:cell.item];
             [cell finish];
         } failure:^(NSError *error) {
-            [[MHTipsView shareInstance] showFailedTips:@"设置失败" duration:1 modal:YES];
+            [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"setting.failed", @"plugin_gateway", @"设置失败") modal:YES];
             cell.item.isOn = !flag;
             [cell fillWithItem:cell.item];
             [cell finish];
@@ -273,7 +257,6 @@
         [weakself gw_clickMethodCountWithStatType:@"actionSheetShowMode"];
     };
     [curtainSettings addObject:itemShowMode];
-    
  
     //反馈
     MHLumiSettingCellItem *itemFeedback = [[MHLumiSettingCellItem alloc] init];

@@ -77,6 +77,8 @@
  */
 "yes" = "是";
 "no" = "否";
+"has" = "有";
+"hasnt" = "没有";
 "Cancel" = "取消";
 "Ok" = "確定";
 "help" = "幫助";
@@ -617,6 +619,30 @@
 "mydevice.gateway.setting.notdisturb.oneday" = "1天";
 "mydevice.gateway.setting.notdisturb.twoday" = "2天";
 "mydevice.gateway.setting.notdisturb.forever" = "永久";
+
+"mydevice.gateway.setting.natgas.sensitive" = "報警靈敏度";
+"mydevice.gateway.setting.natgas.selftest" = "設備自檢";
+"mydevice.gateway.setting.natgas.selftestnotify" = "設備自檢提醒(每月)";
+"mydevice.gateway.setting.natgas.selftestnotify.comment" = "開啟後每月的第壹天提醒壹次";
+"mydevice.gateway.setting.natgas.sensitive.high" = "高";
+"mydevice.gateway.setting.smoke.sensitive.highcomment" = "這合無煙塵區(如辦公室、倉庫)";
+"mydevice.gateway.setting.natgas.sensitive.highcomment" = "極少氣體即可報警";
+"mydevice.gateway.setting.natgas.sensitive.medium" = "中(推薦)";
+"mydevice.gateway.setting.smoke.sensitive.medium" = "中";
+"mydevice.gateway.setting.natgas.sensitive.mediumcomment" = "少許氣體即可報警";
+"mydevice.gateway.setting.smoke.sensitive.mediumcomment" = "適合無煙塵區(如有人吸煙的客廳)";
+"mydevice.gateway.setting.natgas.sensitive.low" = "低";
+"mydevice.gateway.setting.natgas.sensitive.lowcomment" = "一些氣體即可報警";
+"mydevice.gateway.setting.smoke.sensitive.lowcomment" = "適合中量煙塵區(如廚房)";
+"mydevice.gateway.setting.natgas.selftest.tips" = "有蜂鳴聲嗎？";
+"mydevice.gateway.setting.natgas.selftesting" = "設備自檢中, 請稍等";
+"mydevice.gateway.setting.natgas.selftest.success" = "恭喜妳, 設備工做正常!";
+"mydevice.gateway.setting.natgas.selftest.fail" = "自檢失敗，設備可能存在異常，請按以下內容排查問題";
+"mydevice.gateway.setting.natgas.selftest.fail1" = "1、可能設備與網關距離較遠，請將二者靠近後重試。";
+"mydevice.gateway.setting.natgas.selftest.fail2" = "2、可能設備與網關間有遮擋，請移除後重試。";
+"mydevice.gateway.setting.natgas.selftest.fail3" = "3、可能設備電量低，請更換電池後重試。";
+"mydevice.gateway.setting.natgas.selftest.fail4" = "3、可能設備在預熱中，請在預熱結束後重試。";
+
 
 "mydevice.gateway.bind" = "聯動";
 "mydevice.gateway.my.bind" = "我的自動化";

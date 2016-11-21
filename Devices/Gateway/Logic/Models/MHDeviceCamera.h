@@ -7,7 +7,6 @@
 //
 
 #import "MHDeviceGateway.h"
-#import "TUTKClient.h"
 
 typedef NS_ENUM(NSInteger,MHLumiDeviceCameraMode){
     MHLumiDeviceCameraModeFloor            = 0,
@@ -19,7 +18,6 @@ typedef NS_ENUM(NSInteger,MHLumiDeviceCameraMode){
 
 @property (nonatomic, assign)MHLumiDeviceCameraMode OperatingMode;
 @property (nonatomic, copy) NSString *UID;
-@property (nonatomic, strong) TUTKClient* client;
 @property (nonatomic, copy) NSString *udid;
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, assign) CGFloat centerPointOffsetX;

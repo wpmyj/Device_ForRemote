@@ -230,11 +230,6 @@ static NSDictionary *sensorTypeName = nil;
 //    [self.timer fire];
 //}
 
-//- (void)stopWatchingLatestLog {
-//    [self.timer invalidate];
-//    self.timer = nil;
-//    self.shouldKeepRunning = NO;
-//}
 
 #pragma mark - tableview delegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

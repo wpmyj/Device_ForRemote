@@ -10,12 +10,11 @@
 #import "MHDevListManager.h"
 #import "MHGatewaySceneManager.h"
 #import "MHDataScene.h"
+#import "MHIFTTTManager.h"
 
 #define ALARM_IDENTIFY              @"lm_linkage_alarm"
 #define DIS_ALARM_IDENTIFY          @"lm_linkage_dis_alarm"
 #define DIS_ALARM_ALL_IDENTIFY      @"lm_linkage_dis_all_alarm"
-
-
 
 
 @interface MHGatewayLinkAlarmViewController ()
@@ -74,23 +73,20 @@
     
     XM_WS(weakself);
     [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"getting",@"plugin_gateway","获取中，请稍候...") modal:YES];
-    [[MHGatewaySceneManager sharedInstance] fetchSceneListWithDevice:nil stid:@"22" andSuccess:^(id obj) {
-        NSArray *systemScene = obj;
-        //        NSLog(@"%ld", systemScene.count);
-        [systemScene enumerateObjectsUsingBlock:^(MHDataScene *scene, NSUInteger idx, BOOL * _Nonnull stop) {
+   
+    [[MHGatewaySceneManager sharedInstance] getRecordsListSuccess:^(id obj) {
+        NSMutableArray<MHDataIFTTTRecord *> *systemScene = [NSMutableArray arrayWithArray:obj];
+        [systemScene enumerateObjectsUsingBlock:^(MHDataIFTTTRecord *scene, NSUInteger idx, BOOL * _Nonnull stop) {
+        
             if ([scene.identify isEqualToString:ALARM_IDENTIFY] ||
                 [scene.identify isEqualToString:DIS_ALARM_IDENTIFY] ||
                 [scene.identify isEqualToString:DIS_ALARM_ALL_IDENTIFY]) {
-                weakself.authed = [NSMutableArray arrayWithArray:scene.authed];
-                [weakself.sceneUsIds addObject:scene.usId];
-                
-//                NSLog(@"authed%@", scene.authed);
-//                NSLog(@"authed%@", scene.setting);
-//                NSLog(@"authed%@", scene.uid);
-
-                NSLog(@"actionlist%@ launch%@", scene.actionList, scene.launchList);
-                
-                //                NSLog(@"%@", NSStringFromClass([[weakself.authed firstObject] class]));
+                NSMutableArray *authedDid = [NSMutableArray new];
+                [weakself.sceneUsIds addObject:scene.us_id];
+                [scene.actions enumerateObjectsUsingBlock:^(MHDataIFTTTAction *action, NSUInteger idxAction, BOOL * _Nonnull stopAction) {
+                    [authedDid addObject:action.did];
+                }];
+                weakself.authed = [NSMutableArray arrayWithArray:authedDid];
             }
         }];
         [[MHTipsView shareInstance] hide];
@@ -99,9 +95,7 @@
     } failure:^(NSError *v) {
          [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"request.failed",@"plugin_gateway", @"请求失败，请检查网络") duration:1.5f modal:NO];
     }];
-
 }
-
 
 - (void)buildSubviews {
     [super buildSubviews];
@@ -110,7 +104,6 @@
 
 - (void)buildTableView {
     XM_WS(weakself);
-    
     
     MHLuDeviceSettingGroup* group3 = [[MHLuDeviceSettingGroup alloc] init];
     NSMutableArray *doorbellItems = [NSMutableArray arrayWithCapacity:1];
@@ -152,47 +145,41 @@
     }];
     self.settingGroups = [NSMutableArray arrayWithObjects:group3, nil];
     [self.settingTableView reloadData];
-
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
 }
 
-- (void)dealloc {
-    NSLog(@"dddd");
-}
 - (void)onDone:(id)sender {
     if (self.selectedGateways.count < 2 && self.selectedGateways.count > 0) {
         [[MHTipsView shareInstance] showTipsInfo:NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm.moresettings.linkalarm.tipsone",@"plugin_gateway","亲,至少要选择两个网关才能联动报警哦~") duration:1.5f modal:YES];
         return;
     }
- 
     
     XM_WS(weakself);
-//    NSLog(@"%@", self.authed);
-//    NSLog(@"%@", self.selectedGateways);
     [[MHTipsView shareInstance] showTips:NSLocalizedStringFromTable(@"getting",@"plugin_gateway","获取中，请稍候...") modal:YES];
     [self removeLinkAlarmSceneSuccess:^(id obj) {
         if (!weakself.authed.count) {
             [[MHTipsView shareInstance] hide];
             [weakself onBack:nil];
+        }else {
+            [weakself buildLinkAlarmSceneSuccess:^(id obj) {
+                [[MHTipsView shareInstance] hide];
+                [weakself onBack:nil];
+            } andfailure:^(NSError *error) {
+                [[MHTipsView shareInstance] showTipsInfo:NSLocalizedStringFromTable(@"operation.failed",@"plugin_gateway","操作失败, 请检查网络") duration:1.5f modal:NO];
+            }];
         }
-        [weakself buildLinkAlarmSceneSuccess:^(id obj) {
-            [[MHTipsView shareInstance] hide];
-            [weakself onBack:nil];
-        } andfailure:^(NSError *error) {
-            [[MHTipsView shareInstance] showTipsInfo:@"更改失败,请检查网络设置"  duration:1.5f modal:NO];
-        }];
+       
     } andfailure:^(NSError *error) {
-        [[MHTipsView shareInstance] showTipsInfo:@"更改失败,请检查网络设置"  duration:1.5f modal:NO];
+        [[MHTipsView shareInstance] showTipsInfo:NSLocalizedStringFromTable(@"operation.failed",@"plugin_gateway","操作失败, 请检查网络") duration:1.5f modal:NO];
     }];
-    
 }
+
 - (void)onBack:(id)sender {
     [super onBack:sender];
 }
-
 
 #pragma mark - 联动报警
 - (void)buildLinkAlarmSceneSuccess:(SucceedBlock)success
@@ -203,40 +190,33 @@
     [self setSaveCallback:^{
         switch (index) {
             case 0: {
-                [[weakself buildAlarmScene] saveSceneWithSuccess:^(id obj) {
+                [[MHIFTTTManager sharedInstance] editRecord:[weakself buildAlarmRecord] success:^{
                     index++;
-                    if (weakself.saveCallback) {
-                        weakself.saveCallback();
-                    }
-                } andFailure:^(NSError *error) {
-                    if (failure) {
-                        failure(error);
-                    }
+                    if (weakself.saveCallback) weakself.saveCallback();
+
+                } failure:^(NSInteger v) {
+                    NSError *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:v userInfo:NULL];
+                    if (failure) failure(error);
                 }];
             }
                 break;
             case 1: {
-                [[weakself buildDisAlarmScene] saveSceneWithSuccess:^(id obj) {
+                [[MHIFTTTManager sharedInstance] editRecord:[weakself buildDisAlarmRecord] success:^{
                     index++;
-                    if (weakself.saveCallback) {
-                        weakself.saveCallback();
-                    }
-                } andFailure:^(NSError *error) {
-                    if (failure) {
-                        failure(error);
-                    }
+                    if (weakself.saveCallback) weakself.saveCallback();
+                    
+                } failure:^(NSInteger v) {
+                    NSError *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:v userInfo:NULL];
+                    if (failure) failure(error);
                 }];
             }
                 break;
             case 2: {
-                [[weakself buildDisAllAlarmScene] saveSceneWithSuccess:^(id obj) {
-                    if (success) {
-                        success(obj);
-                    }
-                } andFailure:^(NSError *error) {
-                    if (failure) {
-                        failure(error);
-                    }
+                [[MHIFTTTManager sharedInstance] editRecord:[weakself buildDisAllAlarmRecord] success:^{
+                    if (success) success(NULL);
+                } failure:^(NSInteger v) {
+                    NSError *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:v userInfo:NULL];
+                    if (failure) failure(error);
                 }];
             }
                 break;
@@ -247,8 +227,8 @@
     }];
     
     self.saveCallback();
-    
 }
+
 - (void)removeLinkAlarmSceneSuccess:(SucceedBlock)success
                             andfailure:(FailedBlock)failure {
     
@@ -260,6 +240,7 @@
     }
     XM_WS(weakself);
     __block NSInteger index = 0;
+
     [self setRemoveCallback:^{
         [weakself deleteOldSceneUsid:weakself.sceneUsIds[index] Success:^(id obj) {
             NSLog(@"%ld", index);
@@ -283,7 +264,6 @@
     }];
     
     self.removeCallback();
-    
 }
 
 - (void)deleteOldSceneUsid:(NSString *)usid Success:(SucceedBlock)success
@@ -291,169 +271,183 @@
    
     XM_WS(weakself);
     __block NSInteger index = 0;
+
     [self setDeleteCallback:^(NSInteger v) {
         
-        [[MHGatewaySceneManager sharedInstance] deleteSceneWithUsid:usid andSuccess:^(id obj) {
-            if (success) {
-                success(obj);
-            }
-        } andFailure:^(NSError *v) {
+        [[MHIFTTTManager sharedInstance] deleteRecords:weakself.sceneUsIds success:^{
+            if (success) success(NULL);
+            
+        } failure:^(NSError *error) {
             if (index < 3) {
                 if (weakself.deleteCallback) {
                     weakself.deleteCallback(0);
                 }
             }
             else {
-                if (failure) {
-                    failure(nil);
-                }
+                if (failure) failure(error);
             }
             index++;
         }];
     }];
     
     self.deleteCallback(0);
-
 }
 
-
-- (MHDataScene *)buildAlarmScene {
-    __block MHDataScene *alarmScene = [[MHDataScene alloc] init];
-    alarmScene.identify = ALARM_IDENTIFY;
-    alarmScene.name = NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm.moresettings.linkalarm",@"plugin_gateway","联动报警");
-    alarmScene.std_id = @"22";
-    alarmScene.launchList = [NSMutableArray new];
-    alarmScene.actionList = [NSMutableArray new];
-    alarmScene.express = @(1);
-    alarmScene.authed = [NSMutableArray new];
-
+#pragma 统一采用帮主的格式
+- (MHDataIFTTTRecord *)buildAlarmRecord {
+    MHDataIFTTTRecord *alarmRecord = [MHDataIFTTTRecord sceneRecord];
+    alarmRecord.identify = ALARM_IDENTIFY;
+    alarmRecord.name = NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm.moresettings.linkalarm",@"plugin_gateway","联动报警");
+    alarmRecord.st_id = @"22";
+    alarmRecord.userid = [MHPassportManager sharedSingleton].currentAccount.userId;
+    NSMutableArray<MHDataIFTTTTrigger *> *triggers = [NSMutableArray new];
+    NSMutableArray<MHDataIFTTTAction *> *actions = [NSMutableArray new];
+    alarmRecord.triggerRelation = MHIFTTTTriggerRelationOr;
+    
     
     [self.selectedGateways enumerateObjectsUsingBlock:^(MHDeviceGateway *gateway, NSUInteger idx, BOOL * _Nonnull stop) {
-        MHDataLaunch *alarmLaunch = [[MHDataLaunch alloc] init];
+        MHDataIFTTTTrigger *alarmLaunch = [MHDataIFTTTTrigger new];
         alarmLaunch.value = @"";
-        alarmLaunch.deviceDid = gateway.did;
+        alarmLaunch.did = gateway.did;
         alarmLaunch.src = @"device";
         alarmLaunch.extra = @"[1,19,1,111,[0,1],2,0]";
-        alarmLaunch.deviceKey = [NSString stringWithFormat:@"event.%@.arming", gateway.model];
+        alarmLaunch.key = [NSString stringWithFormat:@"event.%@.arming", gateway.model];
         alarmLaunch.name = @"name";
         alarmLaunch.deviceName = @"dev";
-        [alarmScene.launchList addObject:alarmLaunch];
-        [alarmScene.authed addObject:gateway.did];
+        alarmLaunch.model = gateway.model;
+        alarmLaunch.group = MHIFTTTTriggerDevice;
         
-        MHDataAction *action = [[MHDataAction alloc] init];
-        action.deviceModel = gateway.model;
+        [triggers addObject:alarmLaunch];
+        
+        MHDataIFTTTAction *action = [MHDataIFTTTAction new];
+        action.model = gateway.model;
         action.name = @"name";
         action.deviceName = @"name";
-        action.type = @"0";
-        action.value = @"10000";
-        action.command = [NSString stringWithFormat:@"%@.linkage_alarm",gateway.model];
-        action.total_length = @"0";
+        action.type = MHIFTTTActionDevice;
+        NSMutableDictionary *payload = [NSMutableDictionary new];
+        [payload setObject:@"10000" forKey:@"value"];
+        [payload setObject:gateway.did forKey:@"did"];
+        [payload setObject:[NSString stringWithFormat:@"%@.linkage_alarm",gateway.model] forKey:@"command"];
+        [payload setObject:@(0) forKey:@"total_length"];
+        [payload setObject:@"[1,19,9,85,[40,10000],0,0]" forKey:@"extra"];
+        action.payload = payload;
         action.extra = @"[1,19,9,85,[40,10000],0,0]";
-        action.deviceDid = gateway.did ;
-        [alarmScene.actionList addObject:action];
-        [alarmScene.authed addObject:gateway.did];
-
+        action.did = gateway.did ;
+        [actions addObject:action];
+        
     }];
     
-
-
-    alarmScene.enable = YES;
-
-    return alarmScene;
-
+    alarmRecord.triggers = triggers;
+    alarmRecord.actions = actions;
+    alarmRecord.enabled = YES;
+    alarmRecord.enable_push = YES;
+    
+    return alarmRecord;
+    
 }
-- (MHDataScene *)buildDisAlarmScene {
-    __block MHDataScene *disScene = [[MHDataScene alloc] init];
+- (MHDataIFTTTRecord *)buildDisAlarmRecord {
+    MHDataIFTTTRecord *disScene = [MHDataIFTTTRecord sceneRecord];
     disScene.identify = DIS_ALARM_IDENTIFY;
     disScene.name = NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm.moresettings.linkalarm.off",@"plugin_gateway","联动报警取消");
-    disScene.std_id = @"22";
-    disScene.express = @(1);
-
+    disScene.st_id = @"22";
+    NSMutableArray<MHDataIFTTTTrigger *> *triggers = [NSMutableArray new];
+    NSMutableArray<MHDataIFTTTAction *> *actions = [NSMutableArray new];
+    disScene.triggerRelation = MHIFTTTTriggerRelationOr;
     
-    disScene.launchList = [NSMutableArray new];
-    disScene.actionList = [NSMutableArray new];
-    disScene.authed = [NSMutableArray new];
     
     
     [self.selectedGateways enumerateObjectsUsingBlock:^(MHDeviceGateway *gateway, NSUInteger idx, BOOL * _Nonnull stop) {
-        MHDataLaunch *alarmLaunch = [[MHDataLaunch alloc] init];
+        MHDataIFTTTTrigger *alarmLaunch = [MHDataIFTTTTrigger new];
         alarmLaunch.value = @"off";
-        alarmLaunch.deviceDid = gateway.did;
+        alarmLaunch.did = gateway.did;
         alarmLaunch.src = @"device";
         alarmLaunch.extra = @"[1,19,9,111,[0,0],0,0]";
-        alarmLaunch.deviceKey = [NSString stringWithFormat:@"event.%@.alarm", gateway.model];
+        alarmLaunch.key = [NSString stringWithFormat:@"event.%@.alarm", gateway.model];
         alarmLaunch.name = @"name";
         alarmLaunch.deviceName = @"dev";
-
-        [disScene.launchList addObject:alarmLaunch];
-        [disScene.authed addObject:gateway.did];
+        alarmLaunch.model = gateway.model;
+        alarmLaunch.group = MHIFTTTTriggerDevice;
         
-        MHDataAction *action = [[MHDataAction alloc] init];
-        action.deviceModel = gateway.model;
+        [triggers addObject:alarmLaunch];
+        
+        MHDataIFTTTAction *action = [MHDataIFTTTAction new];
+        action.model = gateway.model;
         action.name = @"name";
         action.deviceName = @"name";
-        action.type = @"0";
-        action.value = @"";
-        action.command = [NSString stringWithFormat:@"%@.dis_alarm",gateway.model];
-        action.total_length = @"0";
+        action.type = MHIFTTTActionDevice;
+        NSMutableDictionary *payload = [NSMutableDictionary new];
+        [payload setObject:@"" forKey:@"value"];
+        [payload setObject:gateway.did forKey:@"did"];
+        [payload setObject:[NSString stringWithFormat:@"%@.dis_alarm",gateway.model] forKey:@"command"];
+        [payload setObject:@(0) forKey:@"total_length"];
+        [payload setObject:@"[1,19,9,111,[40,0],0,0]" forKey:@"extra"];
+        action.payload = payload;
         action.extra = @"[1,19,9,111,[40,0],0,0]";
-        action.deviceDid = gateway.did ;
-        [disScene.actionList addObject:action];
-        [disScene.authed addObject:gateway.did];
+        action.did = gateway.did ;
+        [actions addObject:action];
         
     }];
-
     
-
     
-    disScene.enable = YES;
-
+    
+    disScene.triggers = triggers;
+    disScene.actions = actions;
+    disScene.enabled = YES;
+    disScene.enable_push = YES;
+    
     return disScene;
-
+    
 }
-- (MHDataScene *)buildDisAllAlarmScene {
-    __block MHDataScene *disAllScene = [[MHDataScene alloc] init];
+- (MHDataIFTTTRecord *)buildDisAllAlarmRecord {
+    MHDataIFTTTRecord *disAllScene = [MHDataIFTTTRecord sceneRecord];
     disAllScene.identify = DIS_ALARM_ALL_IDENTIFY;
     disAllScene.name = NSLocalizedStringFromTable(@"mydevice.gateway.setting.alarm.moresettings.linkalarm.off",@"plugin_gateway","联动报警取消");
-    disAllScene.std_id = @"22";
-    disAllScene.express = @(1);
-    disAllScene.launchList = [NSMutableArray new];
-    disAllScene.actionList = [NSMutableArray new];
-    disAllScene.authed = [NSMutableArray new];
+    disAllScene.st_id = @"22";
+    NSMutableArray<MHDataIFTTTTrigger *> *triggers = [NSMutableArray new];
+    NSMutableArray<MHDataIFTTTAction *> *actions = [NSMutableArray new];
+    disAllScene.triggerRelation = MHIFTTTTriggerRelationOr;
+    
     [self.selectedGateways enumerateObjectsUsingBlock:^(MHDeviceGateway *gateway, NSUInteger idx, BOOL * _Nonnull stop) {
         
-        MHDataLaunch *alarmLaunch = [[MHDataLaunch alloc] init];
+        MHDataIFTTTTrigger *alarmLaunch = [MHDataIFTTTTrigger new];
         alarmLaunch.value = @"all_off";
-        alarmLaunch.deviceDid = gateway.did;
+        alarmLaunch.did = gateway.did;
         alarmLaunch.src = @"device";
         alarmLaunch.extra = @"[1,19,9,111,[0,0],0,0]";
-        alarmLaunch.deviceKey = [NSString stringWithFormat:@"event.%@.alarm", gateway.model];
+        alarmLaunch.key = [NSString stringWithFormat:@"event.%@.alarm", gateway.model];
         alarmLaunch.name = @"name";
         alarmLaunch.deviceName = @"dev";
-        [disAllScene.launchList addObject:alarmLaunch];
-        [disAllScene.authed addObject:gateway.did];
+        alarmLaunch.model = gateway.model;
+        alarmLaunch.group = MHIFTTTTriggerDevice;
+        [triggers addObject:alarmLaunch];
         
-        MHDataAction *action = [[MHDataAction alloc] init];
-        action.deviceModel = gateway.model;
+        MHDataIFTTTAction *action = [MHDataIFTTTAction new];
+        action.model = gateway.model;
         action.name = @"name";
         action.deviceName = @"name";
-        action.type = @"0";
-        action.value = @"1";
-        action.command = [NSString stringWithFormat:@"%@.dis_alarm",gateway.model];
-        action.total_length = @"0";
+        action.type = MHIFTTTActionDevice;
+        NSMutableDictionary *payload = [NSMutableDictionary new];
+        [payload setObject:@"1" forKey:@"value"];
+        [payload setObject:gateway.did forKey:@"did"];
+        [payload setObject:[NSString stringWithFormat:@"%@.dis_alarm",gateway.model] forKey:@"command"];
+        [payload setObject:@(0) forKey:@"total_length"];
+        [payload setObject:@"[1,19,9,111,[40,0],0,0]" forKey:@"extra"];
+        action.payload = payload;
         action.extra = @"[1,19,9,111,[40,0],0,0]";
-        action.deviceDid = gateway.did ;
-        
-        [disAllScene.actionList addObject:action];
-        [disAllScene.authed addObject:gateway.did];
+        action.did = gateway.did ;
+        [actions addObject:action];
         
     }];
-  
-    disAllScene.enable = YES;
-
-
+    
+    disAllScene.triggers = triggers;
+    disAllScene.actions = actions;
+    disAllScene.enabled = YES;
+    disAllScene.enable_push = YES;
+    
+    
     return disAllScene;
-
+    
 }
+
 
 @end

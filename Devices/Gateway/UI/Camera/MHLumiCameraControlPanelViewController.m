@@ -61,7 +61,6 @@ static CGFloat kBottomToolbarHeight = 50;
         }else{
             _selectIndex = 0;
         }
-        
         _isLandscapeRight = NO;
     }
     return self;
@@ -93,6 +92,17 @@ static CGFloat kBottomToolbarHeight = 50;
 - (BOOL)isAllowedToCheckUpgrade{
     return [self isDisclaimerShown];
 }
+
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    if (self.vcArray.count <= 0){
+        return UIStatusBarStyleLightContent;
+    }
+    if (self.vcArray[_selectIndex]){
+         return [self.vcArray[_selectIndex] preferredStatusBarStyle];
+    }
+    return UIStatusBarStyleLightContent;
+}
+
 
 #pragma mark - MHLumiCameraDeviceListViewControllerDelegate
 - (void)cameraDeviceListViewControllerCallWhenDeviceCountChange:(MHLumiCameraDeviceListViewController *)cameraDeviceListViewController{
@@ -146,20 +156,29 @@ static CGFloat kBottomToolbarHeight = 50;
     if(index == [self.vcArray indexOfObject:self.homeVC1] || index == [self.vcArray indexOfObject:self.homeVC]) {
         leftImage = [[UIImage imageNamed:@"navi_back_white"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-        
     }
     else {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     }
     
     if(self.cameraDevice.shareFlag == MHDeviceUnShared && index == [self.vcArray indexOfObject:self.homeVC]){
+        [self.navigationItem setRightBarButtonItems:@[]];
         UIImage* imageMore = [[UIImage imageNamed:@"navi_more_white"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         UIBarButtonItem *rightItemMore = [[UIBarButtonItem alloc] initWithImage:imageMore
                                                                           style:UIBarButtonItemStylePlain
                                                                          target:self action:@selector(onMore:)];
         self.navigationItem.rightBarButtonItem = rightItemMore;
+    }else if (index == [self.vcArray indexOfObject:self.homeVC2]){
+        UIBarButtonItem *addDeviceBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.homeVC2.btnAddDevice];
+        UIBarButtonItem *scenesLogBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.homeVC2.btnSetting];
+        [self.navigationItem setRightBarButtonItems:@[addDeviceBarButton, scenesLogBarButton] animated:NO];
+    }else if (index == [self.vcArray indexOfObject:self.homeVC3] && self.cameraDevice.shareFlag != MHDeviceShared){
+        [self.navigationItem setRightBarButtonItems:@[]];
+        UIBarButtonItem *addDeviceBarButton = [[UIBarButtonItem alloc] initWithCustomView:self.homeVC3.btnAddDevice];
+        self.navigationItem.rightBarButtonItem = addDeviceBarButton;
     }else{
         self.navigationItem.rightBarButtonItem = nil;
+        [self.navigationItem setRightBarButtonItems:@[]];
     }
 
     UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:leftImage
@@ -315,10 +334,16 @@ static CGFloat kBottomToolbarHeight = 50;
     for (UIViewController *vc in self.vcArray) {
         [vc removeFromParentViewController];
     }
+    
     if (_isLandscapeRight){
         [self rotateToInterfaceOrientation:UIInterfaceOrientationPortrait withAnimation:0];
     }
-    [super onBack];
+    
+    if (self.vcArray && self.vcArray[_selectIndex]){
+        [((MHViewController *)self.vcArray[_selectIndex]) onBack];
+    }else{
+        [super onBack];
+    }
 }
 
 - (void)onMore:(id)sender{
@@ -342,6 +367,7 @@ static CGFloat kBottomToolbarHeight = 50;
     self.buttonArray[_selectIndex].selected = YES;
     self.vcArray = @[self.homeVC,self.homeVC1,self.homeVC2,self.homeVC3];
     [self setSelectVCWithIndex:_selectIndex];
+    [self redrawNavigationBarWithIndex:_selectIndex];
     [self configureLayout];
 }
 

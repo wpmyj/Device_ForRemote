@@ -46,7 +46,7 @@ static NSArray *activeEventArray = nil;
     [[MHNetworkEngine sharedInstance] sendRequest:req success:^(id json) {
         MHGatewayThirdDataResponse *rsp = [MHGatewayThirdDataResponse responseWithJSONObject:json];
         [weakself saveMapInfoList:rsp.valueList];
-        NSLog(@"extra所有的内容%@", rsp.valueList);
+//        NSLog(@"extra所有的内容%@", rsp.valueList);
         if(success)success(rsp.valueList);
         
     } failure:^(NSError *error) {

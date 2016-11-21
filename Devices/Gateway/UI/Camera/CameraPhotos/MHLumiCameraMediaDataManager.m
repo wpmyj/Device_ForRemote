@@ -44,6 +44,50 @@ static NSString *kLumiCameraAlbumTitle = @"绿米摄像头";
     return [NSMutableArray array];
 }
 
+- (UIImage *)lastCreationImageWithSize:(CGSize)size{
+    return [self lastCreationAssetIncludeImage:YES includeVideoThumbnail:NO withSize:size];
+}
+
+- (UIImage *)lastCreationVideoThumbnailWithSize:(CGSize)size{
+    return [self lastCreationAssetIncludeImage:NO includeVideoThumbnail:YES withSize:size];
+}
+
+- (UIImage *)lastCreationImageOrVideoThumbnailWithSize:(CGSize)size{
+    return [self lastCreationAssetIncludeImage:YES includeVideoThumbnail:YES withSize:size];
+}
+
+- (UIImage *)lastCreationAssetIncludeImage:(BOOL) isIncludeImage includeVideoThumbnail:(BOOL) isincludeVideoThumbnail withSize:(CGSize)size{
+    if (!isIncludeImage && !isincludeVideoThumbnail){
+        return nil;
+    }
+    PHFetchOptions *opition = [[PHFetchOptions alloc] init];
+    opition.sortDescriptors = @[[[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:NO]];
+    PHFetchResult<PHAsset *> * todoFetchResult = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:opition];
+    __block PHAsset *todoAsset = nil;
+    [todoFetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        PHAsset *asset = (PHAsset *)obj;
+        if (asset.mediaType == PHAssetMediaTypeImage && isIncludeImage){
+            todoAsset = asset;
+            *stop = YES;
+        }
+        
+        if (asset.mediaType == PHAssetMediaTypeImage && isincludeVideoThumbnail){
+            todoAsset = asset;
+            *stop = YES;
+        }
+    }];
+    if (!todoAsset){
+        return nil;
+    }
+    PHImageRequestOptions *requestOption = [[PHImageRequestOptions alloc] init];
+    requestOption.synchronous = YES;
+    __block UIImage *todoImage = nil;
+    [[PHImageManager defaultManager] requestImageForAsset:todoAsset targetSize:size contentMode:PHImageContentModeAspectFit options:requestOption resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        todoImage = result;
+    }];
+    return todoImage;
+}
+
 - (NSMutableArray<NSMutableArray<PHAsset *> *> *)fetchPhotoWithoutAlarm{
     PHFetchOptions *opition = [[PHFetchOptions alloc] init];
     opition.sortDescriptors = @[[[NSSortDescriptor alloc] initWithKey:@"creationDate" ascending:NO]];
@@ -148,11 +192,13 @@ static NSString *kLumiCameraAlbumTitle = @"绿米摄像头";
 }
 
 + (PHAssetCollection *)lumiCameraAssetCollection{
+    static int count = 2;
     PHFetchResult *topLevelUserCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
     __block PHAssetCollection *assetCollection = nil;
     [topLevelUserCollections enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         PHAssetCollection * todoAssetCollection = (PHAssetCollection *)obj;
         if ([todoAssetCollection.localizedTitle isEqualToString:kLumiCameraAlbumTitle]){
+            NSLog(@"%@",todoAssetCollection.localizedTitle);
             assetCollection = todoAssetCollection;
             *stop = YES;
         }
@@ -163,7 +209,13 @@ static NSString *kLumiCameraAlbumTitle = @"绿米摄像头";
         [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
             todoIdentifier = [PHAssetCollectionChangeRequest creationRequestForAssetCollectionWithTitle:kLumiCameraAlbumTitle].placeholderForCreatedAssetCollection.localIdentifier;
         } error:&error];
-        assetCollection = [PHAssetCollection fetchAssetCollectionsWithLocalIdentifiers:@[todoIdentifier] options:nil].firstObject;
+        if (todoIdentifier){
+            assetCollection = [PHAssetCollection fetchAssetCollectionsWithLocalIdentifiers:@[todoIdentifier] options:nil].firstObject;
+        }
+    }
+    if (!assetCollection && count >= 0){
+        count --;
+        return [MHLumiCameraMediaDataManager lumiCameraAssetCollection];
     }
     return assetCollection;
 }
@@ -191,7 +243,12 @@ static NSString *kLumiCameraAlbumTitle = @"绿米摄像头";
     __block NSString *createdAssetId = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
         NSURL *url = [NSURL URLWithString:path];
-        createdAssetId = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url].placeholderForCreatedAsset.localIdentifier;
+        PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
+        options.originalFilename = path.stringByDeletingPathExtension.lastPathComponent;
+        PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+        [request addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:options];
+        createdAssetId = request.placeholderForCreatedAsset.localIdentifier;
+//        createdAssetId = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url].placeholderForCreatedAsset.localIdentifier;
     } error:error];
     
     // 在保存完毕后取出视频

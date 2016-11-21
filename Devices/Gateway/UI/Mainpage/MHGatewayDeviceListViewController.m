@@ -42,7 +42,7 @@
         _gateway = gateway;
         self.view.frame = frame;
         self.view.backgroundColor = [UIColor colorWithRed:239.f/255.f green:239.f/255.f blue:244.f/255.f alpha:1.f];
-        [self dataSourceRebuild];
+//        [self dataSourceRebuild];
     }
     return self;
 }
@@ -103,7 +103,13 @@
 
 - (void)dataSourceRebuild {
     self.dataSource = [NSMutableArray arrayWithObject:self.gateway];
-
+    NSMutableArray *array = [NSMutableArray array];
+    for (MHDeviceGatewayBase *device in self.gateway.subDevices) {
+        if ([device isKindOfClass:[MHDeviceGatewayBase class]]){
+            [array addObject:device];
+        }
+    }
+    self.gateway.subDevices = array;
     NSMutableArray *tmpSubDevices = [NSMutableArray arrayWithArray:self.gateway.subDevices];
     
     NSSortDescriptor *sort1 = [NSSortDescriptor sortDescriptorWithKey:@"isOnline" ascending:NO];
@@ -123,7 +129,6 @@
 - (void)deviceMap:(NSMutableArray *)newSubDevices {
     XM_WS(weakself);
     __block NSMutableArray *newDeviceArray = [NSMutableArray new];
-
     [newSubDevices enumerateObjectsUsingBlock:^(MHDevice *newDevice, NSUInteger idx, BOOL * _Nonnull stop) {
 //        NSLog(@"子设备的name <<<%@>>>, 模型<<%@>>, 在不在线%d", newDevice.name, newDevice.model, newDevice.isOnline);
         MHDeviceGatewayBase *sensor = (MHDeviceGatewayBase *)[MHDevFactory deviceFromModelId:newDevice.model dataDevice:newDevice];
@@ -188,7 +193,7 @@
     XM_WS(weakself);
     [_gateway getSubDeviceListWithSuccess:^(id obj) {
         if([obj isKindOfClass:[NSArray class]]){
-            [weakself deviceMap:[obj mutableCopy]];
+//            [weakself deviceMap:[obj mutableCopy]];
         }
         
 //        weakself.gateway.subDevices = obj;

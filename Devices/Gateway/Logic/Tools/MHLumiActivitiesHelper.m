@@ -12,6 +12,7 @@
 #import "MHDeviceGatewaySensorMotion.h"
 #import "MHDeviceGatewaySensorMagnet.h"
 #import "MHDeviceGatewaySensorSwitch.h"
+#import "MHDeviceGatewaySensorPlug.h"
 @interface MHLumiActivitiesHelper()
 @property (nonatomic, strong) MHLumiRequestLogHelper *logHelper;
 @property (nonatomic, strong) NSArray<MHDeviceGatewayBase *> *subDevices;
@@ -243,14 +244,9 @@
 }
 
 #pragma mark - 自定义自动化
-- (void)setCustomIFTTTWithCompletionHandler:(void(^)(bool flag))completionHandler{
-    [MHLumiIFTTTHelper addCustomIFTTTAtDouble11WithGateway:self.gateway actionId:@"138" subDeviceClass:[MHDeviceGatewaySensorSwitch class] trigerId:@"4" customName:nil completionHandler:^(bool flag) {
-        completionHandler(flag);
-    }];
-}
 
 - (void)setCustomIFTTTIfSwitchSingleTapThenPlugOnOffWithCompletionHandler:(void(^)(bool flag))completionHandler{
-    [MHLumiIFTTTHelper addCustomIFTTTAtDouble11WithGateway:self.gateway actionId:@"184" subDeviceClass:[MHDeviceGatewaySensorSwitch class] trigerId:@"4" customName:nil completionHandler:^(bool flag) {
+    [MHLumiIFTTTHelper addCustomIFTTTAtDouble11WithGateway:self.gateway actionId:@"184" actionDeviceClass:[MHDeviceGatewaySensorPlug class] trigerId:@"18" trigerDeviceClass:[MHDeviceGatewaySensorSwitch class] customName:nil completionHandler:^(bool flag) {
         completionHandler(flag);
     }];
 }
@@ -324,12 +320,16 @@
             break;
         case 3:{//定时彩灯
             dispatch_group_enter(_activitiesHelperGroup);
-            [self setColorLightTimerWithCompletionHandler:completionHandler];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakself setColorLightTimerWithCompletionHandler:completionHandler];
+            });
         }
             break;
         case 4:{//懒人闹钟
             dispatch_group_enter(_activitiesHelperGroup);
-            [self setAlarmClockWithCompletionHandler:completionHandler];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakself setAlarmClockWithCompletionHandler:completionHandler];
+            });
         }
             break;
         case 5:{//门铃触发设备
@@ -341,12 +341,14 @@
             break;
         case 6:{//自动化 单击无线开关 → 插座开/关
             dispatch_group_enter(_activitiesHelperGroup);
-            [self setCustomIFTTTIfSwitchSingleTapThenPlugOnOffWithCompletionHandler:completionHandler];
+            [weakself setCustomIFTTTIfSwitchSingleTapThenPlugOnOffWithCompletionHandler:completionHandler];
         }
             break;
         case 7:{//自动化 双击无线开关 → 开/关警戒模式
             dispatch_group_enter(_activitiesHelperGroup);
-            [self setCustomIFTTTIfSwitchDoubleTapThenGatewayAlarmOnOffWithCompletionHandler:completionHandler];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakself setCustomIFTTTIfSwitchDoubleTapThenGatewayAlarmOnOffWithCompletionHandler:completionHandler];
+            });
         }
             break;
         default:

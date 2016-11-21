@@ -27,7 +27,7 @@
 @property (nonatomic,strong) NSArray *sysIFTGroup;
 @property (nonatomic,strong) NSMutableArray *customIFTGroup;
 
-@property (nonatomic, strong) UIView *footerView;
+//@property (nonatomic, strong) UIView *footerView;
 @property (nonatomic, strong) UIButton *btnSetting;
 @property (nonatomic, strong) UIButton *btnAddDevice;
 
@@ -113,11 +113,11 @@
     if(!_customIFTGroup) _customIFTGroup = [NSMutableArray new];
     if(_customIFTGroup.count){
         _iftTableView.dataSource = @[_sysIFTGroup,_customIFTGroup];
-        _footerView.backgroundColor = [UIColor whiteColor];
+//        _footerView.backgroundColor = [UIColor whiteColor];
     }
     else {
         _iftTableView.dataSource = @[_sysIFTGroup];
-        _footerView.backgroundColor = [UIColor colorWithRed:239.f/255.f green:239.f/255.f blue:244.f/255.f alpha:1.f];
+//        _footerView.backgroundColor = [UIColor colorWithRed:239.f/255.f green:239.f/255.f blue:244.f/255.f alpha:1.f];
     }
     
     [_iftTableView stopRefreshAndReload];
@@ -125,45 +125,18 @@
 
 - (void)buildSubviews {
     [super buildSubviews];
-    
-    //Footer view
-    _footerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.view.bounds) - 70, CGRectGetWidth(self.view.bounds), 70)];
-    _footerView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    _footerView.backgroundColor = [UIColor whiteColor];
-    [self.view addSubview:_footerView];
-    
-    _btnAddDevice = [[UIButton alloc] initWithFrame:CGRectMake((CGRectGetWidth(_footerView.frame) - 28) / 2.f, 5, 28, 28)];
-    [_btnAddDevice setBackgroundImage:[UIImage imageNamed:@"device_addtimer"] forState:UIControlStateNormal];
+
+    _btnAddDevice = [[UIButton alloc] init];//initWithFrame:CGRectMake((CGRectGetWidth(_footerView.frame) - 28) / 2.f, 5, 28, 28)];
+    [_btnAddDevice setImage:[UIImage imageNamed:@"device_addtimer"] forState:UIControlStateNormal];
     [_btnAddDevice addTarget:self action:@selector(onAddDevice:) forControlEvents:UIControlEventTouchUpInside];
-    [_footerView addSubview:_btnAddDevice];
-    
-    _labelAddDevice = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_btnAddDevice.frame) + 6,
-                                                                CGRectGetWidth(_footerView.frame), 11)];
-    _labelAddDevice.font = [UIFont systemFontOfSize:11];
-    _labelAddDevice.textColor = [MHColorUtils colorWithRGB:0x0 alpha:0.4];
-    _labelAddDevice.text = NSLocalizedStringFromTable(@"mydevice.gateway.scene.add",@"plugin_gateway", @"添加自动化");
-    _labelAddDevice.textAlignment = NSTextAlignmentCenter;
-    [_footerView addSubview:_labelAddDevice];
-    
-    
+
     _btnSetting = [[UIButton alloc] init];
-    [_btnSetting setBackgroundImage:[UIImage imageNamed:@"lumi_scene_log"] forState:(UIControlStateNormal)];
+    [_btnSetting setImage:[UIImage imageNamed:@"lumi_scene_log"] forState:(UIControlStateNormal)];
     [_btnSetting addTarget:self action:@selector(onSceneLog:) forControlEvents:(UIControlEventTouchUpInside)];
-    [_footerView addSubview:_btnSetting];
-    
-    _labelSetting = [[UILabel alloc] init];
-    _labelSetting.font = [UIFont boldSystemFontOfSize:11];
-    _labelSetting.textColor = [MHColorUtils colorWithRGB:0x0 alpha:0.4];
-    _labelSetting.textAlignment = NSTextAlignmentCenter;
-    _labelSetting.text = NSLocalizedStringFromTable(@"ifttt.scene.log", @"plugin_gateway", "自动化日志");
-    
-    UITapGestureRecognizer *SetTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onSceneLog:)];
-    [_labelSetting addGestureRecognizer:SetTap];
-    _labelSetting.userInteractionEnabled = YES;
-    [_footerView addSubview:_labelSetting];
-    
-    
-    CGRect tableRect = CGRectMake(0, 64, WIN_WIDTH, self.view.bounds.size.height - 64 - CGRectGetHeight(_footerView.frame));
+    [_btnAddDevice sizeToFit];
+    [_btnSetting sizeToFit];
+
+    CGRect tableRect = CGRectMake(0, 64, WIN_WIDTH, self.view.bounds.size.height - 64/* - CGRectGetHeight(_footerView.frame)*/);
     _iftTableView = [[MHTableViewControllerInternalV2 alloc] initWithStyle:UITableViewStyleGrouped];
     _iftTableView.delegate = self;
     if(!_sysIFTGroup) _sysIFTGroup = [NSArray new];
@@ -179,38 +152,6 @@
     [self addChildViewController:_iftTableView];
     [self.view addSubview:_iftTableView.view];
 }
-
-- (void)buildConstraints {
-    XM_WS(weakself);
-    CGFloat labelSpacingV = 12;
-    CGFloat btnSpacingV = 6;
-    CGFloat btnSpacingH = 15 * ScaleWidth;
-    CGFloat btnSize = 35;
-    
-    [_labelAddDevice mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(weakself.footerView).with.offset(-labelSpacingV);
-        make.right.mas_equalTo(weakself.footerView.mas_centerX).with.offset(-btnSpacingH);
-    }];
-    [_btnAddDevice mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(weakself.labelAddDevice);
-        make.bottom.mas_equalTo(weakself.labelAddDevice.mas_top).with.offset(-btnSpacingV);
-        make.size.mas_equalTo(CGSizeMake(btnSize, btnSize));
-    }];
-    
-    [_labelSetting mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(weakself.footerView).with.offset(-labelSpacingV);
-        make.left.mas_equalTo(weakself.footerView.mas_centerX).with.offset(btnSpacingH);
-    }];
-    [_btnSetting mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(weakself.labelSetting);
-        make.bottom.mas_equalTo(weakself.labelSetting.mas_top).with.offset(-btnSpacingV);
-        make.size.mas_equalTo(CGSizeMake(btnSize, btnSize));
-    }];
-    
-    
-    
-}
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -229,11 +170,11 @@
 
 #pragma mark - 自动化日志
 - (void)onSceneLog:(id)sender {
-    //    if (_device.shareFlag == MHDeviceShared) {
-    //        [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"mydevice.timersetting.noright", @"plugin_gateway", "被分享设备无此权限") duration:1.0 modal:NO];
-    //        return;
-    //    }
-    
+//    if (self.gateway.shareFlag == MHDeviceShared) {
+//        [[MHTipsView shareInstance] showFailedTips:NSLocalizedStringFromTable(@"mydevice.timersetting.noright", @"plugin_gateway", "被分享设备无此权限") duration:1.0 modal:NO];
+//        return;
+//    }
+//    
     if(self.sceneLogClicked) {
         self.sceneLogClicked();
     }

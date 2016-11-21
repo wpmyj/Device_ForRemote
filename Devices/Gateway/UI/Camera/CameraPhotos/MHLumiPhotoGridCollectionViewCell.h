@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Photos/Photos.h>
+#import <Photos/PhotosTypes.h>
 
 @interface MHLumiPhotoGridCollectionViewCell : UICollectionViewCell
 + (NSString *)reuseIdentifier;

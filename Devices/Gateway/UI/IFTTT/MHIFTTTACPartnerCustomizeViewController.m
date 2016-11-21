@@ -35,7 +35,6 @@
 
 @implementation MHIFTTTACPartnerCustomizeViewController
 + (void)load {
-    //注册自定义场景回调
     [MHIFTTTManager registerActionCustomViewController:self actionId:kACPARTNER_ON_ACTIONID];
     [MHIFTTTManager registerActionCustomViewController:self actionId:kACPARTNER_OFF_ACTIONID];
     [MHIFTTTManager registerActionCustomViewController:self actionId:kACPARTNER_TOGGLE_ACTIONID];

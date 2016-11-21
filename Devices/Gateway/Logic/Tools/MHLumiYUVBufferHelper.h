@@ -10,4 +10,7 @@
 
 @interface MHLumiYUVBufferHelper : NSObject
 + (NSData *)yuvBufferWithYData:(uint8_t **)data linesize:(int *)linesize frameWidth:(int)width frameHeight:(int)height;
+- (instancetype)initWithPath:(NSString *)path;
+- (BOOL)isReadToEnd;
+- (NSData *)fetchYUVBufferData;
 @end

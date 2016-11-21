@@ -18,12 +18,10 @@
 #import "MHLuDeviceViewControllerBase.h"
 #import "MHGatewayTempAndHumidityViewController.h"
 #import "MHGatewayLogViewController.h"
-#import "MHDeviceAcpartner.h"
-#import "MHGatewayInfoView.h"
-#import "MHGatewayControlPanel.h"
+
 
 @interface MHACPartnerControlViewController ()<UIScrollViewDelegate>
-@property (nonatomic,strong) MHDeviceGateway *gateway;
+@property (nonatomic,strong) MHDeviceAcpartner *acpartner;
 
 @property (nonatomic,assign) CGFloat canvasHeight;
 
@@ -33,8 +31,8 @@
 @property (nonatomic,strong) UIScrollView *verticalCanvas;
 
 @property (nonatomic,strong) MHACPartnerControlHeaderView  *headerView;
-@property (nonatomic,strong) MHGatewayControlPanel *controlPanel;
-@property (nonatomic,strong) MHGatewayInfoView *infoView;
+@property (nonatomic,strong) MHACPartnerControlPanel *controlPanel;
+@property (nonatomic,strong) MHACPartnerInfoView *infoView;
 @property (nonatomic,strong) NSMutableArray *controlSubDevices;
 @property (nonatomic,strong) NSMutableArray *subInfoDevices;
 
@@ -52,9 +50,9 @@
     MHGatewayNetworkStatusView *            _networkStatusView;
 }
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway {
+- (id)initWithFrame:(CGRect)frame acpartner:(MHDeviceAcpartner *)acpartner {
     if (self = [super init]) {
-        self.gateway = gateway;
+        self.acpartner = acpartner;
         self.isTabBarHidden = YES;
         self.view.backgroundColor = [UIColor colorWithRed:239.f/255.f green:239.f/255.f blue:244.f/255.f alpha:1.f];
         self.view.frame = frame;
@@ -68,7 +66,7 @@
 }
 
 - (void)viewDidLoad {
-    NSString *key = [NSString stringWithFormat:@"%@%@",ACHeaderViewLastIndexKey,self.gateway.did];
+    NSString *key = [NSString stringWithFormat:@"%@%@",ACHeaderViewLastIndexKey,self.acpartner.did];
     _headerViewLastIndex = [[[NSUserDefaults standardUserDefaults] valueForKey:key] integerValue];
     [super viewDidLoad];
     self.automaticallyAdjustsScrollViewInsets = NO;
@@ -139,7 +137,7 @@
     if(_controlPanel) [_controlPanel stopWatchingDeviceStatus];
     //    if(_infoView) [_infoView stopWatchingLatestLog];
 //    
-    NSString *key = [NSString stringWithFormat:@"%@%@",ACHeaderViewLastIndexKey,self.gateway.did];
+    NSString *key = [NSString stringWithFormat:@"%@%@",ACHeaderViewLastIndexKey,self.acpartner.did];
     [[NSUserDefaults standardUserDefaults] setObject:@(_headerView.currentPageIndex) forKey:key];
         [[NSUserDefaults standardUserDefaults] synchronize];
 
@@ -163,16 +161,25 @@
     [self.view addSubview:_verticalCanvas];
     
     CGRect headerFrame = CGRectMake(0, 0, WIN_WIDTH, WIN_HEIGHT * 0.4);
-    _headerView = [[MHACPartnerControlHeaderView alloc] initWithFrame:headerFrame sensor:self.gateway];
+    _headerView = [[MHACPartnerControlHeaderView alloc] initWithFrame:headerFrame sensor:self.acpartner];
     
     _headerView.clickCallBack = ^(DetailType type){
        
         UIViewController *destinationVC = nil;
         
         switch (type) {
+            case Acpartner_MainPage_AddAC: {
+               destinationVC = [[MHACPartnerAddTipsViewController alloc] initWithAcpartner:weakself.acpartner];
+            }
+                break;
+            case Acpartner_MainPage_ACDetail: {
+                destinationVC = [[MHACPartnerDetailViewController alloc] initWithAcpartner:weakself.acpartner];
+
+            }
+                break;
             case Acpartner_MainPage_FM: {
                 [weakself gw_clickMethodCountWithStatType:@"openFMCollectionPage"];
-                destinationVC = [[MHLumiFMCollectViewController alloc] initWithRadioDevice:weakself.gateway];
+                destinationVC = [[MHLumiFMCollectViewController alloc] initWithRadioDevice:weakself.acpartner];
             }
                 break;
 
@@ -195,7 +202,7 @@
     
     if(_controlSubDevices.count){
         CGRect controlFrame = CGRectMake(0, CGRectGetMaxY(_headerView.frame), WIN_WIDTH, 110);
-        _controlPanel = [[MHGatewayControlPanel alloc] initWithFrame:controlFrame sensor:self.gateway subDevices:_controlSubDevices];
+        _controlPanel = [[MHACPartnerControlPanel alloc] initWithFrame:controlFrame sensor:self.acpartner subDevices:_controlSubDevices];
         [_verticalCanvas addSubview:_controlPanel];
         [self rebuildHeight:CGRectGetHeight(_controlPanel.frame) currentFrame:controlFrame];
         if(!_controlPanel.shouldKeepRunning) [_controlPanel startWatchingDeviceStatus];
@@ -220,8 +227,8 @@
     if(_subInfoDevices.count){
         CGRect infoFrame = CGRectMake(0, CGRectGetMaxY(_controlPanel.frame), WIN_WIDTH, 90);
         if(!_controlSubDevices.count) infoFrame = CGRectMake(0, CGRectGetMaxY(_headerView.frame), WIN_WIDTH, 90);
-        _infoView = [[MHGatewayInfoView alloc] initWithFrame:infoFrame
-                                                      sensor:self.gateway
+        _infoView = [[MHACPartnerInfoView alloc] initWithFrame:infoFrame
+                                                      sensor:self.acpartner
                                                   subDevices:_subInfoDevices
                                               callbackHeight:^(CGFloat height) {
                                                   [weakself rebuildHeight:height currentFrame:infoFrame];
@@ -276,12 +283,11 @@
         }
 }
 
-//区分控制器和传感器
 - (void)buildSubDevices {
-    _subInfoDevices = [NSMutableArray arrayWithArray:self.gateway.subDevices];
+    _subInfoDevices = [NSMutableArray arrayWithArray:self.acpartner.subDevices];
     _controlSubDevices = [NSMutableArray arrayWithCapacity:1];
     
-    for(MHDeviceGatewayBase *sensor in self.gateway.subDevices){
+    for(MHDeviceGatewayBase *sensor in self.acpartner.subDevices){
         NSString *className = NSStringFromClass([sensor class]);
         if([className isEqualToString:@"MHDeviceGatewaySensorPlug"] ||
            [className isEqualToString:@"MHDeviceGatewaySensorSingleNeutral"] ||
@@ -315,6 +321,16 @@
 
 
 #pragma mark - 功率
+- (void)startGetQuant {
+    XM_WS(weakself);
+    [self.acpartner getACDeviceProp:AC_POWER_ID success:^(id respObj) {
+        weakself.acpartner.ac_power = [respObj[0] floatValue];
+        [self.headerView updateMainPageStatus];
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
 - (void)stopGetQuant {
     if(_powerTimer){
         [_powerTimer invalidate];
@@ -324,7 +340,7 @@
 
 - (void)startRefresh {
     [self.headerView updateMainPageStatus];
-    if ((self.subInfoDevices.count + self.controlSubDevices.count) == self.gateway.subDevices.count) {
+    if ((self.subInfoDevices.count + self.controlSubDevices.count) == self.acpartner.subDevices.count) {
             return;
         }
         [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subview, NSUInteger idx, BOOL * _Nonnull stop) {

@@ -51,6 +51,7 @@
 #import "MHDeviceGatewaySensorMagnet.h"
 #import "MHDeviceGatewaySensorMotion.h"
 #import "MHDeviceGatewaySensorSwitch.h"
+#import "MHWeakTimerFactory.h"
 
 @interface MHGatewayMainViewController () <UIActionSheetDelegate,UIAlertViewDelegate>
 
@@ -63,7 +64,8 @@
 @property (nonatomic, strong) MHGatewayDeviceListViewController *deviceList;
 @property (nonatomic, strong) MHGatewayMainpageAnimation *animationTool;
 @property (nonatomic, assign) NSInteger retryCount;
-
+@property (nonatomic, assign) BOOL hasSetDefaultIFTTT; //产品要求只在进入页面时才检测。与之前的检测时机不同。但又有顺序依赖。
+@property (nonatomic, strong) NSTimer *timerForSetDefaultIFTTT;
 @end
 
 @implementation MHGatewayMainViewController
@@ -77,6 +79,7 @@
         self.isHasSetting = YES;
         self.retryCount = 0;
         self.gateway = (MHDeviceGateway *)device;
+        _hasSetDefaultIFTTT = NO;
         XM_WS(weakself);
         [[NSNotificationCenter defaultCenter] addObserverForName:[[MHDevListManager sharedManager] notificationNameForUIUpdate] object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
             [weakself onGetDeviceListSucceed:note];
@@ -446,11 +449,20 @@
         if (retcode == -1){
             return;
         }else if (retcode == -2){
+            if (weakself.hasSetDefaultIFTTT){
+                [weakself onDeviceUpgradePage];
+                return;
+            }
+            weakself.hasSetDefaultIFTTT = YES;
             //先配置再更新固件
             [self setDefaultConfigurationWithDelay:0 completionHandler:^{
                 [weakself onDeviceUpgradePage];
             }];
         }else{
+            if (weakself.hasSetDefaultIFTTT){
+                return;
+            }
+            weakself.hasSetDefaultIFTTT = YES;
             [self setDefaultConfigurationWithDelay:0 completionHandler:nil];
         }
     }];
@@ -752,6 +764,17 @@
         MHLumiActivitiesHelper *activitiesHelper = [[MHLumiActivitiesHelper alloc] initWithType:MHLumiActivitiesTypeDouble11
                                                                                         gateway:self.gateway
                                                                                       logHelper:helper];
+        void(^invalidateTimer)() = ^{
+            [weakself.timerForSetDefaultIFTTT invalidate];
+            weakself.timerForSetDefaultIFTTT = nil;
+        };
+        if (weakself.timerForSetDefaultIFTTT){
+            invalidateTimer();
+        }
+        weakself.timerForSetDefaultIFTTT = [MHWeakTimerFactory scheduledTimerWithBlock:10 userInfo:nil repeats:NO callback:^{
+            [[MHTipsView shareInstance] hide];
+            invalidateTimer();
+        }];
         [activitiesHelper setDefaultconfigurationWithSuccess:^{
             //成功配置场景
             weakself.retryCount ++;
@@ -759,8 +782,10 @@
                 [weakself setDefaultConfigurationWithCompletionHandler:completionHandler];
             }
             [[MHTipsView shareInstance] showFinishTips:NSLocalizedStringFromTable(@"configuration.succeeded",@"plugin_gateway",@"配置成功") duration:2 modal:YES];
+            invalidateTimer();
         } failure:^{
             weakself.retryCount ++;
+            invalidateTimer();
             if (completionHandler(weakself.retryCount,NO)){
                 [weakself setDefaultConfigurationWithCompletionHandler:completionHandler];
             }else{
@@ -784,7 +809,7 @@
                 configurationBlock();
             }else{
                 [helper markToSuccess];
-                [[MHTipsView shareInstance] showFinishTips:NSLocalizedStringFromTable(@"done",@"plugin_gateway",@"完成") duration:1 modal:YES];
+                [[MHTipsView shareInstance] hide];
                 completionHandler(weakself.retryCount,YES);
             }
         } failure:^(NSError *error) {
@@ -793,7 +818,6 @@
                 [weakself setDefaultConfigurationWithCompletionHandler:completionHandler];
             }else{
                 [[MHTipsView shareInstance] hide];
-                [weakself setDefaultConfigurationFailure];
             }
         }];
     }

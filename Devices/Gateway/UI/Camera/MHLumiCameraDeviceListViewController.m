@@ -30,7 +30,7 @@
 @property (nonatomic, strong) MHDeviceGatewayBase *pressedDevice;
 @property (nonatomic, strong) MHTableViewControllerInternalV2* tvcInternal;
 @property (nonatomic, strong) NSMutableArray *dataSource;
-@property (nonatomic, strong) UIView  *footerView;
+//@property (nonatomic, strong) UIView  *footerView;
 @property (nonatomic, strong) UIButton *btnAddDevice;
 @property (nonatomic, strong) UILabel *labelAddDevice;
 @property (nonatomic, strong) MHTableViewControllerInternalV2 *deviceList;
@@ -62,46 +62,19 @@
 - (void)buildSubviews {
     [super buildSubviews];
     [self dataSourceRebuild];
-    //Footer view
-    _footerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.view.bounds) - 65, CGRectGetWidth(self.view.bounds), 65)];
-    _footerView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    _footerView.backgroundColor = [UIColor whiteColor];
-    if (self.gateway.shareFlag == MHDeviceShared) {
-        _footerView.hidden = YES;
-    }
-    [self.view addSubview:_footerView];
     
-    _btnAddDevice = [[UIButton alloc] initWithFrame:CGRectMake((CGRectGetWidth(_footerView.frame) - 28) / 2.f, 5, 28, 28)];
-    [_btnAddDevice setBackgroundImage:[UIImage imageNamed:@"device_addtimer"] forState:UIControlStateNormal];
+    _btnAddDevice = [[UIButton alloc] init];
+    [_btnAddDevice setImage:[UIImage imageNamed:@"device_addtimer"] forState:UIControlStateNormal];
     [_btnAddDevice addTarget:self action:@selector(onAddDevice:) forControlEvents:UIControlEventTouchUpInside];
-    if (self.gateway.shareFlag == MHDeviceShared) {
-        _btnAddDevice.hidden = YES;
-    }
-    
-    [_footerView addSubview:_btnAddDevice];
-    
-    _labelAddDevice = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_btnAddDevice.frame) + 6,
-                                                                CGRectGetWidth(_footerView.frame), 11)];
-    _labelAddDevice.font = [UIFont systemFontOfSize:11];
-    _labelAddDevice.textColor = [MHColorUtils colorWithRGB:0x0 alpha:0.4];
-    _labelAddDevice.text = NSLocalizedStringFromTable(@"mydevice.gateway.setting.addsubdeviceslist",@"plugin_gateway", @"添加子设备");
-    _labelAddDevice.textAlignment = NSTextAlignmentCenter;
-    [_footerView addSubview:_labelAddDevice];
-    
+    [_btnAddDevice sizeToFit];
+
     self.tvcInternal = [[MHTableViewControllerInternalV2 alloc] initWithStyle:UITableViewStylePlain];
     self.tvcInternal.cellClass = [MHGatewayDeviceCell class];
     self.tvcInternal.delegate = self;
     self.tvcInternal.dataSource = @[_dataSource];
-    if (self.gateway.shareFlag == MHDeviceShared) {
-        CGRect tableRect = CGRectMake(0, 64, CGRectGetWidth(self.view.frame),
-                                      CGRectGetHeight(self.view.frame)-64);
-        [self.tvcInternal.view setFrame:tableRect];
-    }
-    else {
-        CGRect tableRect = CGRectMake(0, 64, CGRectGetWidth(self.view.frame),
-                                      CGRectGetHeight(self.view.frame)-64-65);
-        [self.tvcInternal.view setFrame:tableRect];
-    }
+    CGRect tableRect = CGRectMake(0, 64, CGRectGetWidth(self.view.frame),
+                                  CGRectGetHeight(self.view.frame)-64);
+    [self.tvcInternal.view setFrame:tableRect];
     self.tvcInternal.view.autoresizingMask = UIViewAutoresizingFlexibleHeight;
     [self addChildViewController:self.tvcInternal];
     [self.view addSubview:self.tvcInternal.view];
@@ -121,65 +94,17 @@
     //    NSLog(@"%@", self.dataSource);
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-
 #pragma mark - 比对添加和删除设备
 - (void)deviceMap:(NSMutableArray *)newSubDevices {
     XM_WS(weakself);
     __block NSMutableArray *newDeviceArray = [NSMutableArray new];
     
     [newSubDevices enumerateObjectsUsingBlock:^(MHDevice *newDevice, NSUInteger idx, BOOL * _Nonnull stop) {
-        //        NSLog(@"子设备的name <<<%@>>>, 模型<<%@>>, 在不在线%d", newDevice.name, newDevice.model, newDevice.isOnline);
         MHDeviceGatewayBase *sensor = (MHDeviceGatewayBase *)[MHDevFactory deviceFromModelId:newDevice.model dataDevice:newDevice];
         sensor.parent = weakself.gateway;
         [newDeviceArray addObject:sensor];
     }];
-    //    if (_gateway.subDevices.count != newSubDevices.count) {
     _gateway.subDevices = [NSMutableArray arrayWithArray:newDeviceArray];
-    //    }
-    
-    
-    //    NSMutableArray *oldSubDevices = [_gateway.subDevices mutableCopy];
-    //    _newAddDevices = [NSMutableArray new];
-    
-    //新增
-    //    for (MHDevice* newDevice in newSubDevices) {
-    //        BOOL foundFlag = NO;
-    //        for (MHDevice*  oldDevice in oldSubDevices) {
-    //            if ([newDevice.did isEqualToString:oldDevice.did]) {
-    //                foundFlag = YES;
-    //                break;
-    //            }
-    //        }
-    
-    //        如果找到新的网关子设备
-    //        if(!foundFlag){;
-    //            MHDeviceGatewayBase *sensor = (MHDeviceGatewayBase *)[MHDevFactory deviceFromModelId:newDevice.model dataDevice:newDevice];
-    //            sensor.isNewAdded = YES;
-    //            sensor.parent = _gateway;
-    //            [self.gateway.subDevices addObject:sensor];
-    //            [_newAddDevices addObject:sensor.did];
-    //            sensor.isNewAdded = YES;
-    //        }
-    //    }
-    //
-    //    //删除
-    //    for (MHDevice *oldDevice in oldSubDevices){
-    //        BOOL foundFlag = NO;
-    //        for (MHDevice*  newDevice in newSubDevices) {
-    //            if ([newDevice.did isEqualToString:oldDevice.did]) {
-    //                foundFlag = YES;
-    //                break;
-    //            }
-    //        }
-    //
-    //        if(!foundFlag){
-    //            [self.gateway.subDevices removeObject:oldDevice];
-    //        }
-    //    }
-    
     [self dataSourceRebuild];
 }
 

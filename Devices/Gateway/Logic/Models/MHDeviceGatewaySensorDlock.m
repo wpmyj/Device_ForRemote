@@ -17,9 +17,9 @@
 }
 
 + (void)load {
-    [MHDevListManager registerDeviceModelId:DeviceModelgateWaySensorDlockV1
-                                  className:NSStringFromClass([MHDeviceGatewaySensorDlock class])
-                             isRegisterBase:YES];
+//    [MHDevListManager registerDeviceModelId:DeviceModelgateWaySensorDlockV1
+//                                  className:NSStringFromClass([MHDeviceGatewaySensorDlock class])
+//                             isRegisterBase:YES];
 }
 
 + (NSUInteger)getDeviceType {

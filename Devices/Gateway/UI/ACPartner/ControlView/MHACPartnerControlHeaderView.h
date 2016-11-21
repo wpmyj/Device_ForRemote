@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MHDeviceGateway.h"
+#import "MHDeviceAcpartner.h"
 #import "MHGatewayFMControlView.h"
 #import "MHLumiPageControl.h"
 
@@ -29,6 +29,6 @@ typedef void (^navigaitonCallBack)(DetailType type);
 
 - (void)updateMainPageStatus;
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway* )gateway;
+- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceAcpartner* )acpartner;
 
 @end

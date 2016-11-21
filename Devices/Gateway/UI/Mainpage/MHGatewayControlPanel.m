@@ -17,6 +17,7 @@
 #import "MHDeviceChangeNameView.h"
 #import "MHLumiChangeIconManager.h"
 #import "MHLumiChooseLogoListManager.h"
+#import "MHWeakTimerFactory.h"
 
 #define CellHeight 75.f
 //循环请求间隔
@@ -30,6 +31,7 @@
 @property (nonatomic,strong) NSMutableArray *reloadSubviewArray;
 @property (nonatomic,strong) NSTimer *timer;
 @property (nonatomic,assign) NSInteger longPressedServiceIndex;
+@property (nonatomic,assign) BOOL shouldKeepRunning;
 
 @end
 
@@ -176,20 +178,17 @@
         return;
     }
     self.shouldKeepRunning = YES;
-    
-    XM_WS(weakself);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        weakself.timer = [NSTimer timerWithTimeInterval:LoopDataInterval
-                                                 target:self
-                                               selector:@selector(fetchStatus)
-                                               userInfo:nil
-                                                repeats:YES];
-        [weakself.timer fire];
-        
-        NSRunLoop *currentRL = [NSRunLoop currentRunLoop];
-        [currentRL addTimer:weakself.timer forMode:NSDefaultRunLoopMode];
-        while (weakself.shouldKeepRunning && [currentRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]);
-    });
+    if (self.timer){
+        [self.timer invalidate];
+    }
+    __weak typeof(self) weakself = self;
+    self.timer = [MHWeakTimerFactory scheduledTimerWithBlock:LoopDataInterval callback:^{
+        if (weakself.shouldKeepRunning){
+            [weakself fetchStatus];
+        }else{
+            [weakself.timer invalidate];
+        }
+    }];
 }
 
 - (void)stopWatchingDeviceStatus {

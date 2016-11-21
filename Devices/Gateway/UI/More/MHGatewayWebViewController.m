@@ -238,14 +238,12 @@
 //    NSLog(@"url%@", rechargeUrl);
 //    NSLog(@"fragment%@", fragment);
     
-    //支付成功
     if ([rechargeUrl hasPrefix:@"https://web.recharge.pay.xiaomi.com/web/utility"] && (!fragment || [fragment hasPrefix:@"detail/orderId/"])) {
         self.rechargeBack = NO;
     } else {
         
         self.rechargeBack = YES;
     }
-    //添加银行卡
     if ([rechargeUrl hasPrefix:@"https://m.pay.xiaomi.com/payFunc"] && ([fragment isEqualToString:@"/addbank"] || [fragment isEqualToString:@"/success"])) {
         self.rechargeBack = NO;
     }

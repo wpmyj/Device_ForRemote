@@ -13,6 +13,10 @@
 
 + (id)sharedInstance;
 
+- (void)getRecordsListSuccess:(SucceedBlock)success
+                  failure:(FailedBlock)failure ; //指定设备的系统场景
+
+
 /**
  *  拉取特定类型的自动化
  *

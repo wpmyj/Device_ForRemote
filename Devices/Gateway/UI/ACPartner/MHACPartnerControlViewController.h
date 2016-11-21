@@ -7,7 +7,7 @@
 //
 
 #import "MHLuViewController.h"
-#import "MHDeviceGateway.h"
+#import "MHDeviceAcpartner.h"
 
 #define ACHeaderViewLastIndexKey @"lumi_gateway_headerview_index"
 
@@ -21,7 +21,7 @@ typedef void (^navigationCallback)(UIViewController *destinationVC);
 
 @property (nonatomic, copy) navigationCallback navigationClick;
 
-- (id)initWithFrame:(CGRect)frame sensor:(MHDeviceGateway *)gateway;
+- (id)initWithFrame:(CGRect)frame acpartner:(MHDeviceAcpartner *)acpartner;
 
 - (void)startRefresh;
 - (void)stopRefresh;
