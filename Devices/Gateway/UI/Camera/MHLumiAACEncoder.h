@@ -16,7 +16,7 @@
               callBackQueue:(dispatch_queue_t)queue
             completionBlock:(void (^)(NSData * encodedData, NSError* error))completionBlock;
 
-//- (void)creatEncoderWithAudioStreamBasicDescription:(AudioStreamBasicDescription)inAudioStreamBasicDescription;
+- (void)creatEncoderWithAudioStreamBasicDescription:(AudioStreamBasicDescription)inAudioStreamBasicDescription;
 - (void) encodeData:(NSData *)audioData
       callBackQueue:(dispatch_queue_t)queue
     completionBlock:(void (^)(NSData * encodedData, NSError* error))completionBlock;

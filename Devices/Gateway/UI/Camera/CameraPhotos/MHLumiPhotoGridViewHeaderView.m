@@ -9,7 +9,8 @@
 #import "MHLumiPhotoGridViewHeaderView.h"
 
 @interface MHLumiPhotoGridViewHeaderView()
-@property (strong, nonatomic) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIVisualEffectView *blurView;
 @end
 
 @implementation MHLumiPhotoGridViewHeaderView
@@ -24,6 +25,7 @@
 
 - (void)layoutSubviews{
     [super layoutSubviews];
+    self.blurView.frame = self.bounds;
     self.titleLabel.frame = CGRectMake(8, 0, CGRectGetWidth(self.bounds)-8, CGRectGetHeight(self.bounds));
 }
 
@@ -33,6 +35,7 @@
 
 #pragma mark - setupSubViews
 - (void)setupSubViews{
+    [self addSubview:self.blurView];
     [self addSubview:self.titleLabel];
 }
 
@@ -46,6 +49,15 @@
         _titleLabel = aLabel;
     }
     return _titleLabel;
+}
+
+- (UIVisualEffectView *)blurView{
+    if (!_blurView) {
+        UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight];
+        UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+        _blurView = blurView;
+    }
+    return _blurView;
 }
 
 

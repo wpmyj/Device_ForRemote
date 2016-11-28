@@ -63,12 +63,11 @@ typedef enum{
 }MHLumiTUTKIOControl;
 
 typedef struct LumiTUTKFrameInfo{
-    unsigned short codec_id;	// 0，1
+    unsigned short codec_id;	//0，1
     unsigned char flags;		//2
     unsigned char cam_index;	//3
     unsigned char onlineNum;	//4
-    
-    unsigned char unuse_char;    //5
+    unsigned char isLive;       //5
     
     unsigned short frmNo;       //6，7
     

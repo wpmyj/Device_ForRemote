@@ -110,11 +110,11 @@ static void BufferCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBuffe
     }
     
     @synchronized(_audioFrames) {
-        if (_audioFrames.count >= 256) {
+        if (_audioFrames.count >= 1000) {
             [_audioFrames removeObjectAtIndex:0];
         }
         [_audioFrames addObject:databuff];
-        //        NSLog(@"放了一个进去，目前_audioFrames个数：%lu",(unsigned long)_audioFrames.count);
+        NSLog(@"放了一个进去，目前_audioFrames个数：%lu",(unsigned long)_audioFrames.count);
     }
 }
 

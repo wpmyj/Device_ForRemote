@@ -21,7 +21,7 @@
 @interface MHLumiAlarmVideoDataSource : NSObject<MHLumiPhotoGridDataSourceProtocol>
 @property (nonatomic, weak) id<MHLumiAlarmVideoDataSourceDelegate> delegate;
 @property (nonatomic, strong) MHLumiAlarmVideoRequest *request;
-- (instancetype)initWithReques:(MHLumiAlarmVideoRequest *)request;
+- (instancetype)initWithReques:(MHLumiAlarmVideoRequest *)request withDeviceDid:(NSString *)did;
 
 //fetchData结束会走delegate的DidUpdate
 - (void)fetchData;

@@ -13,7 +13,7 @@
 #import "MHLumiAlarmVideoPreviewViewController.h"
 
 //AVPlayerViewController
-@interface MHLumiAlarmVideoGridViewController ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+@interface MHLumiAlarmVideoGridViewController ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,MHLumiAlarmVideoPreviewViewControllerDataSource>
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) NSIndexPath *selectedIndexPath;
 @property (nonatomic, strong) MHLumiAlarmVideoPreviewViewController *alarmVideoPreviewViewController;
@@ -52,8 +52,8 @@
     }
 }
 
-- (void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
     if (self.collectionView.contentSize.width > 0){
         UIEdgeInsets inset = self.collectionView.contentInset;
         inset = UIEdgeInsetsMake(64, 0, 0, 0);
@@ -106,13 +106,8 @@
 
 #pragma mark - UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    __weak typeof(self) weakself = self;
-    [self.dataSource fetchvideoUrlAtIndexPath:indexPath completeHandler:^(NSString *videoUrl) {
-        if (![weakself.alarmVideoPreviewViewController.videoUrl isEqualToString:videoUrl]){
-            weakself.alarmVideoPreviewViewController.videoUrl = videoUrl;
-        }
-        [weakself.navigationController pushViewController:weakself.alarmVideoPreviewViewController animated:YES];
-    }];
+    self.selectedIndexPath = indexPath;
+    [self.navigationController pushViewController:self.alarmVideoPreviewViewController animated:YES];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -126,10 +121,22 @@
     }
 }
 
+#pragma mark - MHLumiAlarmVideoPreviewViewControllerDataSource
+- (void)alarmVideoPreviewViewController:(MHLumiAlarmVideoPreviewViewController *)alarmVideoPreviewViewController
+                          fetchVideoUrl:(void (^)(NSString *, NSString *))fetchVideoUrlCompleteHandler{
+    NSString *identifier = [self.dataSource fetchVideoUrlIdentifierAtIndexPath:self.selectedIndexPath];
+    __weak typeof(self) weakself = self;
+    [self.dataSource fetchvideoUrlAtIndexPath:weakself.selectedIndexPath completeHandler:^(NSString *videoUrl) {
+        NSLog(@"传给播放VC的Url：%@",videoUrl);
+        fetchVideoUrlCompleteHandler(videoUrl,identifier);
+    }];
+}
+
 #pragma mark - setter and getter
 - (UICollectionView *)collectionView{
     if(!_collectionView){
         UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+        layout.sectionHeadersPinToVisibleBounds = YES;
         layout.minimumLineSpacing = 1;
         layout.minimumInteritemSpacing = 1;
         layout.headerReferenceSize = CGSizeMake(0, 30);
@@ -154,6 +161,7 @@
 - (MHLumiAlarmVideoPreviewViewController *)alarmVideoPreviewViewController{
     if (!_alarmVideoPreviewViewController) {
         _alarmVideoPreviewViewController = [[MHLumiAlarmVideoPreviewViewController alloc] initWithCameraDevice:self.cameraDevice];
+        _alarmVideoPreviewViewController.dataSource = self;
     }
     return _alarmVideoPreviewViewController;
 }

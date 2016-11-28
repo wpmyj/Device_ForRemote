@@ -262,6 +262,7 @@
 - (UICollectionView *)collectionView{
     if(!_collectionView){
         UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+        layout.sectionHeadersPinToVisibleBounds = YES;
         layout.minimumLineSpacing = 1;
         layout.minimumInteritemSpacing = 1;
         layout.headerReferenceSize = CGSizeMake(0, 30);

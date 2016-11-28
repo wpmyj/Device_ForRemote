@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 typedef NS_ENUM(NSInteger, MHLumiLocalCacheManagerType){
     MHLumiLocalCacheManagerCommon,
+    MHLumiLocalCacheManagerAlarmVideo,
 };
 
 //线程不安全
@@ -21,4 +22,15 @@ typedef NS_ENUM(NSInteger, MHLumiLocalCacheManagerType){
 - (void)removeObjectForKey:(NSString *)aKey;
 - (void)setObject:(NSObject *)anObject forKey:(NSString *)aKey;
 - (NSObject *)objectForKey:(NSString *)aKey;
+
+#pragma mark - 方便构造器
+/**
+ *  在线警戒视频的本地cache
+ *
+ *  设备did做key，value为一个字典；
+ *  字典两个key: 1.time （存入时间）
+ *              2.dataArray (对象数组)
+ *
+ */
++ (instancetype)alarmVideoCacheManagerWith:(NSString *)userId;
 @end

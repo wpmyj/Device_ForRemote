@@ -1,4 +1,4 @@
-//
+ //
 //  MHLumiUICameraHomeViewController.m
 //  MiHome
 //
@@ -41,6 +41,8 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
     MHLumiUICameraHomeViewControllerStatusGuide,
     MHLumiUICameraHomeViewControllerStatusNoNet,
     MHLumiUICameraHomeViewControllerStatusLoading,
+    MHLumiUICameraHomeViewControllerStatusWaitLiveLoading,
+    MHLumiUICameraHomeViewControllerStatusWaitBackwardLoading,
     MHLumiUICameraHomeViewControllerStatusBackward,
 };
 //AudioRecorderDelegate
@@ -48,79 +50,83 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
 /**
  *  图库按钮
  */
-@property (strong, nonatomic) UIButton *previewButton;
+@property (nonatomic, strong) UIButton *previewButton;
 
 /**
  *  录像按钮
  */
-@property (strong, nonatomic) UIButton *recordButton;
+@property (nonatomic, strong) UIButton *recordButton;
 
 /**
  *  截图按钮
  */
-@property (strong, nonatomic) UIButton *photoButton;
+@property (nonatomic, strong) UIButton *photoButton;
 
 /**
  *  对讲按钮
  */
-@property (strong, nonatomic) UIButton *talkbackButton;
+@property (nonatomic, strong) UIButton *talkbackButton;
 
 /**
  *  体感控制
  */
-@property (strong, nonatomic) UIButton *motionButton;
+@property (nonatomic, strong) UIButton *motionButton;
 
 /**
  *  静音按钮
  */
-@property (strong, nonatomic) UIButton *muteButton;
+@property (nonatomic, strong) UIButton *muteButton;
 
 /**
  *  四分屏
  */
-@property (strong, nonatomic) UIButton *fourRButton;
+@property (nonatomic, strong) UIButton *fourRButton;
 
 /**
  *  横屏
  */
-@property (strong, nonatomic) UIButton *rotationButton;
+@property (nonatomic, strong) UIButton *rotationButton;
 
 /**
  *  视频清晰度
  */
-@property (strong, nonatomic) UIButton *qualityButton;
+@property (nonatomic, strong) UIButton *qualityButton;
 
 /**
  *  全屏下的返回按鈕
  */
-@property (strong, nonatomic) UIButton *backButton;
-@property (strong, nonatomic) MHDeviceCamera *cameraDevice;
+@property (nonatomic, strong) UIButton *backButton;
+@property (nonatomic, strong) MHDeviceCamera *cameraDevice;
 @property (nonatomic, strong) MHLumiNeAACDecoder *lumiNeAACDecoder;
-@property (strong, nonatomic) UIView *controlPanelContanerView;//toolbar不在上面
-@property (strong, nonatomic) UIView *buttonsContanerView;
-@property (strong, nonatomic) MHLumiCameraTimeLineView *timeLineView;
-@property (strong, nonatomic) UIView *qualityOpitionView;
-@property (strong, nonatomic) NSMutableArray *mainButtonArray; //大的那种控制按钮
-@property (strong, nonatomic) NSMutableArray *subButtonArray; //小的那种控制按钮
-@property (strong, nonatomic) UIButton *recordingButton;
-@property (strong, nonatomic) UIView *noNetView;
-@property (strong, nonatomic) UIView *loadingView;
-@property (strong, nonatomic) UILabel *loadingTipsLabel;
-@property (strong, nonatomic) UILabel *recordingTimeLabel;
-@property (strong, nonatomic) NSTimer *recordingTimer;
-@property (assign, nonatomic) int logTimeNum;
-@property (assign, nonatomic) MHLumiUICameraHomeViewControllerStatus viewStatus;
+@property (nonatomic, strong) UIView *controlPanelContanerView;//toolbar不在上面
+@property (nonatomic, strong) UIView *buttonsContanerView;
+@property (nonatomic, strong) MHLumiCameraTimeLineView *timeLineView;
+@property (nonatomic, strong) UIView *qualityOpitionView;
+@property (nonatomic, strong) NSMutableArray *mainButtonArray; //大的那种控制按钮
+@property (nonatomic, strong) NSMutableArray *subButtonArray; //小的那种控制按钮
+@property (nonatomic, strong) UIButton *recordingButton;
+@property (nonatomic, strong) UIView *noNetView;
+@property (nonatomic, strong) UIView *loadingView;
+@property (nonatomic, strong) UILabel *loadingTipsLabel;
+@property (nonatomic, strong) UILabel *recordingTimeLabel;
+@property (nonatomic, strong) NSTimer *recordingTimer;
+@property (nonatomic, assign) int logTimeNum;
+@property (nonatomic, assign) MHLumiUICameraHomeViewControllerStatus viewStatus;
+@property (nonatomic, assign) MHLumiUICameraHomeViewControllerStatus preViewStatus;
 
-//@property (strong, nonatomic) MHEAGLView *videoView;
-@property (assign, nonatomic) CGFloat radio_W_h;
-@property (strong, nonatomic) NSArray <NSString *> *opitionTitles;
-@property (assign, nonatomic) CGRect rectForVideoView;
-@property (assign, nonatomic) BOOL isHiddenControlPanel;
+@property (nonatomic, assign) CGFloat radio_W_h;
+@property (nonatomic, strong) NSArray <NSString *> *opitionTitles;
+@property (nonatomic, assign) CGRect rectForVideoView;
+@property (nonatomic, assign) BOOL isHiddenControlPanel;
 
 @property (nonatomic, strong) MHLumiTUTKClient *lumiTUTKClient;
 @property (nonatomic, strong) PHAssetCollection *lumiCameraAssetCollection;
+
 @property (nonatomic, copy) NSString *h264Filename_V;
-@property (nonatomic, strong) NSFileHandle *h264FileHandle;//PlayAudio.h
+@property (nonatomic, strong) NSFileHandle *h264FileHandle;
+@property (nonatomic, copy) NSString *aacFilename_A;
+@property (nonatomic, strong) NSFileHandle *aacFileHandle;
+
 @property (nonatomic, strong) MHLumiAudioPlayer *audioPlayer;
 @property (nonatomic, strong) MHLumiRecorder2 *lumiRecorder;
 @property (nonatomic, assign) CGSize videoDataSize;
@@ -134,7 +140,6 @@ typedef NS_ENUM(NSInteger, MHLumiUICameraHomeViewControllerStatus) {
 @property (nonatomic, strong) MHLumiAACEncoder *aacEncoder;
 @property (nonatomic, assign, getter=isTimeLineDraging) BOOL timeLineDraging;
 //test
-@property (nonatomic, strong) NSFileHandle *aacFileHandle;
 @property (nonatomic, strong) NSFileHandle *pcmFileHandle;
 @property (nonatomic, strong) NSMutableArray <NSData *>*aaaaaada;
 
@@ -177,6 +182,8 @@ static CGFloat kControlPanelContanerView = 45;
         _todoFrame = avcodec_alloc_frame();
         _timeLineDraging = NO;
         _deltaTime_Camera_Sys = 0;
+        _isInitCamera = NO;
+        
         _kCameraMuteKey = [NSString stringWithFormat:@"%@_CameraMute",_cameraDevice.did];
         _cacheManager = [[MHLumiLocalCacheManager alloc] initWithType:MHLumiLocalCacheManagerCommon andIdentifier:[MHPassportManager sharedSingleton].currentAccount.userId];
         NSNumber *cameraMuteNum = (NSNumber *)[_cacheManager objectForKey:_kCameraMuteKey];
@@ -185,7 +192,6 @@ static CGFloat kControlPanelContanerView = 45;
         }else{
             _logForMute = NO;
         }
-        _isInitCamera = NO;
     }
     return self;
 }
@@ -196,17 +202,6 @@ static CGFloat kControlPanelContanerView = 45;
 
 - (void)dealloc{
     NSLog(@"%@ VC开始析构",self.description);
-//    [_timerForTimeLineView invalidate];
-//    _timerForTimeLineView = nil;
-//    [_recordingTimer invalidate];
-//    _recordingTimer = nil;
-//    [_backwardTimer invalidate];
-//    _backwardTimer = nil;
-//    [_lumiTUTKClient deinitConnection];
-//    [_audioPlayer stopPlay];
-//    [_audioPlayer reset];
-//    avcodec_free_frame(&_todoFrame);
-//    [_aacFileHandle closeFile];
     [_timerForTimeLineView invalidate];
     _timerForTimeLineView = nil;
     [_recordingTimer invalidate];
@@ -223,10 +218,11 @@ static CGFloat kControlPanelContanerView = 45;
 }
 
 - (void)onBack{
+    _glkViewController.dataSource = nil;
+    _glkViewController.delegate = nil;
     _lumiTUTKClient.canceled = YES;
     [_audioPlayer stopPlay];
     [_audioPlayer reset];
-    [_aacFileHandle closeFile];
 }
 
 #pragma mark - view life cycle
@@ -244,13 +240,14 @@ static CGFloat kControlPanelContanerView = 45;
 
 - (void)viewWillLayoutSubviews{
     [super viewWillLayoutSubviews];
+    [self updateVideoViewFrame];
     CGFloat viewWidth = CGRectGetWidth(self.view.bounds);
     CGFloat viewHeight = CGRectGetHeight(self.view.bounds);
     CGFloat labelY = self.navigationController.navigationBarHidden ? 18 : 64 + 18;
     CGFloat labelY2 = self.navigationController.navigationBarHidden ? 0 : 64;
     self.recordingTimeLabel.frame = CGRectMake(0, labelY, viewWidth, kRecordingTimeLabelHeight);
     if (self.glkViewController.view.superview){
-        labelY = CGRectGetMinY(self.glkViewController.view.frame);
+        labelY2 = CGRectGetMinY(self.glkViewController.view.frame);
     }
     self.backwardTimeLabel.frame = CGRectMake(0, labelY2, viewWidth, kRecordingTimeLabelHeight);
     //针对横屏竖屏处理
@@ -270,8 +267,6 @@ static CGFloat kControlPanelContanerView = 45;
         self.loadingView.frame = self.view.bounds;
         self.loadingView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
-    
-    [self updateVideoViewFrame];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -280,7 +275,6 @@ static CGFloat kControlPanelContanerView = 45;
     [self setNeedsStatusBarAppearanceUpdate];
     [self.lumiTUTKClient cleanLocalBuffer];
     [self.lumiTUTKClient setRequestAudioDataOrNotWithFlag:YES];
-//    [self.videoView enterForeground];
 //    NSString *path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
 //    path = [path stringByAppendingPathComponent:@"ffffff"];
 //    NSArray *arr = [NSArray arrayWithContentsOfFile:path];
@@ -342,14 +336,31 @@ static CGFloat kControlPanelContanerView = 45;
         }else if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusBackward && _timeLineDraging){
             NSLog(@"停止回看，回到实时");
             NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlBackwardStopJSonString];
-            [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:NO completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-                NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:weakself.deltaTime_Camera_Sys];
-                NSLog(@"%@",currentCameraDate.description);
-                weakself.dateLogForWillDrag = currentCameraDate;
-                [cameraTimeLineView scrollToDate:currentCameraDate andAnimated:YES];
-                [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.5];
+            [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusLoading withDuration:0.5];
+            [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:NO success:^(MHLumiTUTKClient *client, int retcode, NSInteger realPlayTime) {
+                NSLog(@"停止回看成功");
+                [weakself.lumiTUTKClient cleanBothBuffer];
+                [weakself.audioPlayer flushAudio];
+                [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusWaitLiveLoading withDuration:1];
+//                NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:weakself.deltaTime_Camera_Sys];
+//                NSLog(@"%@",currentCameraDate.description);
+//                weakself.dateLogForWillDrag = currentCameraDate;
+//                [cameraTimeLineView scrollToDate:currentCameraDate andAnimated:YES];
+//                weakself.markForTimer = cameraTimeLineView.currentDate.timeIntervalSince1970;
+//                [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.5];
+            } failure:^(MHLumiTUTKClient *client, NSError *error) {
+                if (error.code == kIsBackwardNotStart){
+                    NSLog(@"回看没启动。要纠正");
+                    [weakself.lumiTUTKClient cleanBothBuffer];
+                    [weakself.audioPlayer flushAudio];
+                    [weakself changCameraFormBackwardToLive];
+                }else{
+                    NSLog(@"停止回看失败");
+                    [weakself showTipsInfo:@"操作失败，请重试" duration:0.8 modal:NO];
+                    [cameraTimeLineView scrollToDate:weakself.dateLogForWillDrag andAnimated:YES];
+                    [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
+                }
             }];
-            [self invalidateTimerForBackward];
         }
         _timeLineDraging = NO;
         return;
@@ -364,19 +375,25 @@ static CGFloat kControlPanelContanerView = 45;
     NSLog(@"发起回看请求");
     NSString *dateStr = [[NSDateFormatter TUTKDateFormatter] stringFromDate:cameraTimeLineView.currentDate];
     NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlBackwardStartJSonStringWithTimeStr:dateStr];
-    [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:YES completedHandler:^(MHLumiTUTKClient *client, int retcode) {
-        if (retcode >= 0) {
-            NSLog(@"回看成功");
-            weakself.markForTimer = cameraTimeLineView.currentDate.timeIntervalSince1970;
-            [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
-            [weakself fireTimerForBackwardWithDate:cameraTimeLineView.currentDate];
-        }else{
-            if (weakself.navigationController != nil){
-                [weakself showTipsInfo:@"该时间段不可回看" duration:0.8 modal:NO];
-                [cameraTimeLineView scrollToDate:weakself.dateLogForWillDrag  andAnimated:YES];
-            }
-            NSLog(@"不可回看区域");
+    self.preViewStatus = self.viewStatus;
+    [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusLoading withDuration:0.5];
+    [self.lumiTUTKClient setBackwardWithJsonString:jsonStr startOrStop:YES success:^(MHLumiTUTKClient *client, int retcode, NSInteger realPlayTime) {
+        NSLog(@"回看成功,等待回看信息到来");
+        NSLog(@"realPlayTime = %ld",(long)realPlayTime);
+        [weakself.lumiTUTKClient cleanBothBuffer];
+        [weakself.audioPlayer flushAudio];
+        [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusWaitBackwardLoading withDuration:0.5];
+    } failure:^(MHLumiTUTKClient *client, NSError *error) {
+        if (weakself.navigationController == nil){
+            return ;
         }
+        if (error.code == kIsBackwardTimeUnable) {
+            [weakself showTipsInfo:@"该时间段不可回看" duration:0.8 modal:NO];
+        }else{
+            [weakself showTipsInfo:@"操作失败，请重试" duration:0.8 modal:NO];
+        }
+        [cameraTimeLineView scrollToDate:weakself.dateLogForWillDrag  andAnimated:YES];
+        [weakself configureViewWithStatus:weakself.preViewStatus withDuration:0.5];
     }];
 }
 
@@ -462,7 +479,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
 //    });
 }
 
-- (void)client:(MHLumiTUTKClient *)client videoBuffer:(const void *)videoBuffer length:(int)length{
+- (void)client:(MHLumiTUTKClient *)client videoBuffer:(const void *)videoBuffer length:(int)length frameInfo:(LumiTUTKFrameInfo)frameInfo{
     if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusRecording){
         NSData *data = [NSData dataWithBytes:videoBuffer length:length];
         NSLog(@"h264FileHandle writeData %d",length);
@@ -470,9 +487,11 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }
 }
 
-- (void)client:(MHLumiTUTKClient *)client onAudioReceived:(void *)audiobuffer length:(int)length{
-    NSData *aacData = [[NSData alloc] initWithBytes:audiobuffer length:length];
-    [self writeAACData:aacData];
+- (void)client:(MHLumiTUTKClient *)client onAudioReceived:(void *)audiobuffer length:(int)length frameInfo:(LumiTUTKFrameInfo)frameInfo{
+    if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusRecording){
+        NSData *audioData = [[NSData alloc] initWithBytes:audiobuffer length:length];
+        [self.aacFileHandle writeData:audioData];
+    }
 
     if (!self.lumiNeAACDecoder){
         self.lumiNeAACDecoder = [[MHLumiNeAACDecoder alloc] initWithaudioData:audiobuffer length:length samplerate:44100 channelNum:2];
@@ -481,7 +500,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
     unsigned long dataLength = [self.lumiNeAACDecoder dataLengthWithFormatId];
     if (dataLength > 0){
         NSData *audioData = [[NSData alloc] initWithBytes:audioOutBuffe1r length:dataLength];
-        [self writePCMData:audioData];
+
         [_audioPlayer addAudioBuffer:audioData];
     }
 }
@@ -493,7 +512,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
                                                 linesize:_todoFrame->linesize
                                               frameWidth:_todoFrame->width
                                              frameHeight:_todoFrame->height];
-    glkViewData.buffer = _yuvData.bytes;//[self readAVFrameFile];
+    glkViewData.buffer = _yuvData.bytes;
     glkViewData.width = _todoFrame->width;
     glkViewData.height = _todoFrame->height;
     return glkViewData;
@@ -502,24 +521,45 @@ avcodecContext:(AVCodecContext*)avcodecContext
 - (bool)shouldUpdateBuffer:(MHLumiGLKViewController *)glkViewController{
     static int count;
     _shouldUpdate = [self.lumiTUTKClient proactiveFetchVideoDataWithABAVFrame:_todoFrame frameInfo:&_todoFrameInfo gotPicturePtr:&count];
-    int picSize = _todoFrame->height * _todoFrame->width;
-    if (picSize <= 0) {
+    if (_shouldUpdate == NO){
+        return NO;
+    }
+    
+    //帧信息大小为零，直接返回
+    if (_todoFrame->height * _todoFrame->width <= 0) {
         _shouldUpdate = NO;
         return _shouldUpdate;
     }
+    
+    //判断图像长宽是否变化，如果变化，调整glkView的位置和大小
     CGSize newSize = CGSizeMake(_todoFrame->width, _todoFrame->height);
     if (!CGSizeEqualToSize(self.videoDataSize, newSize)){
         self.videoDataSize = newSize;
         [self updateVideoViewFrame];
     }
+    
+    //启动定时，用于指针的移动和重新获取回看时间段
+    if (_shouldUpdate && !self.timerForTimeLineView) {
+        [self fireTimerForTimeLineView];
+    }
+    
+    NSLog(@"_todoFrameInfo.isLive = %d", _todoFrameInfo.isLive);
+    //从帧信息获取是实时还是回放
+    //是回放，且原来是实时
+    if (_shouldUpdate && _todoFrameInfo.isLive == 0 && self.viewStatus == MHLumiUICameraHomeViewControllerStatusWaitBackwardLoading){
+        [self changCameraFormLiveToBackward];
+        //是实时，且原来是回放
+    }else if(_shouldUpdate && _todoFrameInfo.isLive == 1 && self.viewStatus == MHLumiUICameraHomeViewControllerStatusWaitLiveLoading){
+        [self changCameraFormBackwardToLive];
+    }
+    
+    //初始的loding结束
     if (_isInitCamera){
         _isInitCamera = NO;
         NSLog(@"GLK初始化结束");
         dispatch_group_leave(self.cameraGroup); //初始化GLK
     }
-    if (_shouldUpdate && !self.timerForTimeLineView) {
-        [self fireTimerForTimeLineView];
-    }
+    
     return _shouldUpdate;
 //    if (_isInitCamera){
 //        _isInitCamera = NO;
@@ -607,6 +647,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
     if (self.qualityButton.selected){
         [self qualityButtonAction:self.qualityButton];
     }
+    self.preViewStatus = self.viewStatus;
     [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusRecording withDuration:0.3];
     self.logTimeNum = 0;
     __weak typeof(self) weakself = self;
@@ -619,13 +660,27 @@ avcodecContext:(AVCodecContext*)avcodecContext
         [weakself updateRecordingTimeLabelWithLogNum:weakself.logTimeNum];
     }];
     
-    _h264Filename_V = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath andFilename:@"tutk.h264"];
+    NSString *uniqueString = [[[NSProcessInfo processInfo] globallyUniqueString] substringToIndex:8];
+    //h264文件路径
+    _h264Filename_V = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath
+                                                                             andFilename:[NSString stringWithFormat:@"%@_tutk.h264",uniqueString]];
     if ([[NSFileManager defaultManager] fileExistsAtPath:_h264Filename_V]){
         [[NSFileManager defaultManager] removeItemAtPath:_h264Filename_V error:nil];
     }
     [[NSFileManager defaultManager] createFileAtPath:_h264Filename_V contents:nil attributes:nil];
+    
+    //aac文件路径
+    _aacFilename_A = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath
+                                                                            andFilename:[NSString stringWithFormat:@"%@_tutk.aac",uniqueString]];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:_aacFilename_A]){
+        [[NSFileManager defaultManager] removeItemAtPath:_aacFilename_A error:nil];
+    }
+    [[NSFileManager defaultManager] createFileAtPath:_aacFilename_A contents:nil attributes:nil];
+    
     NSLog(@"_h264Filename_V: %@",_h264Filename_V);
+    NSLog(@"_aacFilename_A: %@",_aacFilename_A);
     self.h264FileHandle = [NSFileHandle fileHandleForWritingAtPath:_h264Filename_V];
+    self.aacFileHandle = [NSFileHandle fileHandleForWritingAtPath:_h264Filename_V];
     
     if ([self.delegate respondsToSelector:@selector(homeViewControllerDidOnRecording:)]){
         [self.delegate homeViewControllerDidOnRecording:self];
@@ -814,8 +869,9 @@ avcodecContext:(AVCodecContext*)avcodecContext
 
 - (void)recordingButtonAction:(UIButton *)sender{
     [_recordingTimer invalidate];
-    [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.3];
+    [self configureViewWithStatus:self.preViewStatus withDuration:0.3];
     [self.h264FileHandle closeFile];
+    [self.aacFileHandle closeFile];
     MHLumiMuxer *muxer = [[MHLumiMuxer alloc] init];
     NSString *fileName = [self recordFileNameWithDate:[NSDate date]
                                            dewrapType:self.glkViewController.dewrapType
@@ -826,7 +882,10 @@ avcodecContext:(AVCodecContext*)avcodecContext
     NSString *outputFilename = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath andFilename:fileName];
     [self showTips:@"保存中…" modal:YES];
     __weak typeof(self) weakself = self;
-    [muxer muxWithInputVideoName:self.h264Filename_V inputAudioName:nil andOutputFileName:outputFilename completeHandler:^(int retcode) {
+    [muxer muxWithInputVideoName:self.h264Filename_V
+                  inputAudioName:nil
+               andOutputFileName:outputFilename
+                 completeHandler:^(int retcode) {
         NSError *error = nil;
         if (retcode >= 0){
             [MHLumiCameraMediaDataManager saveVideoWithPath:outputFilename toAssetCollection:weakself.lumiCameraAssetCollection andError:&error];
@@ -893,6 +952,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
 }
 
 - (void)fourRButtonAction:(UIButton *)sender{
+
 //    self.markForTimer = self.timeLineView.currentDate.timeIntervalSince1970;
 //    [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
 //    [self fireTimerForBackwardWithDate:self.timeLineView.currentDate];
@@ -983,14 +1043,21 @@ avcodecContext:(AVCodecContext*)avcodecContext
 }
 
 - (void)videoViewTapAction:(UITapGestureRecognizer *)sender{
+    if (sender.view == self.loadingView){
+        return;
+    }
+    if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusRecording){
+        return;
+    }
     BOOL hidden = YES;
     NSTimeInterval duration = 0.3;
-    if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusNormal){
+    if (self.viewStatus != MHLumiUICameraHomeViewControllerStatusWithoutControlPaner){
         hidden = YES;
+        self.preViewStatus = self.viewStatus;
         [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusWithoutControlPaner withDuration:duration];
     }else if (self.viewStatus == MHLumiUICameraHomeViewControllerStatusWithoutControlPaner){
         hidden = NO;
-        [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:duration];
+        [self configureViewWithStatus:_preViewStatus withDuration:duration];
     }else{
         return;
     }
@@ -1224,7 +1291,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
                     dispatch_group_enter(timeLineInitGroup);            //开始获取摄像头时间 :timeLineInitGroup
                     dispatch_group_enter(timeLineInitGroup);            //开始获取可回看时间区域 :timeLineInitGroup
                     NSDateFormatter *dateFormatter = [NSDateFormatter TUTKDateFormatter];
-                    weakself.cameraCurrentDate =  [dateFormatter dateFromString:@"20161114100000"];
+                    weakself.cameraCurrentDate =  [NSDate date];
                     weakself.deltaTime_Camera_Sys = weakself.cameraCurrentDate.timeIntervalSince1970 - [NSDate date].timeIntervalSince1970;
                     flagForCameraTime = YES;
                     dispatch_group_leave(timeLineInitGroup);        //摄像头时间获取成功
@@ -1304,23 +1371,25 @@ avcodecContext:(AVCodecContext*)avcodecContext
                     completeHandler(@"initTUTKConnection failure", retCode);
                     return;
                 }
-                NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlJSonStringWithAVChannelId:client.avChannelId];
-                [client startVideoStreamWithJsonString:jsonStr startRequestData:NO completedHandler:^(MHLumiTUTKClient *client, int retCode) {
-                    if (retCode<0){
-                        completeHandler(@"startVideoStream failure",retCode);
-                        return;
-                    }
-                    if (weakself.logForMute){
-                        [weakself enableCameraAudioWithSuccess:^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlJSonStringWithAVChannelId:client.avChannelId];
+                    [client startVideoStreamWithJsonString:jsonStr startRequestData:NO completedHandler:^(MHLumiTUTKClient *client, int retCode) {
+                        if (retCode<0){
+                            completeHandler(@"startVideoStream failure",retCode);
+                            return;
+                        }
+                        if (weakself.logForMute){
+                            [weakself enableCameraAudioWithSuccess:^{
+                                completeHandler(@"startVideoStream",retCode);
+                            } failure:^(NSError *error) {
+                                weakself.muteButton.selected = NO;
+                                completeHandler(@"startVideoStream",retCode);
+                            }];
+                        }else{
                             completeHandler(@"startVideoStream",retCode);
-                        } failure:^(NSError *error) {
-                            weakself.muteButton.selected = NO;
-                            completeHandler(@"startVideoStream",retCode);
-                        }];
-                    }else{
-                        completeHandler(@"startVideoStream",retCode);
-                    }
-                }];
+                        }
+                    }];
+                });
             }];
         } failure:^(NSError *error) {
             //noNetView（可重试，且有提示语)
@@ -1460,6 +1529,8 @@ avcodecContext:(AVCodecContext*)avcodecContext
     
     
     switch (status) {
+        case MHLumiUICameraHomeViewControllerStatusWaitBackwardLoading:
+        case MHLumiUICameraHomeViewControllerStatusWaitLiveLoading:
         case MHLumiUICameraHomeViewControllerStatusLoading:
             self.loadingTipsLabel.text = @"加载中……";
             [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0];
@@ -1528,6 +1599,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
         [self.backwardTimer invalidate];
     }
     self.backwardLogDate = date;
+    NSLog(@"启动回看Timer,date = %@",date.description);
     __weak typeof(self) weakself = self;
     self.backwardTimer = [MHWeakTimerFactory scheduledTimerWithBlock:1 callback:^{
         NSDate *todoDate = [weakself.backwardLogDate dateByAddingTimeInterval:1];
@@ -1554,10 +1626,14 @@ avcodecContext:(AVCodecContext*)avcodecContext
         [self.timerForTimeLineView invalidate];
     }
     self.markForTimer = [NSDate date].timeIntervalSince1970;
+    NSLog(@"启动5分钟Timer,date = %@",[NSDate date].description);
     __weak typeof(self) weakself = self;
     self.timerForTimeLineView = [MHWeakTimerFactory scheduledTimerWithBlock:5*60 callback:^{
         NSDate *currentDate = [NSDate date];
         NSTimeInterval delta = currentDate.timeIntervalSince1970 - weakself.markForTimer;
+        NSLog(@"执行5分钟Timer");
+        NSLog(@"markForTimer = %@ (%f)",[NSDate dateWithTimeIntervalSince1970:weakself.markForTimer].description,weakself.markForTimer);
+        NSLog(@"delta = %f",delta);
         weakself.markForTimer = currentDate.timeIntervalSince1970;
         [weakself updateTimeLineViewByDeltaTimeStamp:delta];
         NSString *jsonStr = [MHLumiTUTKClientHelper ioCtrlGetBackwardTimeJSonString];
@@ -1571,6 +1647,29 @@ avcodecContext:(AVCodecContext*)avcodecContext
     }
 }
 
+- (void)changCameraFormBackwardToLive{
+    [self invalidateTimerForBackward];
+    [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.5];
+    NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:self.deltaTime_Camera_Sys];
+    self.dateLogForWillDrag = currentCameraDate;
+    self.markForTimer = currentCameraDate.timeIntervalSince1970;
+    [self.timeLineView scrollToDate:currentCameraDate andAnimated:YES];
+}
+
+- (void)changCameraFormLiveToBackward{
+    [self configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
+    self.markForTimer = self.timeLineView.currentDate.timeIntervalSince1970;
+    [self fireTimerForBackwardWithDate:self.timeLineView.currentDate];
+//                [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusBackward withDuration:0.5];
+//                [weakself fireTimerForBackwardWithDate:cameraTimeLineView.currentDate];
+//    
+//                    NSDate *currentCameraDate = [[NSDate date] dateByAddingTimeInterval:weakself.deltaTime_Camera_Sys];
+//                    NSLog(@"%@",currentCameraDate.description);
+//                    weakself.dateLogForWillDrag = currentCameraDate;
+//                    [cameraTimeLineView scrollToDate:currentCameraDate andAnimated:YES];
+//                    [weakself configureViewWithStatus:MHLumiUICameraHomeViewControllerStatusNormal withDuration:0.5];
+}
+
 #pragma mark - buildSubviews
 - (void)buildSubviews{
     [super buildSubviews];
@@ -1579,7 +1678,6 @@ avcodecContext:(AVCodecContext*)avcodecContext
     
     self.viewTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(videoViewTapAction:)];
     [self.viewTap requireGestureRecognizerToFail:self.doubleTapOnGLK];
-    self.view.userInteractionEnabled = YES;
     [self.view addGestureRecognizer:self.viewTap];
 //    [self.view addSubview:self.videoView];
     [self.view addSubview:self.controlPanelContanerView];
@@ -1788,7 +1886,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
         if (_cameraCurrentDate == nil){
             return nil;
         }
-        NSDate *markDate1 = [_cameraCurrentDate dateByAddingTimeInterval:-60*60*5];
+        NSDate *markDate1 = [_cameraCurrentDate dateByAddingTimeInterval:-60*60*48];
         NSDate *markDate2 = _cameraCurrentDate;
         NSDate *startDate = [[markDate1 startDateInHour] dateByAddingTimeInterval:-30*60];
         NSDate *endDate = [[_cameraCurrentDate endDateInHour] dateByAddingTimeInterval:5*60*60+30*60];
@@ -1910,6 +2008,7 @@ avcodecContext:(AVCodecContext*)avcodecContext
 - (UIView *)loadingView{
     if (!_loadingView){
         UIView *aView = [[UIView alloc] init];
+        aView.userInteractionEnabled = YES;
         aView.backgroundColor = [MHColorUtils colorWithRGB:0x141212 alpha:0.6];
         UIActivityIndicatorView *indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [aView addSubview:indicatorView];
@@ -1924,6 +2023,8 @@ avcodecContext:(AVCodecContext*)avcodecContext
             make.size.mas_equalTo(CGSizeMake(50, 50));
         }];
         [indicatorView startAnimating];
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(videoViewTapAction:)];
+        [aView addGestureRecognizer:tap];
         _loadingView = aView;
     }
     return _loadingView;

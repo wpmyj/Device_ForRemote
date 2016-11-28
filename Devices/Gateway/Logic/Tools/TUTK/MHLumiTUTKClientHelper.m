@@ -91,7 +91,7 @@ static const NSString * startTimeKey = @"start_time";
 }
 
 + (NSString *)ioCtrlBackwardStartJSonStringWithTimeStr:(NSString *)timeStr{
-    NSDictionary *paramsDic = @{ startTimeKey : @"20161114095637"};
+    NSDictionary *paramsDic = @{ startTimeKey : timeStr};
     NSData *data = [NSJSONSerialization dataWithJSONObject:paramsDic options:0 error:nil];
     NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     return str;

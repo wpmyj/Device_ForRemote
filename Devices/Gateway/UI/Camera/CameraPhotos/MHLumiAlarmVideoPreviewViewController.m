@@ -10,6 +10,7 @@
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "MHLumiCameraVideoShareView.h"
+#import "MHLumiLocalCachePathHelper.h"
 
 @interface MHLumiAlarmVideoPreviewViewController ()
 @property (nonatomic, strong) NSMutableArray *buttonArray; //
@@ -27,7 +28,8 @@
  *  保存按钮
  */
 @property (nonatomic, strong) UIButton *saveButton;
-
+@property (nonatomic, copy) NSString *videoUrl;
+@property (nonatomic, copy) NSString *videoUrlIdentifier;
 @property (nonatomic, strong) UIButton *alarmAbleButton;
 @property (nonatomic, strong) UIView *buttonsContanerView;
 @property (nonatomic, strong) MASConstraint *buttonsContanerViewBottomConstraint;
@@ -62,6 +64,29 @@ static CGFloat kButtonsContanerViewHeight = 80;
     self.automaticallyAdjustsScrollViewInsets = NO;
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if (self.dataSource == nil){
+        return;
+    }
+    [[MHTipsView shareInstance] showTips:@"加载中……" modal:NO];
+    __weak typeof(self) weakself = self;
+    [self.dataSource alarmVideoPreviewViewController:weakself fetchVideoUrl:^(NSString *url, NSString *videoUrlIdentifier) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[weakself videoPathWithIdentifier:videoUrlIdentifier]]){
+            NSLog(@"本地存在视频");
+        }else{
+            NSLog(@"本地不存在视频");
+        }
+        weakself.videoUrlIdentifier = videoUrlIdentifier;
+        weakself.videoUrl = url;
+        AVPlayer *player = [[AVPlayer alloc] initWithURL:[NSURL URLWithString:weakself.videoUrl]];
+        weakself.playerViewController.player = player;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[MHTipsView shareInstance] hide];
+        });
+    }];
+}
+
 - (void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
     [_playerViewController.player pause];
@@ -80,9 +105,9 @@ static CGFloat kButtonsContanerViewHeight = 80;
         [self.buttonsContanerView addSubview:todoButton];
     }
     
-    AVPlayer *player = [[AVPlayer alloc] initWithURL:[NSURL URLWithString:self.videoUrl]];
+//    AVPlayer *player = [[AVPlayer alloc] initWithURL:[NSURL URLWithString:self.videoUrl]];
     self.playerViewController = [[AVPlayerViewController alloc] init];
-    self.playerViewController.player = player;
+//    self.playerViewController.player = player;
     [self.playerViewController willMoveToParentViewController:self];
     [self addChildViewController:self.playerViewController];
     [self.view addSubview:self.playerViewController.view];
@@ -134,13 +159,38 @@ static CGFloat kButtonsContanerViewHeight = 80;
 }
 
 - (void)saveButtonAction:(UIButton *)sender{
-    
+    if (!self.videoUrl) {
+        return;
+    }
+    __weak typeof(self) weakself = self;
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:self.videoUrl]];
+    NSProgress *progress = nil;
+    NSURLSessionDownloadTask *task = [[AFHTTPSessionManager manager]
+                                      downloadTaskWithRequest:request
+                                      progress:&progress
+                                      
+                                      destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response) {
+                                          NSString *path = [weakself videoPathWithIdentifier:weakself.videoUrlIdentifier];
+                                          NSLog(@"save path = %@",path);
+                                          return [NSURL fileURLWithPath:path];
+                                      }
+                                      completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                                          NSLog(@"filePath = %@",filePath);
+                                      }];
+    [task resume];
 }
 
 - (void)alarmButtonAction:(UIButton *)sender{
     
 }
 
+- (NSString *)videoPathWithIdentifier:(NSString *)identifier{
+    NSString *todoIdentifier = [identifier stringByReplacingOccurrencesOfString:@"/" withString:@""];
+    NSString *path = [[MHLumiLocalCachePathHelper defaultHelper]
+                      pathWithLocalCacheType:MHLumiLocalCacheManagerAlarmVideoPath
+                      andFilename:todoIdentifier];
+    return path;
+}
 
 #pragma mark - private
 - (void)setHidesControlView:(BOOL)hidesControlView{

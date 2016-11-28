@@ -117,9 +117,9 @@ typedef enum : NSInteger {
                 
                 newTimer.identify = TimerIdentifyNeutral1;
                 newTimer.onMethod = @"toggle_ctrl_neutral";
-                newTimer.onParam = @[ @"channel_1" , @"on" ];
+                newTimer.onParam = @[ @"neutral_1" , @"on" ];
                 newTimer.offMethod = @"toggle_ctrl_neutral";
-                newTimer.offParam = @[ @"channel_1" , @"off" ];
+                newTimer.offParam = @[ @"neutral_1" , @"off" ];
                 [weakself.timerVC addTimer:newTimer];
             };
             [self.navigationController pushViewController:self.timerVC animated:YES];

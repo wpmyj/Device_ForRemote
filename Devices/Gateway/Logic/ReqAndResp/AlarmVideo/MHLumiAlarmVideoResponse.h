@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MHLumiAlarmVideoDownloadUnit.h"
 
 @interface MHLumiAlarmVideoResponse : MHBaseResponse
-
+@property (nonatomic, strong) NSArray<MHLumiAlarmVideoDownloadUnit *> *alarmVideoDownloadUnits;
 @end

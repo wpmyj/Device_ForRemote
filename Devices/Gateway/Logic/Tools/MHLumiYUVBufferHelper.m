@@ -57,6 +57,7 @@
     self = [super init];
     if (self) {
         self.inputPath = path;
+        [self initffmpeg];
     }
     return self;
 }

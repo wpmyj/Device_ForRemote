@@ -136,22 +136,24 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
  *  填充PCM到缓冲区
  */
 - (size_t)copyPCMSamplesIntoBuffer:(AudioBufferList *)ioData withLength:(UInt32)length{
-    if (self.pcmData.length < length) {
-        return 0;
+    @synchronized (_pcmData) {
+        if (self.pcmData.length < length) {
+            return 0;
+        }
+        _pcmBufferSize = length;
+        [self.pcmData getBytes:_pcmBuffer length:length];
+        ioData->mBuffers[0].mData = _pcmBuffer;
+        ioData->mBuffers[0].mDataByteSize = (uint32_t)_pcmBufferSize;
+        _pcmBuffer = NULL;
+        _pcmBufferSize = 0;
+        NSData *todoData = [self.pcmData subdataWithRange:NSMakeRange(length, self.pcmData.length-length)];
+        if (todoData == nil){
+            todoData = [NSData data];
+        }
+        self.pcmData = [NSMutableData dataWithData:todoData];
+        //    NSLog(@"pcmDataLength = %lu",(unsigned long)self.pcmData.length);
+        return length;
     }
-    _pcmBufferSize = length;
-    [self.pcmData getBytes:_pcmBuffer length:length];
-    ioData->mBuffers[0].mData = _pcmBuffer;
-    ioData->mBuffers[0].mDataByteSize = (uint32_t)_pcmBufferSize;
-    _pcmBuffer = NULL;
-    _pcmBufferSize = 0;
-    NSData *todoData = [self.pcmData subdataWithRange:NSMakeRange(length, self.pcmData.length-length)];
-    if (todoData == nil){
-        todoData = [NSData data];
-    }
-    self.pcmData = [NSMutableData dataWithData:todoData];
-//    NSLog(@"pcmDataLength = %lu",(unsigned long)self.pcmData.length);
-    return length;
 }
 
 - (void) encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -164,7 +166,9 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
     CFRetain(blockBuffer);
     OSStatus status = CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, &self->_pcmBufferSize, &self->_pcmBuffer);
-    [self.pcmData appendBytes:self.pcmBuffer length:self.pcmBufferSize];
+    @synchronized (_pcmData) {
+        [self.pcmData appendBytes:self.pcmBuffer length:self.pcmBufferSize];
+    }
     NSError *error = nil;
     if (status != kCMBlockBufferNoErr) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
@@ -209,7 +213,9 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     memcpy(_pcmBuffer, audioData.bytes, audioData.length);
     _pcmBufferSize = audioData.length;
     memset(_aacBuffer, 0, _aacBufferSize);
-    [self.pcmData appendBytes:self.pcmBuffer length:self.pcmBufferSize];
+    @synchronized (_pcmData) {
+        [self.pcmData appendBytes:self.pcmBuffer length:self.pcmBufferSize];
+    }
     AudioBufferList outAudioBufferList = {0};
     outAudioBufferList.mNumberBuffers = 1;
     outAudioBufferList.mBuffers[0].mNumberChannels = 1;
@@ -362,44 +368,45 @@ static OSStatus inInputDataProc(AudioConverterRef inAudioConverter, UInt32 *ioNu
     return ret;
 }
 
-//
-//- (void)creatEncoderWithAudioStreamBasicDescription:(AudioStreamBasicDescription)inAudioStreamBasicDescription{
-//    AudioStreamBasicDescription outAudioStreamBasicDescription = {0}; // Always initialize the fields of a new audio stream basic description structure to zero, as shown here: ...
-//    outAudioStreamBasicDescription.mSampleRate = inAudioStreamBasicDescription.mSampleRate; // The number of frames per second of the data in the stream, when the stream is played at normal speed. For compressed formats, this field indicates the number of frames per second of equivalent decompressed data. The mSampleRate field must be nonzero, except when this structure is used in a listing of supported formats (see “kAudioStreamAnyRate”).
-//    outAudioStreamBasicDescription.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
-//    outAudioStreamBasicDescription.mFormatFlags = kMPEG4Object_AAC_LC; // Format-specific flags to specify details of the format. Set to 0 to indicate no format flags. See “Audio Data Format Identifiers” for the flags that apply to each format.
-//    outAudioStreamBasicDescription.mBytesPerPacket = 0; // The number of bytes in a packet of audio data. To indicate variable packet size, set this field to 0. For a format that uses variable packet size, specify the size of each packet using an AudioStreamPacketDescription structure.
-//    outAudioStreamBasicDescription.mFramesPerPacket = 1024; // The number of frames in a packet of audio data. For uncompressed audio, the value is 1. For variable bit-rate formats, the value is a larger fixed number, such as 1024 for AAC. For formats with a variable number of frames per packet, such as Ogg Vorbis, set this field to 0.
-//    outAudioStreamBasicDescription.mBytesPerFrame = 0; // The number of bytes from the start of one frame to the start of the next frame in an audio buffer. Set this field to 0 for compressed formats. ...
-//    outAudioStreamBasicDescription.mChannelsPerFrame = 1; // The number of channels in each frame of audio data. This value must be nonzero.
-//    outAudioStreamBasicDescription.mBitsPerChannel = 0; // ... Set this field to 0 for compressed formats.
-//    outAudioStreamBasicDescription.mReserved = 0; // Pads the structure out to force an even 8-byte alignment. Must be set to 0.
-//    AudioClassDescription *description = [self
-//                                          getAudioClassDescriptionWithType:kAudioFormatMPEG4AAC
-//                                          fromManufacturer:kAppleSoftwareAudioCodecManufacturer];
-//
-//    OSStatus status = AudioConverterNewSpecific(&inAudioStreamBasicDescription, &outAudioStreamBasicDescription, 1, description, &_audioConverter);
-//    if (status != 0) {
-//        NSLog(@"setup converter: %d", (int)status);
-//    }
-//
-//    UInt32 ulBitRate = 64000;
-//    UInt32 ulSize = sizeof(ulBitRate);
-//    status = AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, ulSize, &ulBitRate);
-//
-//    if (status != 0) {
-//        NSLog(@"AudioConverterSetProperty failure: %d", (int)status);
-//    }
-//
-//    UInt32 value = 0;
-//    UInt32 size = sizeof(value);
-//    AudioConverterGetProperty(_audioConverter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &value);
-//    _aacBufferSize = value;
-//    _aacBuffer = malloc(_aacBufferSize * sizeof(uint8_t));
-//    memset(_aacBuffer, 0, _aacBufferSize);
-//    self.inAudioStreamBasicDescription = inAudioStreamBasicDescription;
-//    self.outAudioStreamBasicDescription = outAudioStreamBasicDescription;
-//}
+
+- (void)creatEncoderWithAudioStreamBasicDescription:(AudioStreamBasicDescription)inAudioStreamBasicDescription{
+    AudioStreamBasicDescription outAudioStreamBasicDescription = {0}; // Always initialize the fields of a new audio stream basic description structure to zero, as shown here: ...
+    outAudioStreamBasicDescription.mSampleRate = inAudioStreamBasicDescription.mSampleRate; // The number of frames per second of the data in the stream, when the stream is played at normal speed. For compressed formats, this field indicates the number of frames per second of equivalent decompressed data. The mSampleRate field must be nonzero, except when this structure is used in a listing of supported formats (see “kAudioStreamAnyRate”).
+    outAudioStreamBasicDescription.mFormatID = kAudioFormatMPEG4AAC; // kAudioFormatMPEG4AAC_HE does not work. Can't find `AudioClassDescription`. `mFormatFlags` is set to 0.
+    outAudioStreamBasicDescription.mFormatFlags = kMPEG4Object_AAC_LC; // Format-specific flags to specify details of the format. Set to 0 to indicate no format flags. See “Audio Data Format Identifiers” for the flags that apply to each format.
+    outAudioStreamBasicDescription.mBytesPerPacket = 0; // The number of bytes in a packet of audio data. To indicate variable packet size, set this field to 0. For a format that uses variable packet size, specify the size of each packet using an AudioStreamPacketDescription structure.
+    outAudioStreamBasicDescription.mFramesPerPacket = 1024; // The number of frames in a packet of audio data. For uncompressed audio, the value is 1. For variable bit-rate formats, the value is a larger fixed number, such as 1024 for AAC. For formats with a variable number of frames per packet, such as Ogg Vorbis, set this field to 0.
+    outAudioStreamBasicDescription.mBytesPerFrame = 0; // The number of bytes from the start of one frame to the start of the next frame in an audio buffer. Set this field to 0 for compressed formats. ...
+    outAudioStreamBasicDescription.mChannelsPerFrame = 1; // The number of channels in each frame of audio data. This value must be nonzero.
+    outAudioStreamBasicDescription.mBitsPerChannel = 0; // ... Set this field to 0 for compressed formats.
+    outAudioStreamBasicDescription.mReserved = 0; // Pads the structure out to force an even 8-byte alignment. Must be set to 0.
+    AudioClassDescription *description = [self
+                                          getAudioClassDescriptionWithType:kAudioFormatMPEG4AAC
+                                          fromManufacturer:kAppleSoftwareAudioCodecManufacturer];
+
+    OSStatus status = AudioConverterNewSpecific(&inAudioStreamBasicDescription, &outAudioStreamBasicDescription, 1, description, &_audioConverter);
+    if (status != 0) {
+        NSLog(@"setup converter: %d", (int)status);
+    }
+
+    UInt32 ulBitRate = 64000;
+    UInt32 ulSize = sizeof(ulBitRate);
+    status = AudioConverterSetProperty(_audioConverter, kAudioConverterEncodeBitRate, ulSize, &ulBitRate);
+
+    if (status != 0) {
+        NSLog(@"AudioConverterSetProperty failure: %d", (int)status);
+    }
+
+    UInt32 value = 0;
+    UInt32 size = sizeof(value);
+    AudioConverterGetProperty(_audioConverter, kAudioConverterPropertyMaximumOutputPacketSize, &size, &value);
+    _aacBufferSize = value;
+    _aacBuffer = malloc(_aacBufferSize * sizeof(uint8_t));
+    memset(_aacBuffer, 0, _aacBufferSize);
+    self.inAudioStreamBasicDescription = inAudioStreamBasicDescription;
+    self.outAudioStreamBasicDescription = outAudioStreamBasicDescription;
+}
+
 
 
 @end

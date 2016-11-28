@@ -8,6 +8,19 @@
 
 #import "MHLumiAVBufferSynchronizer.h"
 
-@implementation MHLumiAVBufferSynchronizer
+@interface MHLumiAVBufferSynchronizer()
+@property (nonatomic, assign) BOOL isReady;
+@property (nonatomic, strong) NSMutableArray *aacDataArray;
+@property (nonatomic, strong) NSMutableArray *h264DataArray;
+@end
 
+@implementation MHLumiAVBufferSynchronizer
+- (instancetype)init{
+    self = [super init];
+    if (self) {
+        _isReady = NO;
+        _aacDataArray = [NSMutableArray array];
+    }
+    return self;
+}
 @end

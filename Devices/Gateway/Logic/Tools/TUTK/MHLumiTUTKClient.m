@@ -18,7 +18,9 @@ const int kIsFetchingVideoData = - 22222222;
 const int kIsNotFetchingVideoData = - 44444444;
 const int kIsFetchingAudioData = - 33333333;
 const int kIsNotFetchingAudioData = - 66666666;
-const int kIsBackwardTimeUnable = - 77777777;
+const int kIsBackwardTimeUnable = - 7000001;
+const int kIsBackwardNotStart = - 7000002;
+const int kIsBackwardFailUnknown = - 7000003;
 #define kVideoBufSize 400000
 #define kFrameInfoSize 64
 @interface MHLumiTUTKClient()
@@ -145,6 +147,11 @@ static BOOL flagForDeInitialize = NO;
         NSLog(@"真正initConnection %@",[NSThread currentThread]);
         strongself.clientStatus = MHLumiTUTKClientstatusConnecting;
         int retCode = IOTC_Initialize2(0);
+        if (retCode == IOTC_ER_ALREADY_INITIALIZED) {
+            IOTC_DeInitialize();;
+            NSLog(@"IOTC_ER_ALREADY_INITIALIZED");
+            [strongself initConnectionWithCompletedHandler:completedHandler];
+        }
         if (!logMessageAndReturn(@"IOTC_Initialize2 failure",retCode)) return;
         NSLog(@"IOTC_Initialize2 success");
         
@@ -264,11 +271,13 @@ static BOOL flagForDeInitialize = NO;
         returnWithRetcode(kIsFetchingVideoData);
         return;
     }
-    dispatch_async(self.fetchVideoDataQueue, ^{
+    dispatch_async(self.clientQueue, ^{
         const char *cstr = [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
         int retCode = -1;
         if ([weakself initFFMpeg]){
+            NSLog(@"发命令：IOTYPE_USER_IPCAM_START");
             retCode = avSendIOCtrl(weakself.avChannelId, IOTYPE_USER_IPCAM_START, cstr, (int)jsonString.length);
+            NSLog(@"IOTYPE_USER_IPCAM_START retcode: %d",retCode);
             if (retCode >= 0){
                 weakself.videoStreamStatus = yesOrNot ? MHLumiTUTKStreamstatusONAndRequest : MHLumiTUTKStreamstatusON;
                 if (completedHandler){
@@ -480,14 +489,18 @@ static BOOL flagForDeInitialize = NO;
 #pragma mark -  - 回看
 - (void)setBackwardWithJsonString:(NSString *)jsonString
                       startOrStop:(bool)startOrStop
-                 completedHandler:(void (^)(MHLumiTUTKClient *, int))completedHandler{
-    void (^returnWithRetcode)(int retcode) = ^(int retcode){
-        if (completedHandler){
-            completedHandler(self,retcode);
-        }
+                          success:(void (^)(MHLumiTUTKClient *client, int retcode, NSInteger realPlayTime))success
+                          failure:(void (^)(MHLumiTUTKClient *client, NSError *error))failure{
+    void(^failureWithRetcode)(NSInteger retcode) = ^(NSInteger retcode){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (failure){
+                failure(self,[NSError errorWithDomain:@"com.lumiunited" code:retcode userInfo:nil]);
+            }
+        });
     };
+    
     if (self.clientStatus != MHLumiTUTKClientstatusConnected) {
-        returnWithRetcode(AV_ER_NOT_INITIALIZED);
+        failureWithRetcode(AV_ER_NOT_INITIALIZED);
         return;
     }
     __weak typeof(self) weakself = self;
@@ -500,6 +513,7 @@ static BOOL flagForDeInitialize = NO;
         }
         const char *cstr = [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
         int retCode = -1;
+        NSLog(@"avSendIOCtrl 发了回看命令，%d",startOrStop);
         retCode = avSendIOCtrl(weakself.avChannelId, nIOCtrlType, cstr, (int)jsonString.length);
         if (retCode >= 0){
             int nIOCtrlMaxDataSize = 1000;
@@ -509,17 +523,23 @@ static BOOL flagForDeInitialize = NO;
                 NSData *responseData = [NSData dataWithBytes:abIOCtrlData length:retCode];
                 NSDictionary *responseDic = [NSJSONSerialization JSONObjectWithData:responseData options:NSJSONReadingAllowFragments error:nil];
                 NSString *resultMsg = responseDic[@"result"];
+                NSLog(@"回看的responseDic：%@",responseDic);
                 if ([resultMsg isEqualToString:@"ok"]){
+                    NSInteger realPlayTime = [responseDic[@"filename"] integerValue];
                     retCode = 0;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (success){
+                            success(weakself,retCode,realPlayTime);
+                        }
+                    });
+                }else if([responseDic[@"error"] isEqualToString:@"playrecord did not start"]){
+                    failureWithRetcode(kIsBackwardNotStart);
+                }else if([responseDic[@"error"] isEqualToString:@"read exception"]){
+                    failureWithRetcode(kIsBackwardFailUnknown);
                 }else{
-                    retCode = kIsBackwardTimeUnable;
+                    failureWithRetcode(kIsBackwardTimeUnable);
                 }
             }
-        }
-        if (completedHandler){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completedHandler(weakself,retCode);
-            });
         }
     });
 }
@@ -777,7 +797,7 @@ static BOOL flagForDeInitialize = NO;
                     //                        default:NSLog(@"index: %d  type : other %d",_prevFrameIndex,self.pVideoFrame->pict_type);break;
                     //                    }
                     [self.delegate client:self onVideoReceived:self.pVideoFrame avcodecContext:self.pCodecCtx gotPicturePtr:gotten];
-                    [self.delegate client:self videoBuffer:videoBuffer length:retcode];
+                    [self.delegate client:self videoBuffer:videoBuffer length:retcode frameInfo:frameInfo];
                 }
             }
             if (retcode == AV_ER_DATA_NOREADY || _prevFrameIndex == tutkIndex){
@@ -809,7 +829,8 @@ static BOOL flagForDeInitialize = NO;
     memset(&todoFrameInfo, 0, sizeof(LumiTUTKFrameInfo));
     retcode = avRecvFrameData2(self.avChannelId, _videoBufferForP, kVideoBufSize, &pnActualFrameSize, &pnExpectedFrameSize, (char *)&todoFrameInfo, sizeof(LumiTUTKFrameInfo), &pnActualFrameInfoSize, &_prevFrameIndex);
     memcpy(frameInfo, &todoFrameInfo, sizeof(LumiTUTKFrameInfo));
-//    NSLog(@"videoFrameInfo %d",todoFrameInfo.timestamp);
+    frameInfo->frmNo = _prevFrameIndex;
+//    NSLog(@"videoFrameInfo %d",frameInfo->timestamp);
     if(retcode >= 0){
         av_init_packet(&_packet);
         _packet.data = (uint8_t *)_videoBufferForP;
@@ -823,7 +844,7 @@ static BOOL flagForDeInitialize = NO;
 //                case AV_PICTURE_TYPE_B:NSLog(@"index: %d  type : B",_prevFrameIndex);break;
 //                default:NSLog(@"index: %d  type : other %d",_prevFrameIndex,frame->pict_type);break;
 //            }
-            [self.delegate client:self videoBuffer:_videoBufferForP length:retcode];
+            [self.delegate client:self videoBuffer:_videoBufferForP length:retcode frameInfo:todoFrameInfo];
             return YES;
         }
     }
@@ -860,7 +881,7 @@ static BOOL flagForDeInitialize = NO;
 
 - (void)fetchAudioDataWithTUTK{
     char audioBuf[kAudioBufSize];
-    FRAMEINFO_t frameInfo;
+    LumiTUTKFrameInfo frameInfo;
     unsigned int recvFrameIndex = 0;
     unsigned int prevFrameIndex = 0;
     while(!self.canceled){
@@ -877,11 +898,9 @@ static BOOL flagForDeInitialize = NO;
         }
         // 接收音频
         int ret = avRecvAudioData(self.avChannelId, audioBuf, kAudioBufSize,
-                                  (char *)&frameInfo, sizeof(FRAMEINFO_t), &recvFrameIndex);
-        NSData *responseData = [NSData dataWithBytes:&frameInfo length:sizeof(FRAMEINFO_t)];
-        responseData = [responseData subdataWithRange:NSMakeRange(12, 4)];
-        int *a = (int *)responseData.bytes;
-        NSLog(@"audioFrameInfo %d",*a);
+                                  (char *)&frameInfo, sizeof(LumiTUTKFrameInfo), &recvFrameIndex);
+        frameInfo.frmNo = recvFrameIndex;
+//        NSLog(@"audioFrameInfo %d",frameInfo.timestamp);
         if (ret == AV_ER_SESSION_CLOSE_BY_REMOTE ||
             ret == AV_ER_REMOTE_TIMEOUT_DISCONNECT ||
             ret == IOTC_ER_INVALID_SID){ 
@@ -893,7 +912,7 @@ static BOOL flagForDeInitialize = NO;
         if (recvFrameIndex > prevFrameIndex || recvFrameIndex == 0) {
             char* frameData = (char *)malloc(ret);
             memcpy(frameData, audioBuf, ret);
-            [self.delegate client:self onAudioReceived:frameData length:ret];
+            [self.delegate client:self onAudioReceived:frameData length:ret frameInfo:frameInfo];
             _audioTimeStamp = CFAbsoluteTimeGetCurrent();
             free(frameData);
         }
@@ -990,6 +1009,12 @@ static BOOL flagForDeInitialize = NO;
     }
     _isFFMpegInited = NO;
     return YES;
+}
+
+- (void)cleanBothBuffer{
+    if (self.avChannelId >= 0) {
+        avClientCleanBuf(self.avChannelId);
+    }
 }
 
 - (void)cleanLocalBuffer{

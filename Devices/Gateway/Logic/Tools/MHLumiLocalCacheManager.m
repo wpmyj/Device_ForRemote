@@ -39,6 +39,11 @@
             path = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeCommon andFilename:fileName];
         }
             break;
+        case MHLumiLocalCacheManagerAlarmVideo:{
+            NSString *fileName = [NSString stringWithFormat:@"%@_%@_MHLumiLocalCacheManager.dic",@"common",identifier];
+            path = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheManagerAlarmVideoPath andFilename:fileName];
+        }
+            break;
         default:{
             NSString *fileName = [NSString stringWithFormat:@"%@_%@_MHLumiLocalCacheManager.dic",@"lumi",identifier];
             path = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:MHLumiLocalCacheTypeLumiLibraryCachesHome andFilename:fileName];
@@ -80,5 +85,18 @@
         [[NSFileManager defaultManager] removeItemAtPath:self.todoPath error:nil];
     }
     [self.todoDic writeToFile:self.todoPath atomically:YES];
+}
+
+#pragma mark - 方便构造器
+/**
+ *  在线警戒视频的本地cache
+ *
+ *
+ *
+ */
++ (instancetype)alarmVideoCacheManagerWith:(NSString *)userId{
+    NSString *identifier = [NSString stringWithFormat:@"alarmVideoList_%@",userId];
+    MHLumiLocalCacheManager *cacher = [[MHLumiLocalCacheManager alloc] initWithType:MHLumiLocalCacheManagerAlarmVideo andIdentifier:identifier];
+    return cacher;
 }
 @end

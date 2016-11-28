@@ -30,7 +30,7 @@
     [json setObject:@(self.timeEnd) forKey:@"time_end"];
     [json setObject:@(self.limit) forKey:@"limit"];
     [json setObject:@"event" forKey:@"type"];
-    [json setObject:@"alarmVideo" forKey:@"key"];
+    [json setObject:@"alarm_video" forKey:@"key"];
 //    if (self.group) [json setValue:self.group forKey:@"group"];
     return json;
 }

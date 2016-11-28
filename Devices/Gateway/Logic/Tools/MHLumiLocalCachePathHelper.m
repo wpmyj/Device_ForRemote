@@ -36,11 +36,45 @@ static MHLumiLocalCachePathHelper *_instance = nil;
         case MHLumiLocalCacheTypeCommon:
             path = [self commonPath];
             break;
+        case MHLumiLocalCacheManagerAlarmVideoPath:
+            path = [self alarmVideoPath];
+            break;
         default:
             break;
     }
     if (filename != nil){
         path = [path stringByAppendingPathComponent:filename];
+    }
+    return path;
+}
+
++ (BOOL)removeAllAtPathWithType:(MHLumiLocalCacheType)type{
+    NSString *tutkPath = [[MHLumiLocalCachePathHelper defaultHelper] pathWithLocalCacheType:type andFilename:nil];
+    NSError *error = nil;
+    NSArray<NSString *> * paths = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tutkPath error:&error];
+    if (error) {
+        NSLog(@"RemoveAllAtTUTKPath error = %@",error.localizedDescription);
+        return NO;
+    }
+    for (NSString *todoPath in paths) {
+        NSString *toDeletePath = [tutkPath stringByAppendingPathComponent:todoPath];
+        [[NSFileManager defaultManager] removeItemAtPath:toDeletePath error:&error];
+    }
+    if (error) {
+        NSLog(@"RemoveAllAtTUTKPath error = %@",error.localizedDescription);
+        return NO;
+    }
+    return YES;
+}
+
+//AlarmVideo Library/Caches/LumiLocalCacheFile/AlarmVideo
+- (NSString *)alarmVideoPath{
+    NSString *path = [self lumiLibraryCachesPath];
+    path = [path stringByAppendingPathComponent:@"AlarmVideo"];
+    if (![self.fileMangager fileExistsAtPath:path]){
+        NSError *error = nil;
+        [self.fileMangager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+        NSLog(@"error: %@",error);
     }
     return path;
 }

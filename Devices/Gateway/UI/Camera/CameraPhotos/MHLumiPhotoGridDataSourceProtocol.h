@@ -17,4 +17,5 @@
 - (void)fetchVideoDurationAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void(^)(NSTimeInterval duration)) completeHandler;
 - (void)fetchvideoUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void(^)(NSString *videoUrl)) completeHandler;
 - (void)fetchthumbnailUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void(^)(NSString *thumbnailUrl)) completeHandler;
+- (NSString *)fetchVideoUrlIdentifierAtIndexPath:(NSIndexPath *)indexPath;
 @end

@@ -13,6 +13,9 @@
 #import "NSDateFormatter+lumiDateFormatterHelper.h"
 #import "MHLumiGLKViewController.h"
 #import "MHLumiCameraVideoShareView.h"
+#import "MHLumiYUVBufferHelper.h"
+#import "MHLumiLocalCachePathHelper.h"
+
 
 @interface MHLumiAssetPreviewViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UIMHLumiAssetVideoPreviewCollectionViewCellDelegate,UIMHLumiAssetImagePreviewCollectionViewCellDelegate,MHLumiGLKViewControllerDataSource>
 @property (nonatomic, strong) UICollectionView *collectionView;
@@ -32,9 +35,12 @@
 @property (nonatomic, strong) NSIndexPath *selectedIndexPath;
 @property (nonatomic, strong) MHLumiGLKViewController *glkViewController;
 @property (nonatomic, strong) MHLumiCameraVideoShareView *shareView;
+@property (nonatomic, strong) MHLumiYUVBufferHelper *yuvHelper;
 @end
 
-@implementation MHLumiAssetPreviewViewController
+@implementation MHLumiAssetPreviewViewController{
+    MHLumiGLKViewData _glkViewData;
+}
 static NSString *kVideoCellReuseIdentifier = @"videoCellReuseIdentifier.MHLumiAssetPreviewViewController";
 static NSString *kImageCellReuseIdentifier = @"imageCellReuseIdentifier.MHLumiAssetPreviewViewController";
 static CGFloat kButtonsContanerViewHeight = 80;
@@ -73,25 +79,6 @@ static CGFloat kButtonsContanerViewHeight = 80;
     [self configureLayoutWithOrientation:UIInterfaceOrientationPortrait];
 }
 
-- (void)initGLKViewControllerWithWithmountType:(FEMOUNTTYPE)mountType
-                                    dewrapType:(FEDEWARPTYPE)dewrapType{
-    self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:dewrapType
-                                                                       mountType:mountType
-                                                                        viewType:MHLumiFisheyeViewTypeDefault];
-    self.glkViewController.dataSource = self;
-//    self.glkViewController.centerPointOffsetX = self.cameraDevice.centerPointOffsetX;
-//    self.glkViewController.centerPointOffsetY = self.cameraDevice.centerPointOffsetY;
-//    self.glkViewController.centerPointOffsetR = self.cameraDevice.centerPointOffsetR;
-//    [self.glkViewController setCurrentContext];
-//    CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
-//    CGFloat h = w/_videoDataSize.width*_videoDataSize.height;
-//    [self addChildViewController:self.glkViewController];
-//    self.glkViewController.view.frame = CGRectMake(0, 64, w ,h);
-//    [self.view insertSubview:self.glkViewController.view atIndex:0];
-//    [self.glkViewController didMoveToParentViewController:self];
-//    [self.glkViewController.view addGestureRecognizer:self.doubleTapOnGLK];
-//    self.glkViewController.view.userInteractionEnabled = YES;
-}
 #pragma mark - configureLayout
 - (void)configureLayoutWithOrientation:(UIInterfaceOrientation)orientation{
     [self.buttonsContanerView mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -135,11 +122,19 @@ static CGFloat kButtonsContanerViewHeight = 80;
 
 #pragma mark - MHLumiGLKViewControllerDataSource
 - (MHLumiGLKViewData)fetchBufferData:(MHLumiGLKViewController *)glkViewController{
-    MHLumiGLKViewData data;
-    return data;
+    return _glkViewData;
 }
 
 - (bool)shouldUpdateBuffer:(MHLumiGLKViewController *)glkViewController{
+    if (![self.yuvHelper isReadToEnd]){
+        NSData *todoData = [self.yuvHelper fetchYUVBufferData];
+        if (todoData.length == 1536*1536*1.5){
+            _glkViewData.buffer = todoData.bytes;
+            _glkViewData.height = 1536;
+            _glkViewData.width = 1536;
+            return YES;
+        }
+    }
     return NO;
 }
 
@@ -224,21 +219,29 @@ static CGFloat kButtonsContanerViewHeight = 80;
     if (cell.isPlaying){
         [cell playerViewPause];
     }else{
-        [cell playerViewPlay];
+//        [cell playerViewPlay];
         [self setHidesControlView:YES];
         
-//        PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
-//        options.version = PHVideoRequestOptionsVersionOriginal;
-//        __weak typeof(self) weakself = self;
-//        [[PHImageManager defaultManager] requestAVAssetForVideo:cell.asset options:options
-//                                                  resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
-//                                                      AVURLAsset *urlAsset = (AVURLAsset *)asset;
-//                                                      if (urlAsset){
-//                                                          NSURL *localVideoUrl = urlAsset.URL;
-//                                                          [weakself showGLKViewControllerWithPath:localVideoUrl.absoluteString
-//                                                                                    videoSize:cell.playerView.frame.size];
-//                                                      }
-//        }];
+        PHVideoRequestOptions *options = [[PHVideoRequestOptions alloc] init];
+        options.version = PHVideoRequestOptionsVersionOriginal;
+        __weak typeof(self) weakself = self;
+        [[PHImageManager defaultManager] requestAVAssetForVideo:cell.asset options:options
+                                                  resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+                                                      AVURLAsset *urlAsset = (AVURLAsset *)asset;
+                                                      if (urlAsset){
+                                                          [MHLumiLocalCachePathHelper removeAllAtPathWithType:MHLumiLocalCacheTypeTUTKPath];
+                                                          NSURL *localVideoUrl = urlAsset.URL;
+                                                          NSString *path = [[MHLumiLocalCachePathHelper defaultHelper]
+                                                                            pathWithLocalCacheType:MHLumiLocalCacheTypeTUTKPath
+                                                                            andFilename:[localVideoUrl.absoluteString lastPathComponent]];
+                                                          NSURL *fileUrl = [NSURL fileURLWithPath:path];
+                                                          [[NSFileManager defaultManager] copyItemAtURL:localVideoUrl toURL:fileUrl error:nil];
+                                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                                              [weakself showGLKViewControllerWithPath:fileUrl.absoluteString
+                                                                                            videoSize:cell.playerView.frame.size];
+                                                          });
+                                                      }
+        }];
   
     }
     __weak typeof(self) weakself = self;
@@ -280,12 +283,15 @@ static CGFloat kButtonsContanerViewHeight = 80;
 //                      centerPointOffsetR];
 
 - (void)showGLKViewControllerWithPath:(NSString *)path videoSize:(CGSize)videoSize{
-    NSArray <NSString *> *parts = [path.stringByDeletingPathExtension.lastPathComponent componentsSeparatedByString:@"_"];
-    FEDEWARPTYPE dewrapType = [MHLumiFisheyeHelper dewrapTypeFromString:parts[2]];
-    FEMOUNTTYPE mountType = [MHLumiFisheyeHelper mountTypeFromString:parts[3]];
+//    NSArray <NSString *> *parts = [path.stringByDeletingPathExtension.lastPathComponent componentsSeparatedByString:@"_"];
+//    FEDEWARPTYPE dewrapType = [MHLumiFisheyeHelper dewrapTypeFromString:parts[2]];
+//    FEMOUNTTYPE mountType = [MHLumiFisheyeHelper mountTypeFromString:parts[3]];
+    self.yuvHelper = [[MHLumiYUVBufferHelper alloc] initWithPath:path];
+    FEDEWARPTYPE dewrapType = FE_DEWARP_AERIALVIEW;
+    FEMOUNTTYPE mountType = FE_MOUNT_FLOOR;
     if (self.glkViewController == nil){
-        self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:dewrapType
-                                                                           mountType:mountType
+        self.glkViewController = [[MHLumiGLKViewController alloc] initWithDewrapType:FE_DEWARP_AERIALVIEW
+                                                                           mountType:FE_MOUNT_FLOOR
                                                                             viewType:MHLumiFisheyeViewTypeDefault];
         self.glkViewController.dataSource = self;
     }else{
@@ -294,21 +300,20 @@ static CGFloat kButtonsContanerViewHeight = 80;
     }
     
     [self.glkViewController setCurrentContext];
-    CGFloat centerPointOffsetX = [parts[4] integerValue];
-    CGFloat centerPointOffsetY = [parts[5] integerValue];
-    CGFloat centerPointOffsetR = [parts[6] integerValue];
-    self.glkViewController.centerPointOffsetX = centerPointOffsetX;
-    self.glkViewController.centerPointOffsetY = centerPointOffsetY;
-    self.glkViewController.centerPointOffsetR = centerPointOffsetR;
-    CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
-    CGFloat h = w/videoSize.width*videoSize.height;
-    [self addChildViewController:self.glkViewController];
-    self.glkViewController.view.frame = CGRectMake(0, 64, w ,h);
-    self.glkViewController.view.center = CGPointMake(w/2, CGRectGetHeight([[UIScreen mainScreen] bounds])/2);
-    [self.glkViewController didMoveToParentViewController:self];
-    [self.view.window addSubview:self.glkViewController.view];
-//    [self.glkViewController.view addGestureRecognizer:self.doubleTapOnGLK];
-//    self.glkViewController.view.userInteractionEnabled = YES;
+//    CGFloat centerPointOffsetX = [parts[4] integerValue];
+//    CGFloat centerPointOffsetY = [parts[5] integerValue];
+//    CGFloat centerPointOffsetR = [parts[6] integerValue];
+    self.glkViewController.centerPointOffsetX = 28;//centerPointOffsetX;
+    self.glkViewController.centerPointOffsetY = 5;//centerPointOffsetY;
+    self.glkViewController.centerPointOffsetR = -80;//centerPointOffsetR;
+//    CGFloat w = CGRectGetWidth([[UIScreen mainScreen] bounds]);
+//    CGFloat h = w/videoSize.width*videoSize.height;
+//    [self addChildViewController:self.glkViewController];
+//    self.glkViewController.view.frame = CGRectMake(0, 64, w ,h);
+//    self.glkViewController.view.center = CGPointMake(w/2, CGRectGetHeight([[UIScreen mainScreen] bounds])/2);
+//    [self addChildViewController:self.glkViewController];
+//    [self.glkViewController didMoveToParentViewController:self];
+//    [self.view addSubview:self.glkViewController.view];
 }
 
 - (void)setHidesControlView:(BOOL)hidesControlView{

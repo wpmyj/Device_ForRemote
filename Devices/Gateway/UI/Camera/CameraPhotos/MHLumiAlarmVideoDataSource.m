@@ -11,6 +11,8 @@
 #import "MHLumiAlarmVideoGridData.h"
 #import <SDWebImage/SDWebImageManager.h>
 #import <AVFoundation/AVFoundation.h>
+#import "MHGatewayDownloadUrlRequest.h"
+#import "MHGatewayDownloadUrlResponse.h"
 
 
 @interface MHLumiAlarmVideoDataSource()<MHLumiPhotoGridDataSourceProtocol>
@@ -23,18 +25,17 @@
 - (void)fetchvideoUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void(^)(NSString *videoUrl)) completeHandler;
 - (void)fetchthumbnailUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void(^)(NSString *thumbnailUrl)) completeHandler;
 
-@property (nonatomic, assign) NSInteger num;
 @property (nonatomic, strong) NSMutableArray<NSMutableArray<MHLumiAlarmVideoGridData*>*> *dataSource;
+@property (nonatomic, copy) NSString *deviceDid;
 @end
 
 @implementation MHLumiAlarmVideoDataSource
-- (instancetype)initWithReques:(MHLumiAlarmVideoRequest *)request{
+- (instancetype)initWithReques:(MHLumiAlarmVideoRequest *)request withDeviceDid:(NSString *)did{
     self = [super init];
     if (self) {
         _request = request;
-        _num = 10;
+        _deviceDid = did;
         [SDWebImageDownloader.sharedDownloader setValue:@"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" forHTTPHeaderField:@"Accept"];
-        [self fetchDataWithReques:request];
     }
     return self;
 }
@@ -51,51 +52,56 @@
         }
     };
     
-//    __weak typeof(self) weakself = self;
-//    [[MHNetworkEngine sharedInstance] sendRequest:request success:^(id obj) {
-//        MHLumiAlarmVideoResponse *response = [MHLumiAlarmVideoResponse responseWithJSONObject:obj];
-//        if (response.code == 0) {
-//            NSMutableArray *dataArray = [NSMutableArray array];
-//            for (NSInteger index = 0; index < 20; index ++) {
-//                MHLumiAlarmVideoGridData *data = [[MHLumiAlarmVideoGridData alloc] init];
-//                data.videoUrl = @"http://192.168.1.135/longVideo.mp4";
-//                data.imageUrl = @"http://avatar.csdn.net/B/2/8/1_nnmmbb.jpg";
-//                [dataArray addObject:data];
-//            }
-//            weakself.dataSource = [NSMutableArray arrayWithArray:dataArray];
-//            
-//            completeHandler(nil);
-//            //数据更新，可能就是一个数组，或者数组的数组
-//            //如果需要可以做时间记录
-//            //或者拓展分页也不怕
-//            return ;
-//        }
-//        NSError *unwarpError = [NSError errorWithDomain:@"com.lumiunited" code:989 userInfo:nil];
-//        completeHandler(unwarpError);
-//    } failure:^(NSError *error) {
-//        completeHandler(error);
-//    }];
-    
-    NSMutableArray *dataArray = [NSMutableArray array];
-    for (NSInteger index = 0; index < 100; index ++) {
-        MHLumiAlarmVideoGridData *data = [[MHLumiAlarmVideoGridData alloc] init];
-        data.videoUrl = @"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
-        data.imageUrl = @"http://avatar.csdn.net/B/2/8/1_nnmmbb.jpg";
-        [dataArray addObject:data];
-    }
-    
-    @synchronized (self.dataSource) {
-        if (!self.dataSource) {
-            self.dataSource = [NSMutableArray array];
+    __weak typeof(self) weakself = self;
+    NSLog(@"开始获取列表");
+    [[MHNetworkEngine sharedInstance] sendRequest:request success:^(id obj) {
+        MHLumiAlarmVideoResponse *response = [MHLumiAlarmVideoResponse responseWithJSONObject:obj];
+        NSLog(@"获取列表回来，获取了 %d 个",(int)response.alarmVideoDownloadUnits.count);
+        if (response.code == 0) {
+            NSMutableArray *dataArray = [NSMutableArray array];
+            for (MHLumiAlarmVideoDownloadUnit *unit in response.alarmVideoDownloadUnits) {
+                MHLumiAlarmVideoGridData *data = [[MHLumiAlarmVideoGridData alloc] init];
+                data.duration = unit.videoDuration;
+                data.videoUrlIdentifier = unit.fileName;
+                data.imageUrlIdentifier = @"1_nnmmbb.jpg";
+                NSLog(@"identifier = %@",unit.fileName);
+                data.imageDownLoadUrl = @"http://avatar.csdn.net/B/2/8/1_nnmmbb.jpg";
+                [dataArray addObject:data];
+            }
+            weakself.dataSource = [NSMutableArray arrayWithObjects:dataArray, nil];;
+            
+            completeHandler(nil);
+            return ;
+        }else{
+            NSLog(@"获取失败");
+            NSError *unwarpError = [NSError errorWithDomain:@"com.lumiunited" code:989 userInfo:nil];
+            completeHandler(unwarpError);
         }
-        self.dataSource = [NSMutableArray arrayWithObjects:dataArray, nil];
-    }
+    } failure:^(NSError *error) {
+        NSLog(@"获取动作失败");
+        completeHandler(error);
+    }];
     
-    completeHandler(nil);
+//    NSMutableArray *dataArray = [NSMutableArray array];
+//    for (NSInteger index = 0; index < 100; index ++) {
+//        MHLumiAlarmVideoGridData *data = [[MHLumiAlarmVideoGridData alloc] init];
+//        data.videoUrl = @"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
+//        data.imageUrl = @"http://avatar.csdn.net/B/2/8/1_nnmmbb.jpg";
+//        [dataArray addObject:data];
+//    }
+//    
+//    @synchronized (self.dataSource) {
+//        if (!self.dataSource) {
+//            self.dataSource = [NSMutableArray array];
+//        }
+//        self.dataSource = [NSMutableArray arrayWithObjects:dataArray, nil];
+//    }
+    
+//    completeHandler(nil);
     //数据更新，可能就是一个数组，或者数组的数组
     //如果需要可以做时间记录
     //或者拓展分页也不怕
-    return ;
+//    return ;
 }
 
 - (MHLumiAlarmVideoGridData *)dataAtIndexPath:(NSIndexPath *)indexPath{
@@ -122,39 +128,42 @@
 
 - (void)fetchVImageOfItemAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void (^)(UIImage *))completeHandler{
     MHLumiAlarmVideoGridData *todoData = [self dataAtIndexPath:indexPath];
-    if (!todoData.imageUrl){
-        completeHandler(nil);
-        return;
-    }
-    NSURL *url = [NSURL URLWithString:todoData.imageUrl];
-    
-    [[SDWebImageManager sharedManager] downloadImageWithURL:url
-                                                    options:SDWebImageRetryFailed
-                                                   progress:nil
-                                                  completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                                      if (error){
-                                                          completeHandler(nil);
-                                                      }else if(image){
-//                                                          UIImage *image = [UIImage imageNamed:@"about_icon_app@3x"];
-                                                          completeHandler(image);
-                                                      }else{
-                                                          completeHandler(nil);
-                                                      }
+    [[SDWebImageManager sharedManager].imageCache queryDiskCacheForKey:todoData.imageUrlIdentifier done:^(UIImage *image, SDImageCacheType cacheType) {
+        if (image){
+            completeHandler(image);
+        }else{
+            if (!todoData.imageDownLoadUrl){
+                completeHandler(nil);
+                return;
+            }
+            NSURL *url = [NSURL URLWithString:todoData.imageDownLoadUrl];
+            
+            [[SDWebImageManager sharedManager] downloadImageWithURL:url
+                                                            options:SDWebImageRetryFailed
+                                                           progress:nil
+                                                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                                                              if (error){
+                                                                  completeHandler(nil);
+                                                              }else if(image){
+                                                                  completeHandler(image);
+                                                                  NSString *cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+                                                                  [[SDWebImageManager sharedManager].imageCache storeImage:image forKey:todoData.imageUrlIdentifier];
+                                                                  [[SDWebImageManager sharedManager].imageCache removeImageForKey:cacheKey];
+                                                              }else{
+                                                                  completeHandler(nil);
+                                                              }
+                                                          }];
+        }
     }];
-
 }
 
 - (void)fetchVideoDurationAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void (^)(NSTimeInterval))completeHandler{
     MHLumiAlarmVideoGridData *todoData = [self dataAtIndexPath:indexPath];
-    if (!todoData.videoUrl){
-        completeHandler(0);
-        return;
-    }
     if (todoData.duration >= 0){
         completeHandler(todoData.duration);
         return;
     }
-    todoData.duration = 62;
+    todoData.duration = 0;
     completeHandler(todoData.duration);
 //    if (todoData.duration == -2) {
 //        completeHandler(0);
@@ -174,22 +183,52 @@
 }
 
 - (void)fetchvideoUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void (^)(NSString *))completeHandler{
+    void(^complete)(NSString *) = ^(NSString *url){
+        if(completeHandler){
+            completeHandler(url);
+        }
+    };
     MHLumiAlarmVideoGridData *todoData = [self dataAtIndexPath:indexPath];
-    if (todoData.videoUrl){
-        completeHandler(todoData.videoUrl);
+    if (todoData.videoDownLoadUrl == nil) {
+        todoData.videoDownLoadUrl = @"loading";
+        NSLog(@"开始获取视频下载url indexPath = %@",indexPath);
+        MHGatewayDownloadUrlRequest *downloadUrlRequest = [[MHGatewayDownloadUrlRequest alloc] init];
+        downloadUrlRequest.fileName = todoData.videoUrlIdentifier;
+        [[MHNetworkEngine sharedInstance] sendRequest:downloadUrlRequest success:^(id obj) {
+            MHGatewayDownloadUrlResponse *downloadUrlResponse = [MHGatewayDownloadUrlResponse responseWithJSONObject:obj];
+            NSLog(@"获取下载url回来了 obj = %@",obj);
+            todoData.videoDownLoadUrl = downloadUrlResponse.url;
+            complete(todoData.videoDownLoadUrl);
+        } failure:^(NSError *error) {
+            NSLog(@"下载url失败 error = %@",error);
+            todoData.videoDownLoadUrl = nil;
+            complete(todoData.videoDownLoadUrl);
+        }];
+    }
+    
+    if ([todoData.videoDownLoadUrl isEqualToString:@"loading"]){
+        return;
+    }
+    
+    if (todoData.videoDownLoadUrl){
+        complete(todoData.videoDownLoadUrl);
     }else{
-        completeHandler(@"");
+        complete(@"");
     }
 }
 
 - (void)fetchthumbnailUrlAtIndexPath:(NSIndexPath *)indexPath completeHandler:(void (^)(NSString *))completeHandler{
     MHLumiAlarmVideoGridData *todoData = [self dataAtIndexPath:indexPath];
-    if (todoData.imageUrl){
-        completeHandler(todoData.imageUrl);
+    if (todoData.imageDownLoadUrl){
+        completeHandler(todoData.imageDownLoadUrl);
     }else{
         completeHandler(@"");
     }
 }
 
+- (NSString *)fetchVideoUrlIdentifierAtIndexPath:(NSIndexPath *)indexPath{
+    MHLumiAlarmVideoGridData *todoData = [self dataAtIndexPath:indexPath];
+    return todoData.videoUrlIdentifier;
+}
 
 @end

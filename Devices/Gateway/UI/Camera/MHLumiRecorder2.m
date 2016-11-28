@@ -126,10 +126,11 @@
 //    char* audioData = (char *)malloc(dataLen);
 //    CMBlockBufferGetDataPointer(blockBuffer, 0, NULL, NULL, &audioData);
 //    OSStatus err = CMBlockBufferCopyDataBytes(blockBuffer, 0, dataLen, audioData);
+//    CFRelease(blockBuffer);
 //    if (err == kCMBlockBufferNoErr) {
-//        if ([self.delegate respondsToSelector:@selector(lumiRecorder2:audioData:)]) {
+//        if ([self.delegate respondsToSelector:@selector(lumiRecorder2:audioData:streamBasicDescription:)]) {
 //            NSData *data = [NSData dataWithBytes:audioData length:dataLen];
-//            [self.delegate lumiRecorder2:self audioData:data];
+//            [self.delegate lumiRecorder2:self audioData:data streamBasicDescription:*basicDesc];
 //        }
 //    } else {
 //        NSLog(@"copy failed:%d", err);

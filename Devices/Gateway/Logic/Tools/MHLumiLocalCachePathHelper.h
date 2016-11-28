@@ -10,6 +10,7 @@
 typedef NS_ENUM(NSInteger, MHLumiLocalCacheType){
     MHLumiLocalCacheTypeLumiLibraryCachesHome,
     MHLumiLocalCacheTypeTUTKPath,
+    MHLumiLocalCacheManagerAlarmVideoPath,
     MHLumiLocalCacheTypeCommon,
 };
 
@@ -17,4 +18,6 @@ typedef NS_ENUM(NSInteger, MHLumiLocalCacheType){
 + (MHLumiLocalCachePathHelper *)defaultHelper;
 
 - (NSString *)pathWithLocalCacheType:(MHLumiLocalCacheType)type andFilename:(NSString *)filename;
+
++ (BOOL)removeAllAtPathWithType:(MHLumiLocalCacheType)type;
 @end

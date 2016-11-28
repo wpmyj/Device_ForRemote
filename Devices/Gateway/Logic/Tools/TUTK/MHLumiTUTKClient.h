@@ -20,16 +20,17 @@ extern const int kIsFetchingVideoData;
 extern const int kIsFetchingAudioData;
 extern const int kIsNotFetchingVideoData;
 extern const int kIsNotFetchingAudioData;
-
+extern const int kIsBackwardTimeUnable;
+extern const int kIsBackwardNotStart;
 @class MHLumiTUTKClient;
 @protocol MHLumiTUTKClientDelegate
 - (void)client:(MHLumiTUTKClient *)client onVideoReceived:(AVFrame*)frame
                                             avcodecContext:(AVCodecContext*)avcodecContext
                                             gotPicturePtr:(int)gotPicturePtr;
 
-- (void)client:(MHLumiTUTKClient *)client videoBuffer:(const void *)videoBuffer length:(int)length;
+- (void)client:(MHLumiTUTKClient *)client videoBuffer:(const void *)videoBuffer length:(int)length frameInfo:(LumiTUTKFrameInfo)frameInfo;
 
-- (void)client:(MHLumiTUTKClient *)client onAudioReceived:(void *)audiobuffer length:(int)length;
+- (void)client:(MHLumiTUTKClient *)client onAudioReceived:(void *)audiobuffer length:(int)length frameInfo:(LumiTUTKFrameInfo)frameInfo;
 
 @end
 
@@ -70,7 +71,8 @@ extern const int kIsNotFetchingAudioData;
 //backward回看
 - (void)setBackwardWithJsonString:(NSString *)jsonString
                       startOrStop:(bool)startOrStop
-                 completedHandler:(void (^)(MHLumiTUTKClient *, int))completedHandler;
+                          success:(void (^)(MHLumiTUTKClient *client, int retcode, NSInteger realPlayTime))success
+                          failure:(void (^)(MHLumiTUTKClient *client, NSError *error))failure;
 - (void)getBackwardRecordTimeWithJsonString:(NSString *)jsonString
                             completeHandler:(void(^)(MHLumiTUTKClient *,int))completedHandler;
 //talkBack
@@ -113,4 +115,5 @@ extern const int kIsNotFetchingAudioData;
 
 - (void)cleanLocalBuffer;
 - (void)cleanAudioBuffer;
+- (void)cleanBothBuffer;
 @end

@@ -58,6 +58,7 @@
     if (self.alarmVideoGridViewController.view.superview == self.view){
         self.alarmVideoGridViewController.view.frame = self.view.frame;
     }
+    
 }
 
 - (void)onBack{
@@ -176,8 +177,12 @@
         toAddVC = self.alarmVideoGridViewController;
         if (self.alarmVideoDataSource == nil){
             MHLumiAlarmVideoRequest *request = [[MHLumiAlarmVideoRequest alloc] init];
-            self.alarmVideoDataSource = [[MHLumiAlarmVideoDataSource alloc] initWithReques:request];
+            request.did = self.cameraDevice.did;
+            request.timeStart = [[NSDate date] dateByAddingTimeInterval:-24*60*60].timeIntervalSince1970;
+            request.timeEnd = [[NSDate date] dateByAddingTimeInterval:60*60].timeIntervalSince1970;
+            self.alarmVideoDataSource = [[MHLumiAlarmVideoDataSource alloc] initWithReques:request withDeviceDid:self.cameraDevice.did];
             self.alarmVideoDataSource.delegate = self;
+            [self.alarmVideoDataSource fetchData];
         }
         self.alarmVideoGridViewController.dataSource = self.alarmVideoDataSource;
     }else{

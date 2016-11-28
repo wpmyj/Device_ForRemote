@@ -22,4 +22,10 @@
 - (int)muxWithInputVideoName:(NSString *)inputVideoName
               inputAudioName:(NSString *)inputAudioName
            andOutputFileName:(NSString *)outputFileName;
+
+- (void)mux2WithInputVideoName:(NSString *)inputVideoName
+                inputAudioName:(NSString *)inputAudioName
+             andOutputFileName:(NSString *)outputFileName
+                         queue:(dispatch_queue_t)queue
+               completeHandler:(void(^)(int))completeHandler;
 @end

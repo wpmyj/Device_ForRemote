@@ -12,7 +12,7 @@
 
 @protocol MHLumiRecorder2Delegate <NSObject>
 @optional
-- (void)lumiRecorder2:(MHLumiRecorder2 *)recorder audioData:(NSData *)data;
+- (void)lumiRecorder2:(MHLumiRecorder2 *)recorder audioData:(NSData *)data streamBasicDescription:(AudioStreamBasicDescription)streamBasicDescription;
 - (void)lumiRecorder2:(MHLumiRecorder2 *)recorder didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 @end
 

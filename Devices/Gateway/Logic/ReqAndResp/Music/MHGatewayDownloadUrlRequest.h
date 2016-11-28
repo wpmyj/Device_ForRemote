@@ -10,6 +10,10 @@
 
 @interface MHGatewayDownloadUrlRequest : MHBaseRequest
 
-@property (nonatomic,strong) NSString *fileName;
+@property (nonatomic,copy) NSString *fileName;
 
+@property (nonatomic,copy) NSString *did;
+@property (nonatomic,copy) NSString *uid;
+@property (nonatomic,copy) NSString *suffix;
+@property (nonatomic,assign) NSInteger time;
 @end
